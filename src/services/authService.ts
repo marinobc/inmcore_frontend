@@ -1,0 +1,23 @@
+import { api } from './api'
+import type { LoginPayload } from '../types/user'
+
+export const authService = {
+  async login(payload: LoginPayload) {
+    const response = await api.post('/auth/login', payload);
+    return response.data; // Expected { accessToken, refreshToken, tokenType, expiresIn, mustChangePassword }
+  },
+
+  async changePassword(payload: any) {
+    const response = await api.post('/auth/change-password', payload);
+    return response.data;
+  },
+
+  async logout() {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken) {
+      await api.post('/auth/logout', { refreshToken }).catch(() => {});
+    }
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  }
+}
