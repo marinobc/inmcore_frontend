@@ -10,6 +10,7 @@
 
     <users-table 
       :users="users" 
+      :roles="roles"
       @create="openCreateModal" 
       @edit="openEditModal" 
       @delete="remove"
@@ -42,11 +43,11 @@ import { t } from '../locales/i18n'
 import UserForm from '../components/users/UserForm.vue'
 import UsersTable from '../components/users/UsersTable.vue'
 
-const { users, roles, load, create, remove } = useUsers()
+const { users, roles, load, create, remove, update } = useUsers()
 
 const showModal = ref(false)
 const isEditing = ref(false)
-const editingUser = ref(null)
+const editingUser = ref<any>(null)
 
 const openCreateModal = () => {
   editingUser.value = null
@@ -66,9 +67,9 @@ const closeModal = () => {
 
 const handleSubmit = async (formData: any) => {
   if (isEditing.value) {
-    // Note: Assuming update logic exists or will be added to useUsers
-    // For now, I'll just close modal as the user requested UI polish
-    console.log('Update user:', formData)
+    if (editingUser.value) {
+      await update(editingUser.value.id, formData)
+    }
   } else {
     await create(formData)
   }

@@ -33,13 +33,13 @@
       <fwb-table-body>
         <fwb-table-row v-for="u in users" :key="u.id" class="group">
           <fwb-table-cell class="font-medium text-gray-900 dark:text-white">
-            {{ u.name }}
+            {{ u.fullName || u.name }}
           </fwb-table-cell>
           <fwb-table-cell>{{ u.email }}</fwb-table-cell>
           <fwb-table-cell>{{ u.phone || '-' }}</fwb-table-cell>
           <fwb-table-cell>
             <span class="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-              {{ u.role?.name || 'User' }}
+              {{ resolveRoleName(u.primaryRoleIds) }}
             </span>
           </fwb-table-cell>
           <fwb-table-cell class="text-right">
@@ -74,6 +74,17 @@ import {
 } from 'flowbite-vue'
 import { t } from '../../locales/i18n'
 
-defineProps<{users:any[]}>()
+const props = defineProps<{
+  users: any[],
+  roles: any[]
+}>()
+
+const resolveRoleName = (roleIds: string[]) => {
+  if (!roleIds || roleIds.length === 0) return 'Sin rol'
+  const roleId = roleIds[0]
+  const role = props.roles.find(r => r.id === roleId || r._id === roleId)
+  return role ? role.name : 'Usuario'
+}
+
 defineEmits(['create','delete','edit'])
 </script>

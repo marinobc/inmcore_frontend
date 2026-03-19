@@ -8,7 +8,34 @@
       </template>
       <template #default>
         <fwb-navbar-collapse>
-          <fwb-navbar-link is-active href="#">{{ t.nav.users }}</fwb-navbar-link>
+          <!-- Admin Link -->
+          <router-link v-if="isAdmin" to="/dashboard/admin/users" 
+            class="block py-2 pr-4 pl-3 rounded md:p-0 text-gray-700 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            :class="{ 'text-blue-700 dark:text-white font-bold': $route.name === 'Users' }">
+            {{ t.nav.users }}
+          </router-link>
+          
+          <!-- Agent Link -->
+          <router-link v-if="isAgent" to="/dashboard/agent" 
+            class="block py-2 pr-4 pl-3 rounded md:p-0 text-gray-700 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            :class="{ 'text-blue-700 dark:text-white font-bold': $route.name === 'AgentDashboard' }">
+            {{ t.nav.myInmuebles }}
+          </router-link>
+
+          <!-- Owner Link -->
+          <router-link v-if="isOwner" to="/dashboard/owner" 
+            class="block py-2 pr-4 pl-3 rounded md:p-0 text-gray-700 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            :class="{ 'text-blue-700 dark:text-white font-bold': $route.name === 'OwnerDashboard' }">
+            {{ t.nav.myProperties }}
+          </router-link>
+
+          <!-- Client Link -->
+          <router-link v-if="isClient" to="/dashboard/client" 
+            class="block py-2 pr-4 pl-3 rounded md:p-0 text-gray-700 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            :class="{ 'text-blue-700 dark:text-white font-bold': $route.name === 'ClientDashboard' }">
+            {{ t.nav.favorites }}
+          </router-link>
+
           <fwb-navbar-link href="#">{{ t.nav.properties }}</fwb-navbar-link>
           <fwb-navbar-link href="#">{{ t.nav.reports }}</fwb-navbar-link>
         </fwb-navbar-collapse>
@@ -40,7 +67,14 @@
     </fwb-navbar>
 
     <main class="p-4 md:p-8 max-w-7xl mx-auto">
-      <slot />
+      <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-xs font-mono text-yellow-800">
+        <strong>DEBUG INFO:</strong><br>
+        Token Roles: {{ user?.roles }} <br>
+        Token UserType: {{ user?.userType }} <br>
+        isAdmin Computed: {{ isAdmin }}
+      </div>
+
+      <router-view />
     </main>
   </div>
 </template>
@@ -56,8 +90,28 @@ import {
 import { useAuth } from '../composables/useAuth'
 import { t } from '../locales/i18n'
 import ThemeToggle from '../components/ThemeToggle.vue'
+import { computed } from 'vue'
+// import { useUsers } from '../composables/useUsers'
 
 const { user, logout } = useAuth()
+// const { users, roles, load, create, remove, update } = useUsers()
+
+const isAdmin = computed(() => {
+  const roles = user.value?.roles || []
+  return roles.includes('ADMIN') || user.value?.userType === 'ADMIN'
+})
+const isAgent = computed(() => {
+  const roles = user.value?.roles || []
+  return roles.includes('AGENT') || user.value?.userType === 'EMPLOYEE'
+})
+const isOwner = computed(() => {
+  const roles = user.value?.roles || []
+  return roles.includes('OWNER') || user.value?.userType === 'OWNER'
+})
+const isClient = computed(() => {
+  const roles = user.value?.roles || []
+  return roles.includes('INTERESTED_CLIENT') || user.value?.userType === 'INTERESTED_CLIENT'
+})
 
 const handleLogout = async () => {
   try {

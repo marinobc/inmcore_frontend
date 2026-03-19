@@ -16,6 +16,9 @@ export const es = {
         brand: 'TD Inmobiliaria',
         users: 'Agentes y Usuarios',
         properties: 'Propiedades',
+        myProperties: 'Mis Propiedades',
+        myInmuebles: 'Mis Inmuebles',
+        favorites: 'Favoritos',
         reports: 'Reportes',
         openUserMenu: 'Abrir menú de usuario',
         logout: 'Cerrar sesión'

@@ -1,15 +1,19 @@
-
-export type Role = { id: number; name: string }
+export type Role = { 
+  id: string;
+  name: string;
+  code: string; 
+}
 
 export type User = {
-  id: number
-  name: string
+  id: string
+  firstName: string
+  lastName: string
+  fullName: string
   email: string
   phone: string
-  password: string
-  roleId: number
-  roleName: string
-  createdAt: string
+  userType: 'ADMIN' | 'EMPLOYEE' | 'OWNER' | 'INTERESTED_CLIENT'
+  status: string
+  primaryRoleIds: string[]
 }
 
 export type LoginPayload = {
@@ -21,6 +25,7 @@ export type UserFormPayload = {
   name: string
   email: string
   phone: string
-  password: string
-  roleId: number | null
+  roleId: string | null
+  userType: 'ADMIN' | 'EMPLOYEE' | 'OWNER' | 'INTERESTED_CLIENT'
+  birthDate: string
 }
