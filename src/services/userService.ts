@@ -14,9 +14,9 @@ const getRoleIdByUserType = (userType: UserType): string => {
 }
 
 export const userService = {
-  async createUser(payload: any) {
+  async createUser(payload: any, assignedAgentId?: string) {
     // El payload ya viene con firstName y lastName desde UserForm
-    const apiPayload = {
+    const apiPayload: any = {
       firstName: payload.firstName,
       lastName: payload.lastName,
       email: payload.email,
@@ -32,6 +32,11 @@ export const userService = {
       taxId: payload.taxId,
       preferredContactMethod: payload.preferredContactMethod,
       budget: payload.budget
+    }
+    
+    // Solo agregar assignedAgentId si se proporcionó
+    if (assignedAgentId) {
+      apiPayload.assignedAgentId = assignedAgentId;
     }
 
     const response = await api.post('/users', apiPayload)

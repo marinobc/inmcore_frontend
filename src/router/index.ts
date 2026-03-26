@@ -35,6 +35,12 @@ const routes = [
         meta: { requiresAuth: true, role: 'AGENT' }
       },
       {
+        path: 'agent/clients',
+        name: 'AgentClients',
+        component: () => import('../views/AgentClients.vue'),
+        meta: { requiresAuth: true, role: 'AGENT' }
+      },
+      {
         path: 'admin/users',
         name: 'Users',
         component: UsersView,

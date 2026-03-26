@@ -40,5 +40,20 @@ export const personService = {
       console.error('Error deleting person by authUserId:', error)
       throw error
     }
+  },
+
+  async getClientsForAgent() {
+    const response = await api.get('/persons/agents/clients');
+    return response.data;
+  },
+
+  async createClientForAgent(payload: any) {
+    const response = await api.post('/persons/agents/clients', payload);
+    return response.data;
+  },
+
+  async updateClientForAgent(clientId: string, payload: any) {
+    const response = await api.put(`/persons/agents/clients/${clientId}`, payload);
+    return response.data;
   }
 }

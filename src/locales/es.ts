@@ -18,6 +18,7 @@ export const es = {
         properties: 'Propiedades',
         myProperties: 'Mis Propiedades',
         myInmuebles: 'Mis Inmuebles',
+        myClients: 'Mis Clientes',
         favorites: 'Favoritos',
         reports: 'Reportes',
         openUserMenu: 'Abrir menú de usuario',
