@@ -99,7 +99,11 @@
           <fwb-input
             v-model="form.department"
             label="Departamento"
+            required
+            :validation-status="errors.department ? 'error' : undefined"
+            :validation-message="errors.department"
             :class="{ 'border-blue-500 ring-2': isFieldModified('department') }"
+            @blur="validateField('department')"
           />
           <p v-if="isFieldModified('department')" class="text-xs text-blue-600">✏️ Modificando departamento</p>
         </div>
@@ -107,7 +111,11 @@
           <fwb-input
             v-model="form.position"
             label="Cargo"
+            required
+            :validation-status="errors.position ? 'error' : undefined"
+            :validation-message="errors.position"
             :class="{ 'border-blue-500 ring-2': isFieldModified('position') }"
+            @blur="validateField('position')"
           />
           <p v-if="isFieldModified('position')" class="text-xs text-blue-600">✏️ Modificando cargo</p>
         </div>
@@ -130,6 +138,7 @@
           v-model="form.taxId"
           label="CI / NIT"
           placeholder="1234567"
+          required
           :validation-status="errors.taxId ? 'error' : undefined"
           :validation-message="errors.taxId"
           :class="{ 'border-blue-500 ring-2': isFieldModified('taxId') }"
@@ -327,7 +336,41 @@ const validateEmailOnBlur = async () => {
   }
 }
 
-// Validar un campo específico
+// ✅ NUEVA: Validación de campos de empleado
+const validateEmployeeFields = () => {
+  if (form.userType === 'EMPLOYEE') {
+    // Validar departamento
+    if (!form.department || form.department.trim().length < 2) {
+      errors.value.department = 'Departamento requerido (mínimo 2 caracteres)'
+      return false
+    } else {
+      delete errors.value.department
+    }
+    
+    // Validar cargo/posición
+    if (!form.position || form.position.trim().length < 2) {
+      errors.value.position = 'Cargo requerido (mínimo 2 caracteres)'
+      return false
+    } else {
+      delete errors.value.position
+    }
+    
+    // Validar fecha de contratación (opcional, pero si existe debe ser válida)
+    if (form.hireDate) {
+      const hireDate = new Date(form.hireDate)
+      const today = new Date()
+      if (hireDate > today) {
+        errors.value.hireDate = 'La fecha de contratación no puede ser futura'
+        return false
+      } else {
+        delete errors.value.hireDate
+      }
+    }
+  }
+  return true
+}
+
+// Validación robusta para todos los campos
 const validateField = (field: keyof UserFormPayload) => {
   const value = form[field]
   
@@ -349,7 +392,7 @@ const validateField = (field: keyof UserFormPayload) => {
       break
       
     case 'phone':
-      if (!value) {
+      if (!value || value.trim().length === 0) {
         errors.value.phone = 'Teléfono requerido'
       } else {
         delete errors.value.phone
@@ -358,9 +401,41 @@ const validateField = (field: keyof UserFormPayload) => {
       
     case 'birthDate':
       if (!value) {
-        errors.value.birthDate = 'Requerido'
+        errors.value.birthDate = 'Fecha de nacimiento requerida'
       } else {
         delete errors.value.birthDate
+      }
+      break
+      
+    case 'department':
+      if (form.userType === 'EMPLOYEE') {
+        if (!value || value.trim().length < 2) {
+          errors.value.department = 'Departamento requerido (mínimo 2 caracteres)'
+        } else {
+          delete errors.value.department
+        }
+      }
+      break
+      
+    case 'position':
+      if (form.userType === 'EMPLOYEE') {
+        if (!value || value.trim().length < 2) {
+          errors.value.position = 'Cargo requerido (mínimo 2 caracteres)'
+        } else {
+          delete errors.value.position
+        }
+      }
+      break
+      
+    case 'hireDate':
+      if (form.userType === 'EMPLOYEE' && value) {
+        const hireDate = new Date(value)
+        const today = new Date()
+        if (hireDate > today) {
+          errors.value.hireDate = 'La fecha de contratación no puede ser futura'
+        } else {
+          delete errors.value.hireDate
+        }
       }
       break
       
@@ -373,9 +448,72 @@ const validateField = (field: keyof UserFormPayload) => {
         } else {
           delete errors.value.taxId
         }
+      } else {
+        delete errors.value.taxId
       }
       break
   }
+}
+
+// Validar todos los campos requeridos antes de enviar
+const validateAllRequiredFields = (): boolean => {
+  let isValid = true
+  
+  // Validar campos base (siempre requeridos)
+  if (!form.firstName || form.firstName.trim().length < 2) {
+    errors.value.firstName = 'Mínimo 2 caracteres'
+    isValid = false
+  }
+  
+  if (!form.lastName || form.lastName.trim().length < 2) {
+    errors.value.lastName = 'Mínimo 2 caracteres'
+    isValid = false
+  }
+  
+  if (!form.phone || form.phone.trim().length === 0) {
+    errors.value.phone = 'Teléfono requerido'
+    isValid = false
+  }
+  
+  if (!form.birthDate) {
+    errors.value.birthDate = 'Fecha de nacimiento requerida'
+    isValid = false
+  }
+  
+  // ✅ NUEVA: Validación específica para EMPLOYEE
+  if (form.userType === 'EMPLOYEE') {
+    if (!form.department || form.department.trim().length < 2) {
+      errors.value.department = 'Departamento requerido (mínimo 2 caracteres)'
+      isValid = false
+    }
+    
+    if (!form.position || form.position.trim().length < 2) {
+      errors.value.position = 'Cargo requerido (mínimo 2 caracteres)'
+      isValid = false
+    }
+    
+    if (form.hireDate) {
+      const hireDate = new Date(form.hireDate)
+      const today = new Date()
+      if (hireDate > today) {
+        errors.value.hireDate = 'La fecha de contratación no puede ser futura'
+        isValid = false
+      }
+    }
+  }
+  
+  // Validación específica para OWNER
+  if (form.userType === 'OWNER') {
+    if (!form.taxId || form.taxId.trim().length < 7) {
+      errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos'
+      isValid = false
+    } else if (!/^\d{7,10}$/.test(form.taxId.trim())) {
+      errors.value.taxId = 'CI/NIT debe contener solo números (7-10 dígitos)'
+      isValid = false
+    }
+  }
+  
+  return isValid
 }
 
 watch(
@@ -423,24 +561,47 @@ const emailErrorMessage = computed(() => {
   return ''
 })
 
+// ✅ ACTUALIZADO: Incluir validación de empleado en isFormValid
 const isFormValid = computed(() => {
-  // Validaciones básicas de campos requeridos
-  const hasRequiredFields = form.firstName?.trim() && 
-                           form.lastName?.trim() && 
-                           form.email?.trim() && 
-                           form.birthDate && 
-                           form.phone?.trim()
+  // Validaciones base de campos requeridos
+  const hasFirstName = form.firstName?.trim() && form.firstName.trim().length >= 2
+  const hasLastName = form.lastName?.trim() && form.lastName.trim().length >= 2
+  const hasPhone = form.phone?.trim()
+  const hasBirthDate = form.birthDate
   
   // Validación de email (formato y unicidad)
   const isEmailValid = !emailFormatError.value && !emailDuplicateError.value && form.email?.includes('@')
   
+  // ✅ Validación específica para EMPLOYEE
+  let isEmployeeValid = true
+  if (form.userType === 'EMPLOYEE') {
+    isEmployeeValid = !errors.value.department && 
+                      !errors.value.position &&
+                      !errors.value.hireDate &&
+                      form.department?.trim() && 
+                      form.department.trim().length >= 2 &&
+                      form.position?.trim() &&
+                      form.position.trim().length >= 2
+  }
+  
   // Validación específica para OWNER
   let isOwnerValid = true
   if (form.userType === 'OWNER') {
-    isOwnerValid = !errors.value.taxId && form.taxId?.trim() && /^\d{7,10}$/.test(form.taxId.trim())
+    isOwnerValid = !errors.value.taxId && 
+                   form.taxId?.trim() && 
+                   form.taxId.trim().length >= 7 && 
+                   /^\d{7,10}$/.test(form.taxId.trim())
   }
   
-  return hasRequiredFields && isEmailValid && isOwnerValid && !emailChecking.value
+  // En modo edición
+  if (props.isEditing) {
+    const baseFieldsValid = hasFirstName && hasLastName && hasPhone && hasBirthDate
+    return baseFieldsValid && isEmailValid && isEmployeeValid && isOwnerValid && !emailChecking.value
+  }
+  
+  // Modo creación
+  return hasFirstName && hasLastName && hasPhone && hasBirthDate && 
+         isEmailValid && isEmployeeValid && isOwnerValid && !emailChecking.value
 })
 
 const getRoleIdByUserType = (userType: string): string => {
@@ -453,25 +614,28 @@ const getRoleIdByUserType = (userType: string): string => {
   return roles[userType] || 'rol_interested_client'
 }
 
+// Validación final antes de enviar
 const submit = async () => {
-  // Validación final completa antes de enviar
-  const isValid = await validateEmail(form.email, false)
-  if (!isValid) {
+  // Validación completa de email
+  const isEmailValid = await validateEmail(form.email, false)
+  if (!isEmailValid) {
     return
   }
   
-  // Validar todos los campos requeridos
-  validateField('firstName')
-  validateField('lastName')
-  validateField('phone')
-  validateField('birthDate')
-  if (form.userType === 'OWNER') {
-    validateField('taxId')
+  // Validación de todos los campos requeridos (incluyendo empleado)
+  const allFieldsValid = validateAllRequiredFields()
+  if (!allFieldsValid) {
+    return
   }
   
-  // Verificar si hay errores
-  const hasErrors = Object.keys(errors.value).length > 0
-  if (hasErrors) {
+  // Validación específica de empleado
+  const isEmployeeValid = validateEmployeeFields()
+  if (!isEmployeeValid) {
+    return
+  }
+  
+  // Si hay errores de email, no continuar
+  if (emailFormatError.value || emailDuplicateError.value) {
     return
   }
 
@@ -479,22 +643,94 @@ const submit = async () => {
 
   if (props.isEditing) {
     // Modo edición: solo enviar campos modificados
-    if (modifiedFields.value.has('firstName')) payload.firstName = form.firstName.trim()
-    if (modifiedFields.value.has('lastName')) payload.lastName = form.lastName.trim()
+    if (modifiedFields.value.has('firstName')) {
+      if (!form.firstName?.trim() || form.firstName.trim().length < 2) {
+        errors.value.firstName = 'Mínimo 2 caracteres'
+        return
+      }
+      payload.firstName = form.firstName.trim()
+    }
+    
+    if (modifiedFields.value.has('lastName')) {
+      if (!form.lastName?.trim() || form.lastName.trim().length < 2) {
+        errors.value.lastName = 'Mínimo 2 caracteres'
+        return
+      }
+      payload.lastName = form.lastName.trim()
+    }
+    
     if (modifiedFields.value.has('userType')) {
       payload.userType = form.userType
       payload.roleIds = [getRoleIdByUserType(form.userType)]
     }
-    if (modifiedFields.value.has('phone')) payload.phone = form.phone.trim()
-    if (modifiedFields.value.has('birthDate')) payload.birthDate = form.birthDate
-    if (modifiedFields.value.has('department')) payload.department = form.department?.trim()
-    if (modifiedFields.value.has('position')) payload.position = form.position?.trim()
-    if (modifiedFields.value.has('hireDate')) payload.hireDate = form.hireDate
-    if (modifiedFields.value.has('taxId')) payload.taxId = form.taxId?.trim()
+    
+    if (modifiedFields.value.has('phone')) {
+      if (!form.phone?.trim()) {
+        errors.value.phone = 'Teléfono requerido'
+        return
+      }
+      payload.phone = form.phone.trim()
+    }
+    
+    if (modifiedFields.value.has('birthDate')) {
+      if (!form.birthDate) {
+        errors.value.birthDate = 'Fecha de nacimiento requerida'
+        return
+      }
+      payload.birthDate = form.birthDate
+    }
+    
+    // ✅ NUEVA: Validación para campos de empleado en edición
+    if (modifiedFields.value.has('department')) {
+      if (form.userType === 'EMPLOYEE') {
+        if (!form.department?.trim() || form.department.trim().length < 2) {
+          errors.value.department = 'Departamento requerido (mínimo 2 caracteres)'
+          return
+        }
+      }
+      payload.department = form.department?.trim()
+    }
+    
+    if (modifiedFields.value.has('position')) {
+      if (form.userType === 'EMPLOYEE') {
+        if (!form.position?.trim() || form.position.trim().length < 2) {
+          errors.value.position = 'Cargo requerido (mínimo 2 caracteres)'
+          return
+        }
+      }
+      payload.position = form.position?.trim()
+    }
+    
+    if (modifiedFields.value.has('hireDate')) {
+      if (form.userType === 'EMPLOYEE' && form.hireDate) {
+        const hireDate = new Date(form.hireDate)
+        const today = new Date()
+        if (hireDate > today) {
+          errors.value.hireDate = 'La fecha de contratación no puede ser futura'
+          return
+        }
+      }
+      payload.hireDate = form.hireDate
+    }
+    
+    if (modifiedFields.value.has('taxId')) {
+      if (form.userType === 'OWNER') {
+        if (!form.taxId?.trim() || form.taxId.trim().length < 7) {
+          errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos'
+          return
+        }
+        if (!/^\d{7,10}$/.test(form.taxId.trim())) {
+          errors.value.taxId = 'CI/NIT debe contener solo números (7-10 dígitos)'
+          return
+        }
+      }
+      payload.taxId = form.taxId?.trim()
+    }
+    
     if (modifiedFields.value.has('preferredContactMethod')) payload.preferredContactMethod = form.preferredContactMethod
     if (modifiedFields.value.has('budget')) payload.budget = form.budget
   } else {
-    // Modo creación: enviar todos los datos
+    // Modo creación: enviar todos los datos (ya validados)
     payload = {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
@@ -508,11 +744,11 @@ const submit = async () => {
 
     // Añadir campos específicos según tipo de usuario
     if (form.userType === 'EMPLOYEE') {
-      if (form.department) payload.department = form.department.trim()
-      if (form.position) payload.position = form.position.trim()
+      payload.department = form.department?.trim()
+      payload.position = form.position?.trim()
       if (form.hireDate) payload.hireDate = form.hireDate
     } else if (form.userType === 'OWNER') {
-      if (form.taxId) payload.taxId = form.taxId.trim()
+      payload.taxId = form.taxId?.trim()
     } else if (form.userType === 'INTERESTED_CLIENT') {
       if (form.preferredContactMethod) payload.preferredContactMethod = form.preferredContactMethod
       if (form.budget) payload.budget = form.budget
