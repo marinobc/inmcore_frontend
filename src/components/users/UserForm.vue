@@ -12,6 +12,7 @@
           :validation-status="errors.firstName ? 'error' : undefined"
           :validation-message="errors.firstName"
           :class="{ 'border-blue-500 ring-2 ring-blue-200': isFieldModified('firstName') }"
+          @blur="validateField('firstName')"
         />
         <p v-if="isFieldModified('firstName')" class="text-xs text-blue-600 mt-1">✏️ Modificando nombre</p>
       </div>
@@ -25,6 +26,7 @@
           :validation-status="errors.lastName ? 'error' : undefined"
           :validation-message="errors.lastName"
           :class="{ 'border-blue-500 ring-2 ring-blue-200': isFieldModified('lastName') }"
+          @blur="validateField('lastName')"
         />
         <p v-if="isFieldModified('lastName')" class="text-xs text-blue-600 mt-1">✏️ Modificando apellido</p>
       </div>
@@ -37,9 +39,10 @@
           placeholder="juan@gmail.com"
           :disabled="isEditing"
           required
-          :validation-status="emailError ? 'error' : undefined"
-          :validation-message="emailError"
-          @input="validateEmailUniqueness"
+          :validation-status="emailValidationStatus"
+          :validation-message="emailErrorMessage"
+          @input="onEmailInput"
+          @blur="validateEmailOnBlur"
         />
         <p v-if="isFieldModified('email') && !isEditing" class="text-xs text-blue-600 mt-1">✏️ Modificando email</p>
         <p v-if="emailChecking" class="text-xs text-gray-500 mt-1">Verificando disponibilidad...</p>
@@ -54,6 +57,7 @@
           :validation-status="errors.phone ? 'error' : undefined"
           :validation-message="errors.phone"
           :class="{ 'border-blue-500 ring-2 ring-blue-200': isFieldModified('phone') }"
+          @blur="validateField('phone')"
         />
         <p v-if="isFieldModified('phone')" class="text-xs text-blue-600 mt-1">✏️ Modificando teléfono</p>
       </div>
@@ -67,6 +71,7 @@
           :validation-status="errors.birthDate ? 'error' : undefined"
           :validation-message="errors.birthDate"
           :class="{ 'border-blue-500 ring-2 ring-blue-200': isFieldModified('birthDate') }"
+          @blur="validateField('birthDate')"
         />
         <p v-if="isFieldModified('birthDate')" class="text-xs text-blue-600 mt-1">✏️ Modificando fecha</p>
       </div>
@@ -128,6 +133,7 @@
           :validation-status="errors.taxId ? 'error' : undefined"
           :validation-message="errors.taxId"
           :class="{ 'border-blue-500 ring-2': isFieldModified('taxId') }"
+          @blur="validateField('taxId')"
         />
         <p v-if="isFieldModified('taxId')" class="text-xs text-blue-600">✏️ Modificando CI/NIT</p>
       </div>
@@ -179,9 +185,13 @@ const props = defineProps<{
 const emit = defineEmits(['submit', 'cancel'])
 const errors = ref<Record<string, string>>({})
 const modifiedFields = ref<Set<string>>(new Set())
-const emailError = ref('')
+
+// Estados específicos para email
+const emailFormatError = ref('')
+const emailDuplicateError = ref('')
 const emailChecking = ref(false)
 let emailDebounceTimer: ReturnType<typeof setTimeout>
+let lastValidatedEmail = ''
 
 const toDateString = (val: any): string => {
   if (!val) return ''
@@ -217,69 +227,156 @@ const initialValues = mapData(props.initialData)
 const form = reactive<UserFormPayload>({ ...initialValues })
 const originalValues = reactive<UserFormPayload>({ ...initialValues })
 
-// Validar unicidad del email
-const validateEmailUniqueness = async () => {
-  const email = form.email?.trim().toLowerCase()
-  
-  // Limpiar error previo
-  emailError.value = ''
-  
-  // Validaciones básicas
+// Validación de formato de email (solo verifica @)
+const validateEmailFormat = (email: string): boolean => {
   if (!email) {
-    emailError.value = 'Email requerido'
+    emailFormatError.value = 'Email requerido'
     return false
   }
   
   if (!email.includes('@')) {
-    emailError.value = 'Email inválido'
+    emailFormatError.value = 'Email inválido: debe contener @'
     return false
   }
   
-  // En modo edición, no valida duplicados del mismo usuario
-  if (props.isEditing && props.initialData?.email?.toLowerCase() === email) {
+  emailFormatError.value = ''
+  return true
+}
+
+// Validación de unicidad de email
+const validateEmailUniqueness = async (email: string, skipIfSameAsOriginal: boolean = true): Promise<boolean> => {
+  const trimmedEmail = email?.trim().toLowerCase()
+  
+  if (!trimmedEmail) {
+    emailDuplicateError.value = ''
+    return true
+  }
+  
+  // Si estamos en modo edición y el email no ha cambiado, no validamos unicidad
+  if (skipIfSameAsOriginal && props.isEditing && props.initialData?.email?.toLowerCase() === trimmedEmail) {
+    emailDuplicateError.value = ''
     return true
   }
   
   emailChecking.value = true
   
   try {
-    // Obtener todos los usuarios y verificar si el email ya existe
     const users = await userService.getUsers()
     const emailExists = users.some((user: any) => 
-      user.email?.toLowerCase() === email && 
+      user.email?.toLowerCase() === trimmedEmail && 
       (!props.isEditing || user.id !== props.initialData?.id)
     )
     
     if (emailExists) {
-      emailError.value = 'Este correo electrónico ya está registrado. Por favor, use otro email.'
+      emailDuplicateError.value = 'Este correo electrónico ya está registrado. Por favor, use otro email.'
       return false
     }
     
+    emailDuplicateError.value = ''
     return true
   } catch (error) {
     console.error('Error verificando email:', error)
-    // Si hay error en la validación, no bloqueamos el envío
+    emailDuplicateError.value = ''
     return true
   } finally {
     emailChecking.value = false
   }
 }
 
-// Debounce para validación en tiempo real
-const debouncedEmailValidation = () => {
-  clearTimeout(emailDebounceTimer)
-  emailDebounceTimer = setTimeout(() => {
-    if (form.email && form.email !== originalValues.email) {
-      validateEmailUniqueness()
-    }
-  }, 500)
+// Validación completa de email (formato + unicidad)
+const validateEmail = async (email: string, skipUniquenessCheck: boolean = false): Promise<boolean> => {
+  // Primero validar formato
+  const isFormatValid = validateEmailFormat(email)
+  if (!isFormatValid) {
+    return false
+  }
+  
+  // Luego validar unicidad si no se omite
+  if (!skipUniquenessCheck) {
+    const isUnique = await validateEmailUniqueness(email, true)
+    return isUnique
+  }
+  
+  return true
 }
 
-watch(() => form.email, () => {
-  if (!props.isEditing) {
-    debouncedEmailValidation()
+// Manejar input de email con debounce
+const onEmailInput = () => {
+  const email = form.email
+  
+  // Validar formato inmediatamente
+  validateEmailFormat(email)
+  
+  // Limpiar error de duplicado mientras escribe
+  emailDuplicateError.value = ''
+  
+  // Debounce para validación de unicidad
+  clearTimeout(emailDebounceTimer)
+  emailDebounceTimer = setTimeout(async () => {
+    if (email && email !== lastValidatedEmail) {
+      lastValidatedEmail = email
+      await validateEmailUniqueness(email, true)
+    }
+  }, 800)
+}
+
+// Validar email al perder foco
+const validateEmailOnBlur = async () => {
+  if (form.email) {
+    await validateEmail(form.email, false)
   }
-})
+}
+
+// Validar un campo específico
+const validateField = (field: keyof UserFormPayload) => {
+  const value = form[field]
+  
+  switch (field) {
+    case 'firstName':
+      if (!value || value.trim().length < 2) {
+        errors.value.firstName = 'Mínimo 2 caracteres'
+      } else {
+        delete errors.value.firstName
+      }
+      break
+      
+    case 'lastName':
+      if (!value || value.trim().length < 2) {
+        errors.value.lastName = 'Mínimo 2 caracteres'
+      } else {
+        delete errors.value.lastName
+      }
+      break
+      
+    case 'phone':
+      if (!value) {
+        errors.value.phone = 'Teléfono requerido'
+      } else {
+        delete errors.value.phone
+      }
+      break
+      
+    case 'birthDate':
+      if (!value) {
+        errors.value.birthDate = 'Requerido'
+      } else {
+        delete errors.value.birthDate
+      }
+      break
+      
+    case 'taxId':
+      if (form.userType === 'OWNER') {
+        if (!value || value.trim().length < 7) {
+          errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos'
+        } else if (!/^\d{7,10}$/.test(value.trim())) {
+          errors.value.taxId = 'CI/NIT debe contener solo números (7-10 dígitos)'
+        } else {
+          delete errors.value.taxId
+        }
+      }
+      break
+  }
+}
 
 watch(
   () => props.initialData,
@@ -290,7 +387,9 @@ watch(
     Object.assign(originalValues, mapped)
     modifiedFields.value.clear()
     errors.value = {}
-    emailError.value = ''
+    emailFormatError.value = ''
+    emailDuplicateError.value = ''
+    lastValidatedEmail = mapped.email || ''
   }
 )
 
@@ -302,7 +401,6 @@ watch(
     (Object.keys(form) as (keyof UserFormPayload)[]).forEach((k) => {
       if (String(form[k]) !== String(originalValues[k])) {
         modifiedFields.value.add(k)
-        delete errors.value[k]
       } else {
         modifiedFields.value.delete(k)
       }
@@ -311,62 +409,39 @@ watch(
   { deep: true }
 )
 
+// Computed para el estado de validación del email
+const emailValidationStatus = computed(() => {
+  if (emailFormatError.value) return 'error'
+  if (emailDuplicateError.value) return 'error'
+  return undefined
+})
+
+// Computed para el mensaje de error del email
+const emailErrorMessage = computed(() => {
+  if (emailFormatError.value) return emailFormatError.value
+  if (emailDuplicateError.value) return emailDuplicateError.value
+  return ''
+})
+
 const isFormValid = computed(() => {
-  // Validaciones básicas
+  // Validaciones básicas de campos requeridos
   const hasRequiredFields = form.firstName?.trim() && 
                            form.lastName?.trim() && 
                            form.email?.trim() && 
                            form.birthDate && 
                            form.phone?.trim()
   
-  // Validación de email
-  const isEmailValid = !emailError.value && form.email?.includes('@')
+  // Validación de email (formato y unicidad)
+  const isEmailValid = !emailFormatError.value && !emailDuplicateError.value && form.email?.includes('@')
   
   // Validación específica para OWNER
   let isOwnerValid = true
   if (form.userType === 'OWNER') {
-    isOwnerValid = form.taxId?.trim() && /^\d{7,10}$/.test(form.taxId.trim())
+    isOwnerValid = !errors.value.taxId && form.taxId?.trim() && /^\d{7,10}$/.test(form.taxId.trim())
   }
   
   return hasRequiredFields && isEmailValid && isOwnerValid && !emailChecking.value
 })
-
-const validateForm = (): boolean => {
-  const newErrors: Record<string, string> = {}
-  
-  if (!form.firstName || form.firstName.trim().length < 2) 
-    newErrors.firstName = 'Mínimo 2 caracteres'
-  
-  if (!form.lastName || form.lastName.trim().length < 2) 
-    newErrors.lastName = 'Mínimo 2 caracteres'
-  
-  if (!form.email || !form.email.includes('@')) 
-    newErrors.email = 'Email inválido'
-  
-  if (!form.birthDate) 
-    newErrors.birthDate = 'Requerido'
-  
-  if (!form.phone) 
-    newErrors.phone = 'Teléfono requerido'
-  
-  // Validación específica para OWNER
-  if (form.userType === 'OWNER') {
-    if (!form.taxId || form.taxId.trim().length < 7) {
-      newErrors.taxId = 'CI/NIT debe tener al menos 7 dígitos'
-    } else if (!/^\d{7,10}$/.test(form.taxId.trim())) {
-      newErrors.taxId = 'CI/NIT debe contener solo números (7-10 dígitos)'
-    }
-  }
-  
-  errors.value = newErrors
-  
-  // Validación de email duplicado
-  if (emailError.value) {
-    return false
-  }
-  
-  return Object.keys(newErrors).length === 0
-}
 
 const getRoleIdByUserType = (userType: string): string => {
   const roles: Record<string, string> = {
@@ -379,13 +454,26 @@ const getRoleIdByUserType = (userType: string): string => {
 }
 
 const submit = async () => {
-  // Validación final de email antes de enviar
-  const isEmailUnique = await validateEmailUniqueness()
-  if (!isEmailUnique) {
+  // Validación final completa antes de enviar
+  const isValid = await validateEmail(form.email, false)
+  if (!isValid) {
     return
   }
   
-  if (!validateForm()) return
+  // Validar todos los campos requeridos
+  validateField('firstName')
+  validateField('lastName')
+  validateField('phone')
+  validateField('birthDate')
+  if (form.userType === 'OWNER') {
+    validateField('taxId')
+  }
+  
+  // Verificar si hay errores
+  const hasErrors = Object.keys(errors.value).length > 0
+  if (hasErrors) {
+    return
+  }
 
   let payload: any = {}
 
