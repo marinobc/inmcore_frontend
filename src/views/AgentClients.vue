@@ -121,9 +121,14 @@ const handleSubmit = async (formData: any) => {
       alert('Cliente actualizado correctamente');
     } else {
       // Crear nuevo cliente (usando identity-service)
-      const agentId = user.value?.userId || user.value?.sub;
-      if (!agentId) throw new Error('No se pudo identificar al agente');
-      await userService.createUser(formData, agentId);
+      const agentId = user.value?.sub;
+      if (!agentId) throw new Error('No se pudo identificar al agente autenticado');
+      const payload = {
+        ...formData,
+        userType: 'INTERESTED_CLIENT',
+        assignedAgentId: agentId
+      }
+      await userService.createUser(payload);
       alert('Cliente creado exitosamente');
     }
     await loadClients();
