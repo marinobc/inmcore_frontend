@@ -1,3 +1,5 @@
+<!-- FILE: Frontend/Frontend/src/components/users/UsersTable.vue -->
+
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
     <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0 md:space-x-4">
@@ -24,6 +26,7 @@
         <fwb-table-head-cell>{{ t.users.table.name }}</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t.users.table.email }}</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t.users.table.phone }}</fwb-table-head-cell>
+        <fwb-table-head-cell>CI / NIT</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t.users.table.role }}</fwb-table-head-cell>
         <fwb-table-head-cell>Estado</fwb-table-head-cell>
         <fwb-table-head-cell>
@@ -43,12 +46,20 @@
           <fwb-table-cell>{{ u.email }}</fwb-table-cell>
           <fwb-table-cell>{{ u.phone || '-' }}</fwb-table-cell>
           <fwb-table-cell>
+            <span class="font-mono text-sm">
+              {{ u.taxId || '-' }}
+            </span>
+            <!-- Indicador visual si es owner con CI -->
+            <span v-if="u.userType === 'OWNER' && u.taxId" class="ml-1 text-xs text-blue-500">
+              (CI)
+            </span>
+          </fwb-table-cell>
+          <fwb-table-cell>
             <span class="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
               {{ resolveRoleName(u.primaryRoleIds) }}
             </span>
           </fwb-table-cell>
           <fwb-table-cell>
-            <!-- ✅ Status badge -->
             <span
               :class="[
                 'px-2 py-1 text-xs font-semibold rounded-full',
@@ -66,7 +77,6 @@
           </fwb-table-cell>
           <fwb-table-cell class="text-right">
             <div class="flex justify-end space-x-1">
-              <!-- Resend temp password -->
               <button
                 @click="$emit('resend', u)"
                 class="p-2 text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors"
@@ -77,7 +87,6 @@
                 </svg>
               </button>
 
-              <!-- Edit (only if active) -->
               <button
                 v-if="u.status !== 'INACTIVE'"
                 @click="$emit('edit', u)"
@@ -89,7 +98,6 @@
                 </svg>
               </button>
 
-              <!-- Reactivate (only if inactive) -->
               <button
                 v-if="u.status === 'INACTIVE'"
                 @click="$emit('reactivate', u)"
@@ -101,7 +109,6 @@
                 </svg>
               </button>
 
-              <!-- Deactivate (logical delete, only if active) -->
               <button
                 v-if="u.status !== 'INACTIVE'"
                 @click="$emit('delete', u)"
@@ -157,7 +164,7 @@ const statusLabel = (status: string) => {
 defineEmits<{
   create: []
   edit: [user: any]
-  delete: [user: any]      // triggers deactivate (logical)
+  delete: [user: any]
   resend: [user: any]
   reactivate: [user: any]
 }>()

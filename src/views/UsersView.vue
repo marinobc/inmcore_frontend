@@ -1,11 +1,55 @@
+<!-- FILE: Frontend/Frontend/src/views/UsersView.vue -->
+
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
       <h1 class="text-2xl font-bold">Gestión de Usuarios</h1>
     </div>
 
+    <!-- Barra de búsqueda por CI -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              v-model="searchCI"
+              type="text"
+              class="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Buscar por CI/NIT (ej: 1234567)"
+              @input="handleSearch"
+            />
+          </div>
+          <p v-if="searchCI && filteredUsers.length === 0 && users.length > 0" class="mt-2 text-sm text-yellow-600 dark:text-yellow-400">
+            ⚠️ No se encontraron usuarios con CI: "{{ searchCI }}"
+          </p>
+          <p v-if="searchCI && filteredUsers.length > 0" class="mt-2 text-sm text-green-600 dark:text-green-400">
+            ✓ Se encontraron {{ filteredUsers.length }} usuario(s) con CI que contiene "{{ searchCI }}"
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <fwb-button v-if="searchCI" @click="clearSearch" color="alternative" size="sm">
+            Limpiar búsqueda
+          </fwb-button>
+          <fwb-button @click="openCreateModal" gradient="blue">
+            <div class="flex items-center">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              Agregar Nuevo Usuario
+            </div>
+          </fwb-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de usuarios con datos filtrados -->
     <users-table
-      :users="users"
+      :users="filteredUsers"
       :roles="roles"
       @create="openCreateModal"
       @edit="openEditModal"
@@ -21,11 +65,6 @@
         </div>
       </template>
       <template #body>
-        <!--
-          KEY FIX: We use a :key on UserForm so Vue fully remounts it
-          each time we open the modal with different data.
-          This guarantees the watch({ immediate: true }) fires fresh.
-        -->
         <user-form
           :key="formKey"
           :initial-data="editingUser"
@@ -40,7 +79,7 @@
     <div
       v-if="toast.visible"
       :class="[
-        'fixed bottom-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transition-all',
+        'fixed bottom-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transition-all max-w-md',
         toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
       ]"
     >
@@ -50,8 +89,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { FwbModal } from 'flowbite-vue'
+import { onMounted, ref, computed } from 'vue'
+import { FwbModal, FwbButton } from 'flowbite-vue'
 import { useUsers } from '../composables/useUsers'
 import UserForm from '../components/users/UserForm.vue'
 import UsersTable from '../components/users/UsersTable.vue'
@@ -60,28 +99,62 @@ const { users, roles, load, create, deactivate, reactivate, resendPassword, upda
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingUser = ref<any>(null)
-// ✅ FIX 2: formKey forces UserForm to remount so initial data is always fresh
 const formKey = ref(0)
+
+//Estado para búsqueda por CI
+const searchCI = ref('')
+const searchTimeout = ref<ReturnType<typeof setTimeout>>()
 
 const toast = ref({ visible: false, message: '', type: 'success' })
 
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   toast.value = { visible: true, message, type }
-  setTimeout(() => { toast.value.visible = false }, 3500)
+  setTimeout(() => { toast.value.visible = false }, 5000)
+}
+
+// ✅ NUEVO: Filtrar usuarios por CI (taxId)
+const filteredUsers = computed(() => {
+  if (!searchCI.value || searchCI.value.trim() === '') {
+    return users.value
+  }
+  
+  const searchTerm = searchCI.value.trim().toLowerCase()
+  
+  return users.value.filter(user => {
+    // Buscar en taxId (CI) del usuario
+    const taxId = user.taxId?.toLowerCase() || ''
+    return taxId.includes(searchTerm)
+  })
+})
+
+// ✅ NUEVO: Manejar búsqueda con debounce
+const handleSearch = () => {
+  clearTimeout(searchTimeout.value)
+  searchTimeout.value = setTimeout(() => {
+    // La búsqueda ya se maneja con el computed filteredUsers
+    // Solo mostramos feedback visual
+    if (searchCI.value && filteredUsers.value.length === 0 && users.value.length > 0) {
+      // El mensaje ya se muestra en el template
+    }
+  }, 300)
+}
+
+// ✅ NUEVO: Limpiar búsqueda
+const clearSearch = () => {
+  searchCI.value = ''
 }
 
 const openCreateModal = () => {
   editingUser.value = null
   isEditing.value = false
-  formKey.value++          // force remount
+  formKey.value++
   showModal.value = true
 }
 
 const openEditModal = (user: any) => {
-  // 'user' is the enriched object (Identity + Person profile merged by useUsers.load)
   editingUser.value = { ...user }
   isEditing.value = true
-  formKey.value++          // force remount with new data
+  formKey.value++
   showModal.value = true
 }
 
@@ -99,26 +172,24 @@ const handleSubmit = async (formData: any) => {
       showToast('Usuario creado correctamente')
     }
     closeModal()
+    // Limpiar búsqueda al crear/editar para mostrar la lista completa actualizada
+    clearSearch()
   } catch (e: any) {
-    // Extraer mensaje de error del backend
     let errorMessage = 'Error al guardar el usuario'
     
     if (e.response?.data) {
       const errorData = e.response.data
       
-      // Manejar error de CI/NIT duplicado
       if (errorData.detail?.includes('An owner with CI') || 
           errorData.detail?.includes('taxId already exists') ||
           errorData.detail?.includes('already exists')) {
         errorMessage = '⚠️ El número de CI/NIT ya está registrado en el sistema. Un propietario no puede tener el mismo CI que otro.'
       }
-      // Manejar error de email duplicado
       else if (errorData.detail?.includes('Email already exists') || 
                errorData.detail?.includes('email already exists') ||
                errorData.message?.includes('Email already exists')) {
         errorMessage = '⚠️ El correo electrónico ya está registrado. Por favor, use otro email.'
       }
-      // Usar el mensaje del backend si está disponible
       else if (errorData.detail) {
         errorMessage = errorData.detail
       } else if (errorData.message) {
@@ -130,7 +201,7 @@ const handleSubmit = async (formData: any) => {
     console.error('Error submitting user:', e)
   }
 }
-// ✅ FIX 3: Logical delete (INACTIVE)
+
 const handleDeactivate = async (user: any) => {
   if (!confirm(`¿Desactivar al usuario "${user.fullName || user.email}"? El usuario no podrá iniciar sesión.`)) return
   try {
@@ -150,7 +221,6 @@ const handleReactivate = async (user: any) => {
   }
 }
 
-// ✅ FIX 1: Resend temp password
 const handleResend = async (user: any) => {
   try {
     await resendPassword(user.email)
