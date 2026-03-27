@@ -10,6 +10,7 @@ import AgentClients from '../views/AgentClients.vue'
 import CalendarView from "../views/CalendarView.vue"
 import ScheduleVisitView from "../views/ScheduleVisitView.vue"
 import PropertiesClientView from "../views/PropertiesClientView.vue"
+import OwnerDashboard from '../views/OwnerDashboard.vue'
 import ClientDashboard from '../views/ClientDashboard.vue'
 
 const routes = [
@@ -74,6 +75,12 @@ const routes = [
         name: 'Properties',
         component: PropertiesClientView,
         meta: { role: 'CLIENT' }
+      },
+      {
+        path: 'owner',
+        name: 'OwnerDashboard',
+        component: OwnerDashboard,
+        meta: { role: 'OWNER' }  // ← Already exists, good!
       },
       {
         path: 'client',

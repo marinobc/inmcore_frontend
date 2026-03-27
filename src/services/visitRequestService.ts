@@ -1,9 +1,3 @@
-// ============================================================
-//  src/services/visitRequestService.ts
-//  Llamadas a la API para solicitudes de visita de clientes.
-//  HU3: cliente buscador solicita agendar una cita.
-// ============================================================
-
 import { api } from './api'
 
 import type {
@@ -37,6 +31,35 @@ export async function getAvailableProperties(filters?: {
 
   const response = await api.get(`/properties?${params}`)
   return response.data
+}
+
+// ---------------------------------------------------------------
+//  HU03: Contar visitas a una propiedad (para propietarios)
+// ---------------------------------------------------------------
+
+/**
+ * Obtiene el número de visitas programadas para una propiedad.
+ * El backend valida que el propietario autenticado sea dueño de la propiedad.
+ * 
+ * @param propertyId - ID de la propiedad
+ * @returns Número de visitas programadas (no canceladas)
+ */
+export async function getVisitCountForProperty(propertyId: string): Promise<number> {
+  const response = await api.get(`/api/visit-requests/count/property/${propertyId}`)
+  // El backend retorna { data: number }
+  return response.data.data
+}
+
+/**
+ * Obtiene el detalle de todas las visitas programadas para una propiedad.
+ * Útil para mostrar fechas y horarios específicos.
+ * 
+ * @param propertyId - ID de la propiedad
+ * @returns Lista de eventos de visita
+ */
+export async function getVisitsForProperty(propertyId: string) {
+  const response = await api.get(`/api/visits/property/${propertyId}`)
+  return response.data.data
 }
 
 // ---------------------------------------------------------------
@@ -128,4 +151,17 @@ export function statusColor(status: string): string {
     REJECTED: 'red',
   }
   return map[status] ?? 'gray'
+}
+
+/**
+ * Formatea la fecha de una visita para mostrar en el dashboard del propietario
+ */
+export function formatVisitDateTime(iso: string): string {
+  return new Date(iso).toLocaleString('es-BO', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }

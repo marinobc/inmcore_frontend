@@ -29,10 +29,23 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <fwb-card v-for="p in allProperties" :key="p.id" class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative">
         
-        <!-- Botón de Histórico (Detalles) sobre la imagen -->
+        <!-- Owner Badge (Top Left) -->
+        <div class="absolute top-2 left-2 z-10">
+          <div v-if="p.ownerId" class="bg-purple-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {{ getOwnerName(p.ownerId) }}
+          </div>
+          <div v-else class="bg-gray-500 text-white text-xs px-2 py-1 rounded-full shadow-md">
+            Sin propietario
+          </div>
+        </div>
+
+        <!-- Botón de Histórico (Detalles) (Top Right) -->
         <button 
           @click="viewDetails(p)" 
-          class="absolute top-2 left-2 z-10 bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-lg hover:text-blue-600 transition-all hover:scale-110"
+          class="absolute top-2 right-2 z-10 bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-lg hover:text-blue-600 transition-all hover:scale-110"
           title="Ver historial y detalles"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +57,8 @@
         <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 relative">
           <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover">
           <span v-else>Sin imágenes</span>
-          <div class="absolute top-2 right-2">
+          <!-- Status Badge moved to bottom-right to avoid collision with History button -->
+          <div class="absolute bottom-2 right-2">
             <fwb-badge :type="p.status === 'DISPONIBLE' ? 'green' : 'red'">{{ p.status }}</fwb-badge>
           </div>
         </div>
@@ -74,6 +88,13 @@
             </fwb-button>
             <fwb-button size="sm" gradient="blue" @click="prepAssignment(p)" class="w-full">
               Asignar
+            </fwb-button>
+          </div>
+
+          <!-- Assign Owner Button -->
+          <div class="mt-2">
+            <fwb-button size="sm" color="alternative" @click="prepOwnerAssignment(p)" class="w-full">
+              {{ p.ownerId ? 'Cambiar propietario' : 'Asignar propietario' }}
             </fwb-button>
           </div>
         </div>
@@ -127,6 +148,33 @@
         </div>
       </template>
     </fwb-modal>
+
+    <!-- MODAL ASIGNAR PROPIETARIO -->
+    <fwb-modal v-if="showOwnerModal" @close="showOwnerModal = false">
+      <template #header>
+        <div class="text-lg font-bold">Asignar Propietario</div>
+      </template>
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-sm text-gray-600 dark:text-gray-300">Inmueble: <span class="font-bold dark:text-white">{{ selectedProp?.title }}</span></p>
+          <div>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Seleccionar Propietario</label>
+            <select v-model="selectedOwnerId" class="w-full border border-gray-300 rounded-lg p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-blue-500 focus:border-blue-500">
+              <option value="">Sin propietario</option>
+              <option v-for="owner in availableOwners" :key="owner.id" :value="owner.id">
+                {{ owner.fullName }} ({{ owner.email }})
+              </option>
+            </select>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex justify-end space-x-2">
+          <fwb-button color="alternative" @click="showOwnerModal = false">Cancelar</fwb-button>
+          <fwb-button gradient="blue" @click="doAssignOwner">Confirmar</fwb-button>
+        </div>
+      </template>
+    </fwb-modal>
   </div>
 </template>
 
@@ -149,13 +197,24 @@ const showDetailsModal = ref(false)
 const selectedProp = ref<any>(null)
 const newPrice = ref(0)
 
+// --- Owner Management State ---
+const showOwnerModal = ref(false)
+const selectedOwnerId = ref('')
+
+// Computed property for active agents
 const activeAgents = computed(() => 
   allUsers.value.filter(u => (u.userType === 'EMPLOYEE' || u.userType === 'ADMIN') && u.status === 'ACTIVE')
+)
+
+// Computed property for available owners (Optimized: uses cached allUsers)
+const availableOwners = computed(() => 
+  allUsers.value.filter((u: any) => u.userType === 'OWNER' && u.status === 'ACTIVE')
 )
 
 const load = async () => {
   loading.value = true
   try {
+    // Fetch properties and users in parallel
     const [p, u] = await Promise.all([propertyService.getProperties(), userService.getUsers()])
     allProperties.value = p
     allUsers.value = u
@@ -170,6 +229,12 @@ const resolveAgentName = (id: string | null) => {
   if (!id) return 'Sin asignar'
   const u = allUsers.value.find(x => x.id === id)
   return u ? u.fullName : 'Agente Desconocido'
+}
+
+// --- Owner Helpers ---
+const getOwnerName = (ownerId: string) => {
+  const owner = allUsers.value.find(o => o.id === ownerId)
+  return owner ? owner.fullName : 'Propietario no encontrado'
 }
 
 const viewDetails = (p: any) => {
@@ -212,6 +277,27 @@ const doAssign = async (agentId: string) => {
     await load()
   } catch (e: any) {
     alert(e.response?.data?.detail || "Error en la asignación")
+  }
+}
+
+// --- Owner Actions ---
+const prepOwnerAssignment = (p: any) => {
+  selectedProp.value = p
+  selectedOwnerId.value = p.ownerId || ''
+  showOwnerModal.value = true
+}
+
+const doAssignOwner = async () => {
+  if (!selectedProp.value) return
+  
+  try {
+    // Assuming propertyService has an assignOwner method
+    await propertyService.assignOwner(selectedProp.value.id, { ownerId: selectedOwnerId.value })
+    showOwnerModal.value = false
+    await load() // Reload properties to reflect changes
+    alert(selectedOwnerId.value ? 'Propietario asignado correctamente' : 'Propietario removido correctamente')
+  } catch (e: any) {
+    alert(e.response?.data?.detail || 'Error al asignar propietario')
   }
 }
 
