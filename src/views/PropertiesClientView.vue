@@ -40,7 +40,7 @@
             <input
               v-model="filters.zone"
               placeholder="Zona Sur, Miraflores..."
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -52,7 +52,7 @@
               type="number"
               min="0"
               placeholder="0"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -64,7 +64,7 @@
               type="number"
               min="0"
               placeholder="Sin límite"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -73,7 +73,7 @@
             <label class="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
             <select
               v-model="filters.type"
-              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos</option>
               <option value="CASA">Casa</option>
@@ -280,7 +280,7 @@
                 <input
                   v-model="requestForm.clientName"
                   placeholder="Nombre completo"
-                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   :class="{ 'border-red-400': reqErrors.clientName }"
                   required
                 />
@@ -292,7 +292,7 @@
                   v-model="requestForm.clientEmail"
                   type="email"
                   placeholder="tu@email.com"
-                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   :class="{ 'border-red-400': reqErrors.clientEmail }"
                   required
                 />
@@ -305,7 +305,7 @@
               <input
                 v-model="requestForm.clientPhone"
                 placeholder="+591 7XXXXXXX"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
@@ -314,7 +314,7 @@
               <input
                 v-model="requestForm.preferredDateTime"
                 type="datetime-local"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 :class="{ 'border-red-400': reqErrors.preferredDateTime }"
                 :min="minDatetime"
                 required
@@ -327,7 +327,7 @@
               <input
                 v-model="requestForm.alternativeDateTime"
                 type="datetime-local"
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 :min="requestForm.preferredDateTime || minDatetime"
               />
             </div>
@@ -338,7 +338,7 @@
                 v-model="requestForm.message"
                 rows="3"
                 placeholder="Preguntas, observaciones o requisitos especiales..."
-                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
 

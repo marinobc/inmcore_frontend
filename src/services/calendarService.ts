@@ -4,36 +4,14 @@
 //  HU1: calendario compartido | HU2: programar visita
 // ============================================================
 
+import { api } from './api'
+
 import type {
-  ApiResponse,
   CalendarResponse,
   CalendarEventResponse,
   ConflictResponse,
   CreateVisitRequest,
 } from '../types/visitCalendar'
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-
-/**
- * Devuelve los headers comunes para todas las peticiones.
- * X-Agent-Id se usa para marcar los eventos propios del agente (HU1 PA1).
- */
-function getHeaders(agentId?: string): HeadersInit {
-  const token = localStorage.getItem('token')
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(agentId ? { 'X-Agent-Id': agentId } : {}),
-  }
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  const body: ApiResponse<T> = await res.json()
-  if (!res.ok || !body.success) {
-    throw new Error(body.message || `Error HTTP ${res.status}`)
-  }
-  return body.data
-}
 
 // ---------------------------------------------------------------
 //  HU1: GET /api/calendar
@@ -59,10 +37,10 @@ export async function getCalendar(
   if (agentId) params.append('agentId', agentId)
   if (propertyId) params.append('propertyId', propertyId)
 
-  const res = await fetch(`${BASE_URL}/api/calendar?${params}`, {
-    headers: getHeaders(myAgentId),
+  const response = await api.get(`/api/calendar?${params}`, {
+    headers: myAgentId ? { 'X-Agent-Id': myAgentId } : {},
   })
-  return handleResponse<CalendarResponse>(res)
+  return response.data.data
 }
 
 // ---------------------------------------------------------------
@@ -79,10 +57,8 @@ export async function checkConflict(
   endTime: string,
 ): Promise<ConflictResponse> {
   const params = new URLSearchParams({ propertyId, startTime, endTime })
-  const res = await fetch(`${BASE_URL}/api/visits/conflict-check?${params}`, {
-    headers: getHeaders(),
-  })
-  return handleResponse<ConflictResponse>(res)
+  const response = await api.get(`/api/visits/conflict-check?${params}`)
+  return response.data.data
 }
 
 /**
@@ -94,12 +70,10 @@ export async function createVisit(
   data: CreateVisitRequest,
   agentId: string,
 ): Promise<CalendarEventResponse> {
-  const res = await fetch(`${BASE_URL}/api/visits`, {
-    method: 'POST',
-    headers: getHeaders(agentId),
-    body: JSON.stringify(data),
+  const response = await api.post('/api/visits', data, {
+    headers: { 'X-Agent-Id': agentId },
   })
-  return handleResponse<CalendarEventResponse>(res)
+  return response.data.data
 }
 
 /**
@@ -112,10 +86,10 @@ export async function getDayAgenda(
   day: string,
 ): Promise<CalendarEventResponse[]> {
   const params = new URLSearchParams({ agentId, day })
-  const res = await fetch(`${BASE_URL}/api/visits/agenda?${params}`, {
-    headers: getHeaders(agentId),
+  const response = await api.get(`/api/visits/agenda?${params}`, {
+    headers: { 'X-Agent-Id': agentId },
   })
-  return handleResponse<CalendarEventResponse[]>(res)
+  return response.data.data
 }
 
 /**
@@ -125,11 +99,10 @@ export async function cancelVisit(
   visitId: string,
   agentId: string,
 ): Promise<CalendarEventResponse> {
-  const res = await fetch(`${BASE_URL}/api/visits/${visitId}/cancel`, {
-    method: 'PATCH',
-    headers: getHeaders(agentId),
+  const response = await api.patch(`/api/visits/${visitId}/cancel`, {}, {
+    headers: { 'X-Agent-Id': agentId },
   })
-  return handleResponse<CalendarEventResponse>(res)
+  return response.data.data
 }
 
 // ---------------------------------------------------------------

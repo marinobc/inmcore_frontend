@@ -4,30 +4,13 @@
 //  HU3: cliente buscador solicita agendar una cita.
 // ============================================================
 
+import { api } from './api'
+
 import type {
-  ApiResponse,
   ClientVisitRequestDTO,
   VisitRequestResponse,
   Property,
 } from '../types/visitCalendar'
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-
-function getHeaders(token?: string): HeadersInit {
-  const stored = token || localStorage.getItem('token')
-  return {
-    'Content-Type': 'application/json',
-    ...(stored ? { Authorization: `Bearer ${stored}` } : {}),
-  }
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  const body: ApiResponse<T> = await res.json()
-  if (!res.ok || !body.success) {
-    throw new Error(body.message || `Error HTTP ${res.status}`)
-  }
-  return body.data
-}
 
 // ---------------------------------------------------------------
 //  HU3 PA1: Obtener propiedades disponibles para el cliente
@@ -46,16 +29,14 @@ export async function getAvailableProperties(filters?: {
   maxPrice?: number
   type?: string
 }): Promise<Property[]> {
-  const params = new URLSearchParams({ status: 'Disponible' })
+  const params = new URLSearchParams({ status: 'DISPONIBLE' })
   if (filters?.zone) params.append('zone', filters.zone)
   if (filters?.minPrice !== undefined) params.append('minPrice', String(filters.minPrice))
   if (filters?.maxPrice !== undefined) params.append('maxPrice', String(filters.maxPrice))
   if (filters?.type) params.append('type', filters.type)
 
-  const res = await fetch(`${BASE_URL}/properties?${params}`, {
-    headers: getHeaders(),
-  })
-  return handleResponse<Property[]>(res)
+  const response = await api.get(`/properties?${params}`)
+  return response.data
 }
 
 // ---------------------------------------------------------------
@@ -69,12 +50,8 @@ export async function getAvailableProperties(filters?: {
 export async function createVisitRequest(
   dto: ClientVisitRequestDTO,
 ): Promise<VisitRequestResponse> {
-  const res = await fetch(`${BASE_URL}/api/visit-requests`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify(dto),
-  })
-  return handleResponse<VisitRequestResponse>(res)
+  const response = await api.post('/api/visit-requests', dto)
+  return response.data.data
 }
 
 /**
@@ -83,10 +60,8 @@ export async function createVisitRequest(
 export async function getMyVisitRequests(
   clientId: string,
 ): Promise<VisitRequestResponse[]> {
-  const res = await fetch(`${BASE_URL}/api/visit-requests/client/${clientId}`, {
-    headers: getHeaders(),
-  })
-  return handleResponse<VisitRequestResponse[]>(res)
+  const response = await api.get(`/api/visit-requests/client/${clientId}`)
+  return response.data.data
 }
 
 // ---------------------------------------------------------------
@@ -99,10 +74,8 @@ export async function getMyVisitRequests(
 export async function getPendingRequestsForAgent(
   agentId: string,
 ): Promise<VisitRequestResponse[]> {
-  const res = await fetch(`${BASE_URL}/api/visit-requests/agent/${agentId}`, {
-    headers: getHeaders(),
-  })
-  return handleResponse<VisitRequestResponse[]>(res)
+  const response = await api.get(`/api/visit-requests/agent/${agentId}`)
+  return response.data.data
 }
 
 /**
@@ -112,11 +85,12 @@ export async function acceptVisitRequest(
   requestId: string,
   agentId: string,
 ): Promise<VisitRequestResponse> {
-  const res = await fetch(`${BASE_URL}/api/visit-requests/${requestId}/accept`, {
-    method: 'PATCH',
-    headers: { ...getHeaders(), 'X-Agent-Id': agentId },
-  })
-  return handleResponse<VisitRequestResponse>(res)
+  const response = await api.patch(
+    `/api/visit-requests/${requestId}/accept`,
+    {},
+    { headers: { 'X-Agent-Id': agentId } },
+  )
+  return response.data.data
 }
 
 /**
@@ -126,11 +100,12 @@ export async function rejectVisitRequest(
   requestId: string,
   agentId: string,
 ): Promise<VisitRequestResponse> {
-  const res = await fetch(`${BASE_URL}/api/visit-requests/${requestId}/reject`, {
-    method: 'PATCH',
-    headers: { ...getHeaders(), 'X-Agent-Id': agentId },
-  })
-  return handleResponse<VisitRequestResponse>(res)
+  const response = await api.patch(
+    `/api/visit-requests/${requestId}/reject`,
+    {},
+    { headers: { 'X-Agent-Id': agentId } },
+  )
+  return response.data.data
 }
 
 // ---------------------------------------------------------------
