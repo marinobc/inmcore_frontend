@@ -1,16 +1,5 @@
 <template>
-  <!--
-    ScheduleVisitView.vue — HU2
-    "Yo como agente inmobiliario, quiero programar una visita a un inmueble
-    en un horario específico para organizar mi agenda diaria."
-
-    PA1: La visita aparece en el calendario compartido al confirmar.
-    PA2: Si hay conflicto de horario, se impide y se sugiere otro horario.
-    PA3: Al crear la visita, se puede ver en la agenda del día.
-  -->
   <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-
-    <!-- HEADER -->
     <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors">
       <div class="max-w-2xl mx-auto flex items-center gap-4">
         <router-link to="/calendar" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
@@ -20,119 +9,136 @@
         </router-link>
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Programar visita</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Agenda una cita para un inmueble</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Selecciona un inmueble disponible de la lista</p>
         </div>
       </div>
     </div>
 
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-
-      <!-- FORMULARIO -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 transition-colors">
+      
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm transition-colors">
         <form @submit.prevent="handleSubmit" novalidate class="space-y-5">
 
-          <!-- Inmueble -->
-          <div>
+          <div class="relative" id="property-select-container">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              ID del Inmueble <span class="text-red-500">*</span>
+              Inmueble <span class="text-red-500">*</span>
             </label>
-            <input
-              v-model="form.propertyId"
-              @blur="fetchPropertyInfo"
-              placeholder="Ej: 683a1f..."
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-              :class="{ 'border-red-400 dark:border-red-500': errors.propertyId }"
-              required
-            />
-            <p v-if="errors.propertyId" class="text-xs text-red-500 mt-1">{{ errors.propertyId }}</p>
+            
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg v-if="loadingList" class="animate-spin h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <svg v-else class="w-4 h-4 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                v-model="searchTerm"
+                @focus="showDropdown = true"
+                :placeholder="loadingList ? 'Cargando inmuebles...' : 'Filtrar por nombre o dirección...'"
+                :disabled="loadingList"
+                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
+                :class="{ 'border-red-400 dark:border-red-500': errors.propertyId }"
+                autocomplete="off"
+              />
+              <button 
+                type="button"
+                @click="showDropdown = !showDropdown"
+                class="absolute inset-y-0 right-0 flex items-center pr-3"
+              >
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
 
-            <!-- Info del inmueble cargado -->
-            <div v-if="propertyInfo" class="mt-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 px-3 py-2 text-sm transition-colors">
-              <p class="font-medium text-blue-800 dark:text-blue-200">{{ propertyInfo.name }}</p>
-              <p class="text-blue-600 dark:text-blue-300 text-xs">{{ propertyInfo.address }} · Agente: {{ propertyInfo.agentName }}</p>
-              <p class="text-xs mt-0.5">
-                <span
-                  class="font-medium"
-                  :class="propertyInfo.status === 'Disponible' ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
-                >
+            <div v-if="showDropdown" 
+                class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl max-h-72 overflow-y-auto overflow-x-hidden">
+              <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                <li v-if="filteredProperties.length === 0" class="px-4 py-3 text-gray-500 italic text-center">
+                  No se encontraron inmuebles.
+                </li>
+                <li v-for="p in filteredProperties" :key="p.id" 
+                    @click="handleSelect(p.id)"
+                    class="px-4 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/30 cursor-pointer flex justify-between items-center border-b last:border-b-0 border-gray-100 dark:border-gray-700 transition-colors">
+                  <div class="min-w-0">
+                    <p class="font-bold text-gray-900 dark:text-white truncate">{{ p.title }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ p.address }}</p>
+                  </div>
+                  <div class="ml-3 flex flex-col items-end gap-1">
+                    <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded font-medium uppercase whitespace-nowrap">
+                      {{ p.type }}
+                    </span>
+                    <span :class="p.status === 'DISPONIBLE' ? 'text-green-500' : 'text-red-400'" class="text-[9px] font-bold uppercase tracking-wider">
+                      {{ p.status }}
+                    </span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <p v-if="errors.propertyId" class="text-xs text-red-500 mt-1">{{ errors.propertyId }}</p>
+          </div>
+
+          <Transition name="slide-fade">
+            <div v-if="propertyInfo" class="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 p-4 space-y-2">
+              <div class="flex justify-between items-start">
+                <h3 class="font-bold text-blue-900 dark:text-blue-200">{{ propertyInfo.title }}</h3>
+                <span class="bg-green-100 text-green-800 text-[10px] font-black px-2 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
                   {{ propertyInfo.status }}
                 </span>
+              </div>
+              <p class="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                {{ propertyInfo.address }}
               </p>
+              <div class="flex gap-4 pt-1 border-t border-blue-100 dark:border-blue-800/30 mt-2">
+                <div class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter">
+                  M2: <span class="font-bold">{{ propertyInfo.m2 }}</span>
+                </div>
+                <div class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter">
+                  Hab: <span class="font-bold">{{ propertyInfo.rooms }}</span>
+                </div>
+                <div class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter">
+                  Precio: <span class="font-bold">${{ propertyInfo.price.toLocaleString() }}</span>
+                </div>
+              </div>
             </div>
-            <p v-if="propertyError" class="text-xs text-red-500 mt-1">{{ propertyError }}</p>
-          </div>
+          </Transition>
 
-          <!-- Nombre del inmueble (auto-completado o manual) -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Nombre del inmueble <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="form.propertyName"
-              placeholder="Ej: Casa Zona Sur #12"
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-              :class="{ 'border-red-400 dark:border-red-500': errors.propertyName }"
-              required
-            />
-            <p v-if="errors.propertyName" class="text-xs text-red-500 mt-1">{{ errors.propertyName }}</p>
-          </div>
-
-          <!-- Dirección (opcional) -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
-            <input
-              v-model="form.propertyAddress"
-              placeholder="Calle, zona, ciudad..."
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-            />
-          </div>
-
-          <!-- Fecha y hora -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fecha y hora de inicio <span class="text-red-500">*</span>
-              </label>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Inicio <span class="text-red-500">*</span></label>
               <input
                 v-model="form.startTimeLocal"
                 @change="onTimeChange"
                 type="datetime-local"
-                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors dark:[color-scheme:dark]"
-                :class="{ 'border-red-400 dark:border-red-500': errors.startTime }"
+                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none dark:[color-scheme:dark]"
                 :min="minDatetime"
                 required
               />
-              <p v-if="errors.startTime" class="text-xs text-red-500 mt-1">{{ errors.startTime }}</p>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Fecha y hora de fin <span class="text-red-500">*</span>
-              </label>
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fin <span class="text-red-500">*</span></label>
               <input
                 v-model="form.endTimeLocal"
                 @change="onTimeChange"
                 type="datetime-local"
-                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors dark:[color-scheme:dark]"
-                :class="{ 'border-red-400 dark:border-red-500': errors.endTime }"
+                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none dark:[color-scheme:dark]"
                 :min="form.startTimeLocal || minDatetime"
                 required
               />
-              <p v-if="errors.endTime" class="text-xs text-red-500 mt-1">{{ errors.endTime }}</p>
             </div>
           </div>
+          <p v-if="errors.startTime || errors.endTime" class="text-xs text-red-500">{{ errors.startTime || errors.endTime }}</p>
 
-          <!-- Notas -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notas adicionales</label>
-            <textarea
-              v-model="form.notes"
-              rows="3"
-              placeholder="Observaciones, instrucciones de acceso, etc."
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors"
-            />
+          <div v-if="checkingConflict" class="flex items-center gap-2 text-xs text-gray-500 py-1">
+            <div class="h-3 w-3 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+            Cruzando horarios con la base de datos...
           </div>
 
-          <!-- PA2: Alerta de conflicto de horario -->
           <ConflictAlert
             v-if="conflictResult"
             :conflict="conflictResult"
@@ -140,86 +146,57 @@
             @use-suggestion="applySuggestion"
           />
 
-          <!-- Verificación en curso -->
-          <div v-if="checkingConflict" class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <div class="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-            Verificando disponibilidad del horario...
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notas adicionales</label>
+            <textarea
+              v-model="form.notes"
+              rows="2"
+              placeholder="Ej: El cliente llega tarde, llaves en recepción..."
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            />
           </div>
 
-          <!-- Disponible -->
-          <div
-            v-if="conflictResult && !conflictResult.hasConflict"
-            class="flex items-center gap-2 text-sm text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 transition-colors"
-          >
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            El horario está disponible. Puedes confirmar la visita.
-          </div>
-
-          <!-- Botones -->
-          <div class="flex gap-3 pt-2">
+          <div class="flex gap-3 pt-4">
             <router-link
               to="/calendar"
-              class="flex-1 text-center py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              class="flex-1 text-center py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
-              Cancelar
+              Volver
             </router-link>
             <button
               type="submit"
-              :disabled="submitting || (conflictResult?.hasConflict ?? false)"
-              class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="submitting || (conflictResult?.hasConflict ?? false) || !form.propertyId"
+              class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:shadow-none"
             >
-              {{ submitting ? 'Programando...' : 'Confirmar visita' }}
+              {{ submitting ? 'Guardando...' : 'Programar Visita' }}
             </button>
           </div>
         </form>
       </div>
 
-      <!-- PA3: Agenda del día (después de crear la visita) -->
-      <div v-if="dayAgenda.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 transition-colors">
-        <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-4">
-          Tu agenda para el
-          {{ form.startTimeLocal ? new Date(form.startTimeLocal).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long' }) : 'día seleccionado' }}
+      <div v-if="dayAgenda.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 transition-colors shadow-sm">
+        <h2 class="text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Agenda del día
         </h2>
-        <ul class="space-y-2">
-          <li
+        <div class="space-y-3">
+          <div
             v-for="ev in dayAgenda"
             :key="ev.id"
-            class="flex items-start gap-3 rounded-lg border border-gray-100 dark:border-gray-700 p-3 transition-colors"
-            :class="ev.ownEvent ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : ''"
+            class="group flex items-center gap-3 p-3 rounded-xl border border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all"
+            :class="{ 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30': ev.ownEvent }"
           >
-            <div class="flex-shrink-0 w-1 self-stretch rounded-full" :class="ev.ownEvent ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'"></div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ ev.propertyName }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ shortTime(ev.startTime) }} – {{ shortTime(ev.endTime) }}</p>
+            <div class="text-center min-w-[50px]">
+              <p class="text-xs font-bold text-gray-900 dark:text-white">{{ shortTime(ev.startTime) }}</p>
+              <p class="text-[9px] text-gray-400 uppercase">Inicio</p>
             </div>
-            <span
-              class="text-xs font-medium px-2 py-0.5 rounded-full"
-              :class="ev.ownEvent ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'"
-            >
-              {{ ev.ownEvent ? 'Yo' : ev.agentName }}
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Éxito -->
-      <div
-        v-if="successMessage"
-        class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-2xl p-6 text-center transition-colors"
-      >
-        <svg class="h-12 w-12 text-green-500 dark:text-green-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">¡Visita programada!</h3>
-        <p class="text-sm text-green-700 dark:text-green-300 mt-1">{{ successMessage }}</p>
-        <router-link
-          to="/calendar"
-          class="mt-4 inline-block px-6 py-2 bg-green-600 dark:bg-green-500 text-white text-sm font-medium rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors"
-        >
-          Ver en el calendario
-        </router-link>
+            <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{{ ev.propertyName }}</p>
+              <p class="text-[10px] text-gray-500 truncate">{{ ev.ownEvent ? 'Tú eres el responsable' : ev.agentName }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -227,20 +204,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import {
-  checkConflict,
-  createVisit,
-  getDayAgenda,
-} from '../services/calendarService'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useAuth } from '../composables/useAuth' // Importamos useAuth
+import { propertyService } from '../services/propertyService'
+import { checkConflict, createVisit, getDayAgenda } from '../services/calendarService'
 import ConflictAlert from '../components/visits/ConflictAlert.vue'
-import type { ConflictResponse, CalendarEventResponse, Property } from '../types/visitCalendar'
+import type { ConflictResponse, CalendarEventResponse } from '../types/visitCalendar'
 
-// ── Auth ──
-const myAgentId = localStorage.getItem('agentId') || ''
-const myAgentName = localStorage.getItem('agentName') || ''
+// --- AUTH ---
+const { user } = useAuth() // Obtenemos el usuario decodificado del token
 
-// ── Formulario ──
+// Extraemos los datos del agente de forma reactiva
+const myAgentId = computed(() => user.value?.sub || user.value?.userId || '')
+const myAgentName = computed(() => {
+  if (user.value?.fullName) return user.value.fullName
+  if (user.value?.name) return user.value.name
+  // Si el token no tiene nombre, usamos el email como fallback
+  return user.value?.email?.split('@')[0] || 'Agente'
+})
+
+// --- ESTADO ---
 const form = ref({
   propertyId: '',
   propertyName: '',
@@ -250,54 +233,72 @@ const form = ref({
   notes: '',
 })
 
+const loadingList = ref(false)
+const allProperties = ref<any[]>([]) // Lista completa cacheada
+const searchTerm = ref('')
+const showDropdown = ref(false)
+const propertyInfo = ref<any | null>(null) // Detalle del seleccionado
+
 const errors = ref<Record<string, string>>({})
-const propertyInfo = ref<Property | null>(null)
-const propertyError = ref('')
 const conflictResult = ref<ConflictResponse | null>(null)
 const checkingConflict = ref(false)
 const submitting = ref(false)
-const successMessage = ref('')
 const dayAgenda = ref<CalendarEventResponse[]>([])
 
-// datetime-local mínimo: ahora
-const minDatetime = computed(() => {
-  const now = new Date()
-  now.setMinutes(now.getMinutes() + 30)
-  return now.toISOString().slice(0, 16)
-})
+// --- LOGICA DE CARGA Y FILTRADO LOCAL ---
 
-// ── Cargar info del inmueble ──
-async function fetchPropertyInfo() {
-  if (!form.value.propertyId.trim()) return
-  propertyError.value = ''
-  propertyInfo.value = null
+const loadInitialData = async () => {
+  loadingList.value = true
   try {
-    const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-    const token = localStorage.getItem('token')
-    const res = await fetch(`${base}/api/properties/${form.value.propertyId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    if (!res.ok) throw new Error('Inmueble no encontrado')
-    const data = await res.json()
-    propertyInfo.value = data.data || data
-    form.value.propertyName = propertyInfo.value!.name
-    form.value.propertyAddress = propertyInfo.value!.address
-
-    if (propertyInfo.value!.status !== 'Disponible') {
-      propertyError.value = `El inmueble no está disponible (estado actual: ${propertyInfo.value!.status})`
-    }
-  } catch {
-    propertyError.value = 'No se pudo obtener información del inmueble. Verifique el ID.'
+    // Cargamos todos de una vez para filtrar en cliente (Mejor UX)
+    const data = await propertyService.getProperties()
+    // Filtramos solo los que están disponibles para ahorrarle trabajo al agente
+    allProperties.value = data.filter((p: any) => p.status === 'DISPONIBLE')
+  } catch (e) {
+    console.error("Error cargando inmuebles", e)
+  } finally {
+    loadingList.value = false
   }
 }
 
-// ── Verificar conflicto al cambiar horario (PA2) ──
+const filteredProperties = computed(() => {
+  if (!searchTerm.value) return allProperties.value
+  const s = searchTerm.value.toLowerCase()
+  return allProperties.value.filter(p => 
+    p.title.toLowerCase().includes(s) || 
+    p.address.toLowerCase().includes(s)
+  ).slice(0, 20) // Limitamos visualmente el dropdown
+})
+
+const handleSelect = async (id: string) => {
+  showDropdown.value = false
+  searchTerm.value = 'Cargando detalle...'
+  
+  try {
+    // UX: Traemos el detalle fresco del servidor por ID
+    const detail = await propertyService.getPropertyById(id)
+    
+    form.value.propertyId = detail.id
+    form.value.propertyName = detail.title
+    form.value.propertyAddress = detail.address
+    propertyInfo.value = detail
+    searchTerm.value = detail.title
+    
+    // Al seleccionar, disparamos validación de tiempo si ya están llenos
+    if (form.value.startTimeLocal) onTimeChange()
+  } catch (e) {
+    alert("No se pudo obtener el detalle del inmueble.")
+    searchTerm.value = ''
+  }
+}
+
+// --- LOGICA DE CONFLICTOS ---
+
 let conflictTimer: ReturnType<typeof setTimeout> | null = null
-async function onTimeChange() {
+const onTimeChange = () => {
   conflictResult.value = null
   if (!form.value.propertyId || !form.value.startTimeLocal || !form.value.endTimeLocal) return
-  if (form.value.startTimeLocal >= form.value.endTimeLocal) return
-
+  
   if (conflictTimer) clearTimeout(conflictTimer)
   conflictTimer = setTimeout(async () => {
     checkingConflict.value = true
@@ -305,82 +306,90 @@ async function onTimeChange() {
       conflictResult.value = await checkConflict(
         form.value.propertyId,
         new Date(form.value.startTimeLocal).toISOString(),
-        new Date(form.value.endTimeLocal).toISOString(),
+        new Date(form.value.endTimeLocal).toISOString()
       )
-    } catch {
-      // silencioso
     } finally {
       checkingConflict.value = false
     }
-  }, 600)
+  }, 500)
 }
 
-// Aplicar sugerencia de horario del ConflictAlert
-function applySuggestion(start?: string, end?: string) {
-  if (start) form.value.startTimeLocal = new Date(start).toISOString().slice(0, 16)
-  if (end) form.value.endTimeLocal = new Date(end).toISOString().slice(0, 16)
-  onTimeChange()
-}
+// --- SUBMIT ---
 
-// ── Validar formulario ──
-function validate(): boolean {
+const handleSubmit = async () => {
   errors.value = {}
-  if (!form.value.propertyId.trim()) errors.value.propertyId = 'El ID del inmueble es obligatorio'
-  if (!form.value.propertyName.trim()) errors.value.propertyName = 'El nombre del inmueble es obligatorio'
-  if (!form.value.startTimeLocal) errors.value.startTime = 'La fecha de inicio es obligatoria'
-  if (!form.value.endTimeLocal) errors.value.endTime = 'La fecha de fin es obligatoria'
-  if (form.value.startTimeLocal && form.value.endTimeLocal && form.value.startTimeLocal >= form.value.endTimeLocal) {
-    errors.value.endTime = 'La hora de fin debe ser posterior a la de inicio'
-  }
-  if (propertyInfo.value && propertyInfo.value.status !== 'Disponible') {
-    errors.value.propertyId = 'El inmueble no está disponible para visitas'
-  }
-  return Object.keys(errors.value).length === 0
-}
-
-// ── Enviar formulario ──
-async function handleSubmit() {
-  if (!validate()) return
-  if (conflictResult.value?.hasConflict) return
+  
+  // Validaciones básicas antes de enviar
+  if (!form.value.propertyId) { errors.value.propertyId = 'Selecciona un inmueble'; return }
+  if (!myAgentId.value) { alert('Error: No se pudo identificar tu ID de agente. Reintenta loguear.'); return }
 
   submitting.value = true
   try {
-    await createVisit(
-      {
-        propertyId: form.value.propertyId,
-        propertyName: form.value.propertyName,
-        propertyAddress: form.value.propertyAddress,
-        agentId: myAgentId,
-        agentName: myAgentName,
-        startTime: new Date(form.value.startTimeLocal).toISOString(),
-        endTime: new Date(form.value.endTimeLocal).toISOString(),
-        notes: form.value.notes,
-      },
-      myAgentId,
-    )
+    // IMPORTANTE: Pasamos myAgentId.value y myAgentName.value (porque son computed)
+    await createVisit({
+      propertyId: form.value.propertyId,
+      propertyName: form.value.propertyName,
+      propertyAddress: form.value.propertyAddress,
+      agentId: myAgentId.value,     // <--- Corregido (.value)
+      agentName: myAgentName.value, // <--- Corregido (.value)
+      startTime: new Date(form.value.startTimeLocal).toISOString(),
+      endTime: new Date(form.value.endTimeLocal).toISOString(),
+      notes: form.value.notes
+    }, myAgentId.value)
 
-    successMessage.value = `Visita a "${form.value.propertyName}" añadida al calendario compartido.`
-
-    // PA3: Cargar agenda del día
-    dayAgenda.value = await getDayAgenda(myAgentId, new Date(form.value.startTimeLocal).toISOString())
-
-    // Limpiar formulario
-    form.value = { propertyId: '', propertyName: '', propertyAddress: '', startTimeLocal: '', endTimeLocal: '', notes: '' }
-    conflictResult.value = null
-    propertyInfo.value = null
+    // Cargar agenda actualizada
+    dayAgenda.value = await getDayAgenda(myAgentId.value, new Date(form.value.startTimeLocal).toISOString())
+    
+    form.value.notes = ''
+    alert("¡Visita programada exitosamente!")
   } catch (e: any) {
-    if (e.message?.includes('conflicto') || e.message?.includes('horario')) {
-      // Re-chequear para mostrar el conflicto actualizado
-      await onTimeChange()
-    } else {
-      alert('Error al programar la visita: ' + e.message)
-    }
+    // Si el backend devuelve un 400 con los errores de validación
+    const msg = e.response?.data?.message || "Error al programar visita"
+    alert(msg)
   } finally {
     submitting.value = false
   }
 }
 
-function shortTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' })
+// --- HELPERS ---
+
+const applySuggestion = (start?: string, end?: string) => {
+  if (start) form.value.startTimeLocal = new Date(start).toISOString().slice(0, 16)
+  if (end) form.value.endTimeLocal = new Date(end).toISOString().slice(0, 16)
+  onTimeChange()
 }
+
+const shortTime = (iso: string) => new Date(iso).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' })
+
+const minDatetime = computed(() => {
+  const now = new Date()
+  now.setMinutes(now.getMinutes() + 15)
+  return now.toISOString().slice(0, 16)
+})
+
+// Cerrar dropdown al hacer clic fuera
+const closeClickOutside = (e: any) => {
+  if (!e.target.closest('#property-select-container')) showDropdown.value = false
+}
+
+onMounted(() => {
+  loadInitialData()
+  window.addEventListener('click', closeClickOutside)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeClickOutside)
+})
 </script>
+
+<style scoped>
+.slide-fade-enter-active { transition: all 0.3s ease-out; }
+.slide-fade-leave-active { transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1); }
+.slide-fade-enter-from, .slide-fade-leave-to { transform: translateY(-10px); opacity: 0; }
+
+/* Custom scrollbar para el dropdown */
+.overflow-y-auto::-webkit-scrollbar { width: 4px; }
+.overflow-y-auto::-webkit-scrollbar-track { background: transparent; }
+.overflow-y-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .overflow-y-auto::-webkit-scrollbar-thumb { background: #475569; }
+</style>
