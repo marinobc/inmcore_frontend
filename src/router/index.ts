@@ -7,6 +7,8 @@ import DashboardView from '../views/DashboardView.vue'
 import MainLayout from '../layouts/MainLayout.vue'
 import AdminProperties from '../views/AdminProperties.vue' // Importación directa
 
+import { visitCalendarRoutes } from './visitCalendarRoutes'
+
 const routes = [
   {
     path: '/login',
@@ -53,7 +55,8 @@ const routes = [
         meta: { requiresAuth: true, role: 'ADMIN' }
       }
     ]
-  }
+  },
+  ...visitCalendarRoutes,
 ]
 
 export const router = createRouter({
