@@ -381,10 +381,16 @@ import { ref, computed, onMounted } from 'vue'
 import { getAvailableProperties, createVisitRequest } from '../services/visitRequestService'
 import type { Property, ClientVisitRequestDTO } from '../types/visitCalendar'
 
-// ── Auth (adaptar al store del proyecto) ──
-const myClientId = localStorage.getItem('userId') || ''
-const myClientName = localStorage.getItem('userName') || ''
-const myClientEmail = localStorage.getItem('userEmail') || ''
+// ── Auth — leer del JWT ──
+import { useAuth } from '../composables/useAuth'
+const { user } = useAuth()
+const myClientId = computed(() => user.value?.sub || '')
+const myClientEmail = computed(() => user.value?.email || '')
+const myClientName = computed(() => {
+  if (user.value?.name) return user.value.name
+  if (user.value?.email) return user.value.email.split('@')[0]
+  return ''
+})
 
 // ── Estado principal ──
 const properties = ref<Property[]>([])
@@ -403,8 +409,8 @@ const requestSubmitting = ref(false)
 
 // ── Formulario de solicitud ──
 const requestForm = ref({
-  clientName: myClientName,
-  clientEmail: myClientEmail,
+  clientName: myClientName.value,
+  clientEmail: myClientEmail.value,
   clientPhone: '',
   preferredDateTime: '',
   alternativeDateTime: '',
@@ -473,7 +479,7 @@ async function submitVisitRequest() {
       propertyName: requestTarget.value.name,
       agentId: requestTarget.value.agentId,
       agentName: requestTarget.value.agentName,
-      clientId: myClientId,
+      clientId: myClientId.value,
       clientName: requestForm.value.clientName,
       clientEmail: requestForm.value.clientEmail,
       clientPhone: requestForm.value.clientPhone || undefined,

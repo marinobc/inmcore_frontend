@@ -73,7 +73,9 @@ export async function getVisitsForProperty(propertyId: string) {
 export async function createVisitRequest(
   dto: ClientVisitRequestDTO,
 ): Promise<VisitRequestResponse> {
+  console.log('DTO enviado al backend:', JSON.stringify(dto, null, 2))
   const response = await api.post('/api/visit-requests', dto)
+  console.log('Respuesta del backend:', response.data)
   return response.data.data
 }
 
