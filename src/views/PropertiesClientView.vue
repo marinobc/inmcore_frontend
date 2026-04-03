@@ -852,6 +852,7 @@ function openPropertyModal(prop: Property) {
   selectedProperty.value = prop;
   showRequestModal.value = false;
 }
+
 function openRequestModal(prop: any) {
   requestTarget.value = {
     ...prop,
@@ -874,6 +875,7 @@ function openRequestModal(prop: any) {
   };
   reqErrors.value = {};
 }
+
 function closeRequestModal() {
   showRequestModal.value = false;
   requestTarget.value = null;
@@ -937,6 +939,7 @@ onMounted(loadProperties);
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
