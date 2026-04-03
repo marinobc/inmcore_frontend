@@ -46,28 +46,45 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-      <!-- ===== FILTROS PA3 ===== -->
+      <!-- ===== FILTROS ===== -->
       <div
-        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 transition-colors"
+        class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
       >
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <!-- Zona -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <!-- Título -->
           <div>
             <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-              >Zona</label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >Buscar por título</label
             >
             <input
-              v-model="filters.zone"
-              placeholder="Zona Sur, Miraflores..."
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              v-model="filters.title"
+              placeholder="Casa Blanca..."
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <!-- Tipo -->
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >Tipo</label
+            >
+            <select
+              v-model="filters.type"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Todos</option>
+              <option value="CASA">Casa</option>
+              <option value="APARTAMENTO">Apartamento</option>
+              <option value="COMERCIAL">Local Comercial</option>
+            </select>
           </div>
 
           <!-- Precio mínimo -->
           <div>
             <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
               >Precio mínimo ($)</label
             >
             <input
@@ -75,14 +92,14 @@
               type="number"
               min="0"
               placeholder="0"
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <!-- Precio máximo -->
           <div>
             <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
               >Precio máximo ($)</label
             >
             <input
@@ -90,25 +107,39 @@
               type="number"
               min="0"
               placeholder="Sin límite"
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <!-- Tipo -->
+          <!-- Ordenar por -->
           <div>
             <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-              >Tipo</label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >Ordenar por</label
             >
             <select
-              v-model="filters.type"
-              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+              v-model="filters.sortBy"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Todos</option>
-              <option value="CASA">Casa</option>
-              <option value="DEPARTAMENTO">Departamento</option>
-              <option value="TERRENO">Terreno</option>
-              <option value="LOCAL">Local comercial</option>
+              <option value="price">Precio</option>
+              <option value="title">Título</option>
+              <option value="m2">Superficie</option>
+              <option value="rooms">Habitaciones</option>
+            </select>
+          </div>
+
+          <!-- Orden -->
+          <div>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >Orden</label
+            >
+            <select
+              v-model="filters.sortOrder"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ASC">Ascendente</option>
+              <option value="DESC">Descendente</option>
             </select>
           </div>
         </div>
@@ -116,7 +147,7 @@
         <div class="flex gap-3 mt-3">
           <button
             @click="applyFilters"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
             Aplicar filtros
           </button>
@@ -128,7 +159,6 @@
           </button>
         </div>
 
-        <!-- PA1: Indicador de que solo se muestran disponibles -->
         <p
           class="text-xs text-green-700 dark:text-green-400 mt-2 flex items-center gap-1"
         >
@@ -287,6 +317,30 @@
             </p>
           </div>
         </div>
+      </div>
+
+      <!-- PAGINACIÓN -->
+      <div
+        v-if="totalPages > 1"
+        class="flex justify-center items-center gap-2 mt-6"
+      >
+        <button
+          @click="goToPage(filters.page - 1)"
+          :disabled="filters.page === 0"
+          class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition-colors"
+        >
+          ← Anterior
+        </button>
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+          Página {{ filters.page + 1 }} de {{ totalPages }}
+        </span>
+        <button
+          @click="goToPage(filters.page + 1)"
+          :disabled="filters.page >= totalPages - 1"
+          class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition-colors"
+        >
+          Siguiente →
+        </button>
       </div>
     </div>
 
@@ -656,9 +710,13 @@ const myClientName = computed(() => {
   return "";
 });
 
-import { useRoute, useRouter } from "vue-router";
-const route = useRoute();
+import { useRouter } from "vue-router";
 const router = useRouter();
+
+// ── Pagination ──
+const totalElements = ref(0);
+const totalPages = ref(0);
+const PAGE_SIZE = 9;
 
 // ── Estado principal ──
 const properties = ref<Property[]>([]);
@@ -667,10 +725,14 @@ const error = ref("");
 
 // ── Filtros PA3 ──
 const filters = ref({
-  zone: "",
+  // zone: "",
+  title: "",
+  type: "",
   minPrice: undefined as number | undefined,
   maxPrice: undefined as number | undefined,
-  type: "",
+  sortBy: "price",
+  sortOrder: "ASC",
+  page: 0,
 });
 
 // ── Modales ──
@@ -714,19 +776,39 @@ async function loadProperties() {
   loading.value = true;
   error.value = "";
   try {
-    const result = await getAvailableProperties({});
-    console.log("Propiedad ejemplo:", JSON.stringify(result[0], null, 2));
-    properties.value = await getAvailableProperties({
-      zone: filters.value.zone || undefined,
+    const result = await getAvailableProperties({
+      title: filters.value.title || undefined,
+      type: filters.value.type || undefined,
       minPrice: filters.value.minPrice,
       maxPrice: filters.value.maxPrice,
-      type: filters.value.type || undefined,
+      sortBy: filters.value.sortBy,
+      sortOrder: filters.value.sortOrder,
+      page: filters.value.page,
+      pageSize: PAGE_SIZE,
     });
+
+    properties.value = result.data;
+    totalElements.value = result.totalElements;
+    totalPages.value = result.totalPages;
+
     loadAgentNames(properties.value);
-    router.push({
+
+    // Reflejar en la URL para Postman / compartir
+    router.replace({
       query: {
-        ...route.query, // Preserve existing query parameters
-        ...filters.value, // Add or overwrite with new filters
+        status: "DISPONIBLE",
+        ...(filters.value.title && { title: filters.value.title }),
+        ...(filters.value.type && { type: filters.value.type }),
+        ...(filters.value.minPrice !== undefined && {
+          minPrice: String(filters.value.minPrice),
+        }),
+        ...(filters.value.maxPrice !== undefined && {
+          maxPrice: String(filters.value.maxPrice),
+        }),
+        sortBy: filters.value.sortBy,
+        sortOrder: filters.value.sortOrder,
+        page: String(filters.value.page),
+        pageSize: String(PAGE_SIZE),
       },
     });
   } catch (e: any) {
@@ -737,15 +819,25 @@ async function loadProperties() {
 }
 
 function applyFilters() {
+  filters.value.page = 0;
   loadProperties();
 }
+
 function clearFilters() {
   filters.value = {
-    zone: "",
-    minPrice: undefined,
-    maxPrice: undefined,
+    title: "",
     type: "",
+    minPrice: undefined as number | undefined,
+    maxPrice: undefined as number | undefined,
+    sortBy: "price",
+    sortOrder: "ASC",
+    page: 0,
   };
+  loadProperties();
+}
+
+function goToPage(p: number) {
+  filters.value.page = p;
   loadProperties();
 }
 

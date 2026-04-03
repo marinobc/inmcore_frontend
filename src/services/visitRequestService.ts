@@ -18,23 +18,35 @@ import type {
  * Llama al property-service existente en el backend.
  */
 export async function getAvailableProperties(filters?: {
-  zone?: string;
+  title?: string;
+  type?: string;
   minPrice?: number;
   maxPrice?: number;
-  type?: string;
-}): Promise<Property[]> {
-  const params = new URLSearchParams();
-  params.append("status", "DISPONIBLE");
-  if (filters?.zone) params.append("zone", filters.zone);
+  sortBy?: string;
+  sortOrder?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<{
+  data: Property[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+}> {
+  const params = new URLSearchParams({ status: "DISPONIBLE" });
+  if (filters?.title) params.append("title", filters.title);
+  if (filters?.type) params.append("type", filters.type);
   if (filters?.minPrice !== undefined)
     params.append("minPrice", String(filters.minPrice));
   if (filters?.maxPrice !== undefined)
     params.append("maxPrice", String(filters.maxPrice));
-  if (filters?.type) params.append("type", filters.type);
-  console.log(`URL : http://localhost:8080/properties?${params.toString()}`);
+  if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+  if (filters?.sortOrder) params.append("sortOrder", filters.sortOrder);
+  if (filters?.page !== undefined) params.append("page", String(filters.page));
+  if (filters?.pageSize) params.append("pageSize", String(filters.pageSize));
+
   const response = await api.get(`/properties?${params}`);
-  console.log("Respuesta del backend:", response.data);
-  return response.data;
+  console.log("Respuesta del backend (getAvailableProperties):", response.data);
+  return response.data; // { data, page, pageSize, totalElements, totalPages }
 }
 
 // ---------------------------------------------------------------
