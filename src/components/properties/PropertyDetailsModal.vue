@@ -10,7 +10,6 @@
     <template #body>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
-        <!-- Columna Izquierda: Especificaciones e Imágenes -->
         <div class="space-y-4">
           <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
              <h4 class="text-xs font-black text-blue-600 uppercase tracking-widest mb-3">Ficha Técnica</h4>
@@ -39,10 +38,8 @@
           </div>
         </div>
 
-        <!-- Columna Derecha: Auditoría Histórica -->
         <div class="space-y-6">
           
-          <!-- HISTORIAL DE PRECIOS -->
           <div class="relative pl-6 border-l-2 border-yellow-400">
             <div class="absolute -left-[9px] top-0 w-4 h-4 bg-yellow-400 rounded-full border-4 border-white dark:border-gray-900"></div>
             <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">Evolución de Precio</h4>
@@ -65,7 +62,6 @@
             </div>
           </div>
 
-          <!-- HISTORIAL DE RESPONSABLES -->
           <div class="relative pl-6 border-l-2 border-blue-500">
             <div class="absolute -left-[9px] top-0 w-4 h-4 bg-blue-500 rounded-full border-4 border-white dark:border-gray-900"></div>
             <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">Registro de Asignaciones</h4>
