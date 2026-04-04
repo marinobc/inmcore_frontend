@@ -39,6 +39,21 @@
       </div>
     </div>
 
+    <!-- Image Upload Section - Only show when propertyId exists (edit mode) -->
+    <div v-if="props.propertyId" class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Imágenes de la Propiedad</h3>
+      <image-upload 
+        :property-id="props.propertyId"
+        :existing-images="form.imageUrls"
+        @images-updated="handleImagesUpdated"
+      />
+    </div>
+    <div v-else class="border-t border-gray-200 dark:border-gray-700 pt-4">
+      <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed">
+        <p class="text-gray-500">Las imágenes se pueden subir después de crear la propiedad</p>
+      </div>
+    </div>
+
     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
       <fwb-button color="alternative" @click="$emit('cancel')">Cancelar</fwb-button>
       <fwb-button type="submit" gradient="blue">Confirmar Registro</fwb-button>
@@ -47,9 +62,15 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, watch } from 'vue'
 import { FwbInput, FwbButton } from 'flowbite-vue'
 import { userService } from '../../services/userService'
+import ImageUpload from './ImageUpload.vue'
+
+const props = defineProps<{
+  initialData?: any
+  propertyId?: string
+}>()
 
 const emit = defineEmits(['submit', 'cancel'])
 const owners = ref<any[]>([])
@@ -60,11 +81,16 @@ const form = reactive({
   address: '',
   price: 0,
   type: 'APARTAMENTO',
-  operationType: '', // Inicia vacío para PA1
+  operationType: '',
   m2: 0,
   rooms: 0,
-  ownerId: ''
+  ownerId: '',
+  imageUrls: [] as string[]
 })
+
+const handleImagesUpdated = (urls: string[]) => {
+  form.imageUrls = urls
+}
 
 const loadOwners = async () => {
   try {
@@ -77,10 +103,29 @@ const loadOwners = async () => {
 
 const submit = () => {
   showValidation.value = true
-  if (!form.operationType) return // Detener si falta campo obligatorio
+  if (!form.operationType) return
   
-  emit('submit', { ...form, ownerId: form.ownerId || null })
+  emit('submit', { 
+    ...form, 
+    ownerId: form.ownerId || null,
+    imageUrls: form.imageUrls 
+  })
 }
+
+// Initialize form from props
+watch(() => props.initialData, (data) => {
+  if (data) {
+    form.title = data.title || ''
+    form.address = data.address || ''
+    form.price = data.price || 0
+    form.type = data.type || 'APARTAMENTO'
+    form.operationType = data.operationType || ''
+    form.m2 = data.m2 || 0
+    form.rooms = data.rooms || 0
+    form.ownerId = data.ownerId || ''
+    form.imageUrls = data.imageUrls || []
+  }
+}, { immediate: true })
 
 onMounted(loadOwners)
 </script>
