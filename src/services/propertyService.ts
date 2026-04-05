@@ -226,6 +226,16 @@ export const propertyService = {
     return response.data;
   },
 
+  async updateStatus(id: string, status: string): Promise<Property> {
+    const response = await api.patch<Property>(`/properties/${id}/status`, { status });
+    return response.data;
+  },
+
+  async getStatusHistory(id: string): Promise<any[]> {
+    const response = await api.get(`/properties/${id}/status-history`);
+    return response.data;
+  },
+
   async confirmDocumentUpload(
     propertyId: string, 
     documentType: string, 

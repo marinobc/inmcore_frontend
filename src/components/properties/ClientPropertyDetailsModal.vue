@@ -103,12 +103,23 @@
     <template #footer>
       <div class="flex justify-end gap-3">
         <fwb-button color="alternative" @click="$emit('close')">Cerrar</fwb-button>
-        <fwb-button gradient="blue" @click="handleScheduleVisit">
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
-          Agendar Visita
-        </fwb-button>
+        
+        <div class="group relative">
+          <fwb-button 
+            :gradient="property.status === 'DISPONIBLE' ? 'blue' : null" 
+            @click="handleScheduleVisit"
+            :disabled="property.status !== 'DISPONIBLE'"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            {{ property.status === 'DISPONIBLE' ? 'Agendar Visita' : 'No Disponible' }}
+          </fwb-button>
+          
+          <span v-if="property.status !== 'DISPONIBLE'" class="absolute bottom-full mb-2 hidden group-hover:block w-48 bg-gray-900 text-white text-[10px] p-2 rounded shadow-lg">
+            Esta propiedad ya no acepta nuevas visitas porque su estado es {{ property.status }}.
+          </span>
+        </div>
       </div>
     </template>
   </fwb-modal>

@@ -54,6 +54,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
             </svg>
           </button>
+
+          <button 
+            @click="viewDetails(p)" 
+            class="bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 rounded-full p-1.5 hover:text-blue-600 shadow-lg transition-all"
+            title="Ver detalles e historial"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </button>
+
           <button
             v-if="isAdmin"
             @click="confirmDelete(p)"
@@ -70,7 +81,9 @@
           <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover">
           <span v-else>Sin imágenes</span>
           <div class="absolute bottom-2 right-2">
-            <fwb-badge :type="p.status === 'DISPONIBLE' ? 'green' : 'red'">{{ p.status }}</fwb-badge>
+            <fwb-badge :color="getStatusColor(p.status)">
+              {{ p.status }}
+            </fwb-badge>
           </div>
         </div>
 
@@ -138,6 +151,14 @@
         </div>
       </template>
     </fwb-modal>
+    
+    <property-details-modal 
+      v-if="showDetailsModal" 
+      :show="showDetailsModal" 
+      :property="selectedProp" 
+      @close="showDetailsModal = false" 
+      @status-updated="load" 
+    />
   </div>
 </template>
 
@@ -150,6 +171,7 @@ import { api } from '../services/api'
 import type { Property } from '../types/property'
 import PropertyForm from '../components/properties/PropertyForm.vue'
 import DocumentUpload from '../components/properties/DocumentUpload.vue'
+import PropertyDetailsModal from '../components/properties/PropertyDetailsModal.vue'
 
 const { user } = useAuth()
 const myProperties = ref<Property[]>([])
@@ -161,6 +183,8 @@ const isEditing = ref(false)
 const editingProperty = ref<Property | null>(null)
 const propertyToDelete = ref<Property | null>(null)
 const formKey = ref(0)
+const showDetailsModal = ref(false)
+const selectedProp = ref<any>(null)
 
 // Filtros
 const filterTitle = ref('')
@@ -273,6 +297,21 @@ const doDeleteProperty = async () => {
     deleting.value = false
     propertyToDelete.value = null
   }
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'DISPONIBLE': return 'green'
+    case 'RESERVADO': return 'yellow'
+    case 'VENDIDO': return 'red'
+    case 'EN_NEGOCIACION': return 'blue'
+    default: return 'gray'
+  }
+}
+
+const viewDetails = (p: any) => {
+  selectedProp.value = p
+  showDetailsModal.value = true
 }
 
 onMounted(load)

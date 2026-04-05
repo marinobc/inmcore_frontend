@@ -3,7 +3,7 @@
     <template #header>
       <div class="flex items-center space-x-4">
         <h3 class="text-2xl font-bold dark:text-white">{{ property.title }}</h3>
-        <fwb-badge type="green">{{ property.status }}</fwb-badge>
+        <fwb-badge :color="getStatusColor(property.status)">{{ property.status }}</fwb-badge>
       </div>
     </template>
 
@@ -25,6 +25,26 @@
                
                <span class="text-gray-500 font-medium">Tipo:</span> 
                <span class="dark:text-white text-right">{{ property.type }}</span>
+               
+               <span class="text-gray-500 font-medium">Estado actual:</span> 
+               <div class="flex justify-end">
+                 <select 
+                   v-if="!isClientView"
+                   v-model="localStatus" 
+                   @change="handleStatusChange"
+                   :disabled="updatingStatus || (property.status === 'VENDIDO' && !isAdmin)"
+                   class="text-xs font-bold rounded-lg border-gray-300 py-1 px-2 dark:bg-gray-700 dark:text-white"
+                   :class="statusColorClass(localStatus)"
+                 >
+                   <option value="DISPONIBLE">DISPONIBLE</option>
+                   <option value="RESERVADO">RESERVADO</option>
+                   <option value="EN_NEGOCIACION">EN NEGOCIACIÓN</option>
+                   <option value="VENDIDO">VENDIDO</option>
+                 </select>
+                 <span v-else class="dark:text-white text-right" :class="statusTextClass(property.status)">
+                   {{ property.status }}
+                 </span>
+               </div>
              </div>
           </div>
           
@@ -78,6 +98,29 @@
               Se mantiene el asesor inicial.
             </div>
           </div>
+
+          <!-- Historial de Estados (PA2) -->
+          <div class="relative pl-6 border-l-2 border-red-500">
+            <div class="absolute -left-[9px] top-0 w-4 h-4 bg-red-500 rounded-full border-4 border-white dark:border-gray-900"></div>
+            <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">Historial de Estados</h4>
+            
+            <div v-if="property.statusHistory?.length" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+              <div v-for="(h, i) in [...property.statusHistory].reverse()" :key="i" class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                <div class="flex justify-between items-center mb-1">
+                  <div class="flex items-center space-x-1">
+                    <span class="text-[10px] font-bold text-gray-400">{{ h.oldStatus }}</span>
+                    <svg class="w-2 h-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                    <span class="text-[10px] font-bold" :class="statusTextClass(h.newStatus)">{{ h.newStatus }}</span>
+                  </div>
+                  <span class="text-[9px] text-gray-400 font-mono">{{ formatDate(h.changedAt) }}</span>
+                </div>
+                <p class="text-[9px] text-gray-500">Cambiado por: {{ h.changedBy }}</p>
+              </div>
+            </div>
+            <div v-else class="p-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-400 text-xs italic">
+              Sin cambios de estado registrados.
+            </div>
+          </div>
         </div>
 
       </div>
@@ -91,15 +134,70 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, computed } from 'vue'
 import { FwbModal, FwbBadge, FwbButton } from 'flowbite-vue'
+import { propertyService } from '../../services/propertyService'
+import { useAuth } from '../../composables/useAuth'
 
-defineProps<{ 
+const props = defineProps<{ 
   show: boolean, 
   property: any,
   isClientView?: boolean
 }>()
 
-defineEmits(['close'])
+const emit = defineEmits(['close', 'status-updated'])
+const { user } = useAuth()
+
+const localStatus = ref(props.property.status)
+const updatingStatus = ref(false)
+
+const isAdmin = computed(() => user.value?.roles?.includes('ADMIN') || user.value?.userType === 'ADMIN')
+
+const handleStatusChange = async () => {
+  if (localStatus.value === props.property.status) return
+  
+  updatingStatus.value = true
+  try {
+    await propertyService.updateStatus(props.property.id, localStatus.value)
+    alert('Estado actualizado correctamente')
+    emit('status-updated') // Para refrescar la lista en el dashboard
+  } catch (error: any) {
+    localStatus.value = props.property.status // Revertir
+    alert(error.response?.data?.detail || 'No tienes permisos para realizar este cambio')
+  } finally {
+    updatingStatus.value = false
+  }
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'DISPONIBLE': return 'green'
+    case 'RESERVADO': return 'yellow'
+    case 'VENDIDO': return 'red'
+    case 'EN_NEGOCIACION': return 'blue'
+    default: return 'gray'
+  }
+}
+
+const statusColorClass = (status: string) => {
+  const map: any = {
+    DISPONIBLE: 'text-green-600 border-green-200 bg-green-50',
+    RESERVADO: 'text-yellow-600 border-yellow-200 bg-yellow-50',
+    VENDIDO: 'text-red-600 border-red-200 bg-red-50',
+    EN_NEGOCIACION: 'text-blue-600 border-blue-200 bg-blue-50'
+  }
+  return map[status] || ''
+}
+
+const statusTextClass = (status: string) => {
+  const map: any = {
+    DISPONIBLE: 'text-green-600',
+    RESERVADO: 'text-yellow-600',
+    VENDIDO: 'text-red-600',
+    EN_NEGOCIACION: 'text-blue-600'
+  }
+  return map[status] || ''
+}
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '';
@@ -112,6 +210,11 @@ const formatDate = (dateStr: string) => {
     minute: '2-digit'
   });
 }
+
+// Watch para mantener localStatus sincronizado cuando cambia la propiedad
+watch(() => props.property.status, (newStatus) => {
+  localStatus.value = newStatus
+})
 </script>
 
 <style scoped>

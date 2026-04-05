@@ -74,7 +74,9 @@
           <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover" @error="handleImageError(p, $event)">
           <span v-else>Sin imágenes</span>
           <div class="absolute bottom-2 right-2">
-            <fwb-badge :type="p.status === 'DISPONIBLE' ? 'green' : 'red'">{{ p.status }}</fwb-badge>
+            <fwb-badge :color="getStatusColor(p.status)">
+              {{ p.status }}
+            </fwb-badge>
           </div>
         </div>
 
@@ -117,7 +119,8 @@
       :show="showDetailsModal" 
       :property="selectedProp" 
       :is-client-view="false" 
-      @close="showDetailsModal = false" 
+      @close="closeDetailsModal" 
+      @status-updated="handleStatusUpdated"
     />
 
     <fwb-modal v-if="showCreateEditModal" @close="closeCreateEditModal" size="2xl">
@@ -206,7 +209,7 @@ const showPriceModal = ref(false)
 const showOpTypeModal = ref(false)
 const showOwnerModal = ref(false)
 const showDeleteModal = ref(false)
-const showDetailsModal = ref(false) // NUEVO
+const showDetailsModal = ref(false)
 
 const isEditing = ref(false)
 const editingProperty = ref<any>(null)
@@ -264,8 +267,23 @@ const getOpTypeBadge = (type: string): any => {
 }
 
 const viewDetails = (p: any) => {
-  selectedProp.value = p
+  selectedProp.value = { ...p }
   showDetailsModal.value = true
+}
+
+const closeDetailsModal = () => {
+  showDetailsModal.value = false
+  selectedProp.value = null
+}
+
+const handleStatusUpdated = async () => {
+  await load()
+  if (selectedProp.value) {
+    const updatedProperty = allProperties.value.find(p => p.id === selectedProp.value.id)
+    if (updatedProperty) {
+      selectedProp.value = { ...updatedProperty }
+    }
+  }
 }
 
 const resolveAgentName = (id: string | null) => {
@@ -361,6 +379,16 @@ const doAssign = async (agentId: string) => {
   await propertyService.assignAgent(selectedProp.value.id, { agentId })
   showAssignModal.value = false
   await load()
+}
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'DISPONIBLE': return 'green'
+    case 'RESERVADO': return 'yellow'
+    case 'VENDIDO': return 'red'
+    case 'EN_NEGOCIACION': return 'blue'
+    default: return 'gray'
+  }
 }
 
 onMounted(load)
