@@ -8,7 +8,7 @@
     </template>
 
     <template #body>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 gap-8" :class="{ 'lg:grid-cols-2': !isClientView }">
         
         <div class="space-y-4">
           <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
@@ -38,8 +38,7 @@
           </div>
         </div>
 
-        <div class="space-y-6">
-          
+        <div v-if="!isClientView" class="space-y-6">
           <div class="relative pl-6 border-l-2 border-yellow-400">
             <div class="absolute -left-[9px] top-0 w-4 h-4 bg-yellow-400 rounded-full border-4 border-white dark:border-gray-900"></div>
             <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">Evolución de Precio</h4>
@@ -79,8 +78,8 @@
               Se mantiene el asesor inicial.
             </div>
           </div>
-
         </div>
+
       </div>
     </template>
     <template #footer>
@@ -96,7 +95,8 @@ import { FwbModal, FwbBadge, FwbButton } from 'flowbite-vue'
 
 defineProps<{ 
   show: boolean, 
-  property: any 
+  property: any,
+  isClientView?: boolean
 }>()
 
 defineEmits(['close'])

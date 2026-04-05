@@ -286,6 +286,16 @@
             >
               {{ prop.type }}
             </span>
+
+            <button 
+              @click.stop="toggleFavorite(prop.id)"
+              class="absolute top-3 right-12 p-2 rounded-full backdrop-blur-md transition-all"
+              :class="isFavorite(prop.id) ? 'bg-red-500 text-white' : 'bg-white/80 text-gray-400 hover:text-red-500'"
+            >
+              <svg class="w-5 h-5" :fill="isFavorite(prop.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
           </div>
 
           <!-- Info -->
@@ -345,131 +355,13 @@
     </div>
 
     <!-- ===== MODAL DETALLE PROPIEDAD ===== -->
-    <Transition name="fade">
-      <div
-        v-if="selectedProperty && !showRequestModal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/60"
-        @click.self="selectedProperty = null"
-      >
-        <div
-          class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transition-colors"
-        >
-          <div
-            class="h-48 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center transition-colors"
-          >
-            <img
-              v-if="selectedProperty.imageUrl"
-              :src="selectedProperty.imageUrl"
-              class="w-full h-full object-cover"
-            />
-            <svg
-              v-else
-              class="h-20 w-20 text-blue-300 dark:text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
-          </div>
-          <div class="p-6">
-            <div class="flex items-start justify-between">
-              <div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                  {{ selectedProperty.title }}
-                </h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                  {{ selectedProperty.address }}
-                </p>
-              </div>
-              <button
-                @click="selectedProperty = null"
-                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-              >
-                <svg
-                  class="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
-              <div
-                class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 transition-colors"
-              >
-                <p class="text-xs text-gray-500 dark:text-gray-400">Precio</p>
-                <p class="font-bold text-blue-700 dark:text-blue-400 text-base">
-                  ${{ selectedProperty.price.toLocaleString() }}
-                </p>
-              </div>
-              <div
-                class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 transition-colors"
-              >
-                <p class="text-xs text-gray-500 dark:text-gray-400">Tipo</p>
-                <p class="font-medium text-gray-900 dark:text-white">
-                  {{ selectedProperty.type }}
-                </p>
-              </div>
-              <div
-                class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3"
-                v-if="selectedProperty.bedrooms"
-              >
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  Habitaciones
-                </p>
-                <p class="font-medium text-gray-900 dark:text-white">
-                  {{ selectedProperty.bedrooms }}
-                </p>
-              </div>
-              <div
-                class="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3"
-                v-if="selectedProperty.area"
-              >
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  Área (m²)
-                </p>
-                <p class="font-medium text-gray-900 dark:text-white">
-                  {{ selectedProperty.area }}
-                </p>
-              </div>
-            </div>
-            <p
-              v-if="selectedProperty.description"
-              class="text-sm text-gray-600 dark:text-gray-300 mt-3"
-            >
-              {{ selectedProperty.description }}
-            </p>
-            <div class="mt-5 flex gap-3">
-              <button
-                @click="selectedProperty = null"
-                class="flex-1 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                Cerrar
-              </button>
-              <button
-                @click="openRequestModal(selectedProperty)"
-                class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                Agendar visita
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Transition>
+    <client-property-details-modal
+      v-if="selectedProperty && !showRequestModal"
+      :show="!!selectedProperty"
+      :property="selectedProperty"
+      @close="selectedProperty = null"
+      @schedule-visit="openRequestModal"
+    />
 
     <!-- ===== MODAL SOLICITUD DE CITA ===== -->
     <Transition name="fade">
@@ -698,6 +590,7 @@ import {
   createVisitRequest,
 } from "../services/visitRequestService";
 import type { Property, ClientVisitRequestDTO } from "../types/visitCalendar";
+import ClientPropertyDetailsModal from '../components/properties/ClientPropertyDetailsModal.vue'
 
 // ── Auth — leer del JWT ──
 import { useAuth } from "../composables/useAuth";
@@ -711,6 +604,7 @@ const myClientName = computed(() => {
 });
 
 import { useRouter } from "vue-router";
+import { favoriteService } from "../services/favoriteService";
 const router = useRouter();
 
 // ── Pagination ──
@@ -771,6 +665,46 @@ function loadAgentNames(propList: any[]) {
     }
   });
 }
+
+const favorites = ref<Set<string>>(new Set())
+
+const toggleFavorite = async (propertyId: string) => {
+  try {
+    if (favorites.value.has(propertyId)) {
+      favorites.value.delete(propertyId) // Optimistic update
+      await favoriteService.removeFavorite(propertyId)
+    } else {
+      favorites.value.add(propertyId)
+      await favoriteService.addFavorite(propertyId)
+    }
+  } catch (error: any) {
+    // Revert optimistic update on error
+    if (favorites.value.has(propertyId)) {
+      favorites.value.delete(propertyId)
+    } else {
+      favorites.value.add(propertyId)
+    }
+    const msg = error.response?.data?.message || error.response?.data?.detail || 'Error al actualizar favorito'
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: msg,
+      confirmButtonColor: '#dc2626',
+    })
+  }
+}
+
+const loadFavorites = async () => {
+  try {
+    const ids = await favoriteService.getFavorites()
+    favorites.value = new Set(ids)
+  } catch (e) {
+    console.error('Error loading favorites:', e)
+    favorites.value = new Set()
+  }
+}
+
+const isFavorite = (id: string) => favorites.value.has(id)
 
 // ── Cargar propiedades ──
 async function loadProperties() {
@@ -931,17 +865,8 @@ async function submitVisitRequest() {
   }
 }
 
-onMounted(loadProperties);
+onMounted(() => {
+  loadProperties()
+  loadFavorites()
+})
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

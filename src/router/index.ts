@@ -83,6 +83,12 @@ const routes = [
         meta: { role: 'OWNER' }  // ← Already exists, good!
       },
       {
+        path: 'client/favorites',
+        name: 'ClientFavorites',
+        component: () => import('../views/ClientFavorites.vue'),
+        meta: { role: 'CLIENT' }
+      },
+      {
         path: 'client',
         name: 'ClientDashboard',
         component: ClientDashboard,
