@@ -117,7 +117,15 @@
           </fwb-button>
           
           <span v-if="property.status !== 'DISPONIBLE'" class="absolute bottom-full mb-2 hidden group-hover:block w-48 bg-gray-900 text-white text-[10px] p-2 rounded shadow-lg">
-            Esta propiedad ya no acepta nuevas visitas porque su estado es {{ property.status }}.
+            <template v-if="property.status === 'VENDIDO'">
+              Esta propiedad ya fue VENDIDA y no acepta nuevas visitas.
+            </template>
+            <template v-else-if="property.status === 'RESERVADO'">
+              Esta propiedad está RESERVADA y no acepta nuevas visitas.
+            </template>
+            <template v-else>
+              Esta propiedad no acepta nuevas visitas porque su estado es {{ property.status }}.
+            </template>
           </span>
         </div>
       </div>

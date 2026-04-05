@@ -97,9 +97,24 @@
           </div>
           <!-- Status Badge -->
           <div class="absolute bottom-2 right-2">
-            <fwb-badge :type="prop.status === 'DISPONIBLE' ? 'green' : 'red'">
-              {{ prop.status === 'DISPONIBLE' ? 'Disponible' : 'Ocupado' }}
-            </fwb-badge>
+            <span 
+              class="px-2 py-1 rounded-full text-xs font-semibold shadow-md"
+              :class="{
+                'bg-green-500 text-white': prop.status === 'DISPONIBLE',
+                'bg-yellow-500 text-white': prop.status === 'RESERVADO',
+                'bg-red-500 text-white': prop.status === 'VENDIDO',
+                'bg-blue-500 text-white': prop.status === 'EN_NEGOCIACION',
+                'bg-gray-500 text-white': !['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'EN_NEGOCIACION'].includes(prop.status)
+              }"
+            >
+              {{ 
+                prop.status === 'DISPONIBLE' ? 'Disponible' :
+                prop.status === 'RESERVADO' ? 'Reservado' :
+                prop.status === 'VENDIDO' ? 'Vendido' :
+                prop.status === 'EN_NEGOCIACION' ? 'En Negociación' :
+                prop.status || 'Ocupado'
+              }}
+            </span>
           </div>
           <!-- Operation Type Badge -->
           <div class="absolute bottom-2 left-2">
@@ -113,7 +128,7 @@
         <div class="p-5 flex-1 flex flex-col">
           <div class="flex gap-2 mb-2">
             <fwb-badge type="dark" size="xs">{{ prop.type || 'Propiedad' }}</fwb-badge>
-            <fwb-badge v-if="prop.m2" type="gray" size="xs">{{ prop.m2 }} m²</fwb-badge>
+            <fwb-badge v-if="prop.m2" type="dark" size="xs">{{ prop.m2 }} m²</fwb-badge>
           </div>
           
           <h5 class="text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">{{ prop.title }}</h5>
@@ -157,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { FwbCard, FwbButton, FwbBadge } from 'flowbite-vue'
 import { favoriteService } from '../services/favoriteService'
 import { propertyService } from '../services/propertyService'
@@ -206,11 +221,11 @@ const loadFavoritesAndProperties = async () => {
     const allProperties = await propertyService.getProperties()
     
     // 4. Filter only favorite properties
-    const filtered = allProperties.filter(p => favoriteIds.includes(p.id))
+    const filtered = allProperties.filter((p: any) => favoriteIds.includes(p.id))
     
     // 5. Sort to maintain the same order as favoriteIds (optional)
     favoriteProperties.value = favoriteIds
-      .map(id => filtered.find(p => p.id === id))
+      .map(id => filtered.find((p: any) => p.id === id))
       .filter(Boolean)
     
   } catch (err: any) {

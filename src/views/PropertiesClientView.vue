@@ -276,9 +276,22 @@
             </svg>
             <!-- Badge Disponible -->
             <span
-              class="absolute top-3 left-3 bg-green-500 dark:bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm"
+              class="absolute top-3 left-3 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm"
+              :class="{
+                'bg-green-500 dark:bg-green-600': prop.status === 'Disponible',
+                'bg-yellow-500 dark:bg-yellow-600': prop.status === 'Reservado',
+                'bg-red-500 dark:bg-red-600': prop.status === 'Vendido',
+                'bg-blue-500 dark:bg-blue-600': prop.status === 'En Negociación',
+                'bg-gray-500 dark:bg-gray-600': !['Disponible', 'Reservado', 'Vendido', 'En Negociación'].includes(prop.status)
+              }"
             >
-              {{ prop.status }}
+              {{ 
+                prop.status === 'Disponible' ? 'Disponible' :
+                prop.status === 'Reservado' ? 'Reservado' :
+                prop.status === 'Vendido' ? 'Vendido' :
+                prop.status === 'En Negociación' ? 'En Negociación' :
+                prop.status 
+              }}
             </span>
             <!-- Tipo -->
             <span
@@ -314,14 +327,22 @@
               <span class="text-lg font-bold text-blue-700 dark:text-blue-400">
                 ${{ prop.price.toLocaleString("es-BO") }}
               </span>
-              <button
-                @click.stop="openRequestModal(prop)"
-                class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
-              >
-                Agendar visita
-              </button>
+              
             </div>
-
+            <button
+              v-if="prop.status === 'Disponible'"
+              @click.stop="openRequestModal(prop)"
+              class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+            >
+              Agendar visita
+            </button>
+            <button
+              v-else
+              disabled
+              class="px-3 py-1.5 text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+            >
+              {{ prop.status === 'Vendido' ? 'Vendida' : 'Reservada' }}
+            </button>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
               Agente: {{ prop.agentName }}
             </p>

@@ -48,9 +48,19 @@
           <div class="absolute top-4 left-4">
             <span :class="[
               'px-2 py-1 rounded-full text-xs font-semibold shadow-md',
-              prop.status === 'DISPONIBLE' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+              prop.status === 'DISPONIBLE' ? 'bg-green-500 text-white' :
+              prop.status === 'RESERVADO' ? 'bg-yellow-500 text-white' :
+              prop.status === 'VENDIDO' ? 'bg-red-500 text-white' :
+              prop.status === 'EN_NEGOCIACION' ? 'bg-blue-500 text-white' :
+              'bg-gray-500 text-white'
             ]">
-              {{ prop.status === 'DISPONIBLE' ? 'Disponible' : 'Ocupado' }}
+              {{ 
+                prop.status === 'DISPONIBLE' ? 'Disponible' :
+                prop.status === 'RESERVADO' ? 'Reservado' :
+                prop.status === 'VENDIDO' ? 'Vendido' :
+                prop.status === 'EN_NEGOCIACION' ? 'En Negociación' :
+                prop.status || 'Ocupado'
+              }}
             </span>
           </div>
         </div>
