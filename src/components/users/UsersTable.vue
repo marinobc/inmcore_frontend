@@ -6,7 +6,7 @@
       <div class="flex-1 flex items-center space-x-2">
         <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ t.users.directory }}</h2>
         <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-          {{ users.length }} {{ t.users.total }}
+          {{ totalUsers || users.length }} {{ t.users.total }}
         </span>
       </div>
       <div class="flex-shrink-0">
@@ -38,14 +38,13 @@
           v-for="u in users"
           :key="u.id"
           class="group"
-          :class="{ 'opacity-60': u.status === 'INACTIVE' }"
         >
-          <fwb-table-cell class="font-medium text-gray-900 dark:text-white">
+          <fwb-table-cell class="font-medium text-gray-900 dark:text-white" :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             {{ u.fullName || u.name }}
           </fwb-table-cell>
-          <fwb-table-cell>{{ u.email }}</fwb-table-cell>
-          <fwb-table-cell>{{ u.phone || '-' }}</fwb-table-cell>
-          <fwb-table-cell>
+          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">{{ u.email }}</fwb-table-cell>
+          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">{{ u.phone || '-' }}</fwb-table-cell>
+          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             <span class="font-mono text-sm">
               {{ u.taxId || '-' }}
             </span>
@@ -54,19 +53,21 @@
               (CI)
             </span>
           </fwb-table-cell>
-          <fwb-table-cell>
+          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             <span class="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
               {{ resolveRoleName(u.primaryRoleIds) }}
             </span>
           </fwb-table-cell>
-          <fwb-table-cell>
+          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             <span
               :class="[
                 'px-2 py-1 text-xs font-semibold rounded-full',
                 u.status === 'ACTIVE'
                   ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                   : u.status === 'INACTIVE'
-                  ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                  ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300'
+                  : u.status === 'DELETED'
+                  ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
                   : u.status === 'LOCKED'
                   ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                   : 'bg-yellow-100 text-yellow-700'
@@ -78,6 +79,18 @@
           <fwb-table-cell class="text-right">
             <div class="flex justify-end space-x-1">
               <button
+                @click="$emit('viewDetails', u)"
+                class="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                title="Ver detalles"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </button>
+
+              <button
+                v-if="u.status !== 'DELETED'"
                 @click="$emit('resend', u)"
                 class="p-2 text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors"
                 title="Reenviar contraseña temporal"
@@ -88,7 +101,7 @@
               </button>
 
               <button
-                v-if="u.status !== 'INACTIVE'"
+                v-if="u.status !== 'INACTIVE' && u.status !== 'DELETED'"
                 @click="$emit('edit', u)"
                 class="p-2 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 title="Editar usuario"
@@ -110,7 +123,7 @@
               </button>
 
               <button
-                v-if="u.status !== 'INACTIVE'"
+                v-if="u.status !== 'INACTIVE' && u.status !== 'DELETED'"
                 @click="$emit('delete', u)"
                 class="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 title="Desactivar usuario"
@@ -141,7 +154,8 @@ import { t } from '../../locales/i18n'
 
 const props = defineProps<{
   users: any[],
-  roles: any[]
+  roles: any[],
+  totalUsers?: number
 }>()
 
 const resolveRoleName = (roleIds: string[]) => {
@@ -155,6 +169,7 @@ const statusLabel = (status: string) => {
   switch (status) {
     case 'ACTIVE': return 'Activo'
     case 'INACTIVE': return 'Inactivo'
+    case 'DELETED': return 'Dado de baja'
     case 'LOCKED': return 'Bloqueado'
     case 'TERMINATED': return 'Terminado'
     default: return status || '—'
@@ -167,5 +182,6 @@ defineEmits<{
   delete: [user: any]
   resend: [user: any]
   reactivate: [user: any]
+  viewDetails: [user: any]
 }>()
 </script>

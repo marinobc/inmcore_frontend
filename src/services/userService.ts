@@ -67,7 +67,10 @@ export const userService = {
   async deleteUser(id: string) {
     await api.delete(`/users/${id}`)
   },
-
+  async darDeBaja(id: string, motivo: string) {
+    const res = await api.put(`/persons/${id}/deactivate?motivo=${encodeURIComponent(motivo)}`);
+    return res.data;
+  },
   async getRoles() {
     const res = await api.get('/roles')
     return res.data

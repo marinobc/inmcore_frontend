@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+function parseJwt(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+  } catch (e) {
+    return null;
+  }
+}
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080',
   headers: {
@@ -12,6 +22,11 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+      // Add X-Auth-User-Id header if token exists
+      const decoded = parseJwt(token);
+      if (decoded?.sub || decoded?.userId) {
+        config.headers['X-Auth-User-Id'] = decoded.sub || decoded.userId;
+      }
     }
     return config;
   },

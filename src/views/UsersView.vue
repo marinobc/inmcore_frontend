@@ -35,14 +35,31 @@
           <fwb-button v-if="searchCI" @click="clearSearch" color="alternative" size="sm">
             Limpiar búsqueda
           </fwb-button>
-          <fwb-button @click="openCreateModal" gradient="blue">
-            <div class="flex items-center">
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-              </svg>
-              Agregar Nuevo Usuario
-            </div>
-          </fwb-button>
+          <div class="flex items-center space-x-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Mostrar:</label>
+            <fwb-button
+              :color="statusFilter === 'ALL' ? 'blue' : 'gray'"
+              size="sm"
+              @click="statusFilter = 'ALL'"
+            >
+              Todos
+            </fwb-button>
+            <fwb-button
+              :color="statusFilter === 'ACTIVE' ? 'blue' : 'gray'"
+              size="sm"
+              @click="statusFilter = 'ACTIVE'"
+            >
+              Activos
+            </fwb-button>
+            <fwb-button
+              :color="statusFilter === 'INACTIVE' ? 'blue' : 'gray'"
+              size="sm"
+              @click="statusFilter = 'INACTIVE'"
+            >
+              Inactivos
+            </fwb-button>
+          </div>
+
         </div>
       </div>
     </div>
@@ -51,11 +68,13 @@
     <users-table
       :users="filteredUsers"
       :roles="roles"
+      :total-users="filteredUsers.length"
       @create="openCreateModal"
       @edit="openEditModal"
       @delete="handleDeactivate"
       @resend="handleResend"
       @reactivate="handleReactivate"
+      @viewDetails="openDetailsModal"
     />
 
     <fwb-modal v-if="showModal" @close="closeModal">
@@ -75,6 +94,93 @@
       </template>
     </fwb-modal>
 
+    <fwb-modal v-if="showDetailsModal" @close="closeDetailsModal">
+      <template #header>
+        <div class="text-lg font-semibold">
+          Detalles del Cliente: {{ selectedUser?.fullName || selectedUser?.email }}
+        </div>
+      </template>
+      <template #body>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.fullName || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.email || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Teléfono</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.phone || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">CI / NIT</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.taxId || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Usuario</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.userType || 'N/A' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
+              <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.status || 'N/A' }}</p>
+            </div>
+          </div>
+
+          <!-- Mostrar campos específicos según el tipo -->
+          <div v-if="selectedUser?.userType === 'OWNER'" class="border-t pt-4">
+            <h3 class="text-md font-semibold mb-2">Información del Propietario</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dirección</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.address || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Propiedades</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.propertyIds?.length || 0 }} propiedades</p>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedUser?.userType === 'INTERESTED_CLIENT'" class="border-t pt-4">
+            <h3 class="text-md font-semibold mb-2">Preferencias del Cliente</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Presupuesto</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.budget ? `$${selectedUser.budget}` : 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Zona Preferida</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.preferredZone || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Propiedad</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.preferredPropertyType || 'N/A' }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Habitaciones</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ selectedUser?.preferredRooms || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón de dar de baja solo si está inactivo -->
+          <div v-if="selectedUser?.status === 'INACTIVE'" class="border-t pt-4 flex justify-end">
+            <fwb-button @click="handleRemove(selectedUser)" color="red">
+              <div class="flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Dar de baja
+              </div>
+            </fwb-button>
+          </div>
+        </div>
+      </template>
+    </fwb-modal>
+
     <!-- Toast/Alert for feedback -->
     <div
       v-if="toast.visible"
@@ -91,11 +197,12 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { FwbModal, FwbButton } from 'flowbite-vue'
+import Swal from 'sweetalert2'
 import { useUsers } from '../composables/useUsers'
 import UserForm from '../components/users/UserForm.vue'
 import UsersTable from '../components/users/UsersTable.vue'
 
-const { users, roles, load, create, deactivate, reactivate, resendPassword, update } = useUsers()
+const { users, roles, load, create, remove, deactivate, reactivate, resendPassword, update } = useUsers()
 const showModal = ref(false)
 const isEditing = ref(false)
 const editingUser = ref<any>(null)
@@ -105,26 +212,38 @@ const formKey = ref(0)
 const searchCI = ref('')
 const searchTimeout = ref<ReturnType<typeof setTimeout>>()
 
+//Estado para filtro de estado
+const statusFilter = ref<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL')
+
 const toast = ref({ visible: false, message: '', type: 'success' })
+
+const showDetailsModal = ref(false)
+const selectedUser = ref<any>(null)
 
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   toast.value = { visible: true, message, type }
   setTimeout(() => { toast.value.visible = false }, 5000)
 }
 
-// ✅ NUEVO: Filtrar usuarios por CI (taxId)
+// ✅ NUEVO: Filtrar usuarios por CI y estado
 const filteredUsers = computed(() => {
-  if (!searchCI.value || searchCI.value.trim() === '') {
-    return users.value
+  let filtered = users.value
+
+  // Filtro por CI
+  if (searchCI.value && searchCI.value.trim() !== '') {
+    const searchTerm = searchCI.value.trim().toLowerCase()
+    filtered = filtered.filter(user => {
+      const taxId = user.taxId?.toLowerCase() || ''
+      return taxId.includes(searchTerm)
+    })
   }
-  
-  const searchTerm = searchCI.value.trim().toLowerCase()
-  
-  return users.value.filter(user => {
-    // Buscar en taxId (CI) del usuario
-    const taxId = user.taxId?.toLowerCase() || ''
-    return taxId.includes(searchTerm)
-  })
+
+  // Filtro por estado
+  if (statusFilter.value !== 'ALL') {
+    filtered = filtered.filter(user => user.status === statusFilter.value)
+  }
+
+  return filtered
 })
 
 // ✅ NUEVO: Manejar búsqueda con debounce
@@ -133,9 +252,6 @@ const handleSearch = () => {
   searchTimeout.value = setTimeout(() => {
     // La búsqueda ya se maneja con el computed filteredUsers
     // Solo mostramos feedback visual
-    if (searchCI.value && filteredUsers.value.length === 0 && users.value.length > 0) {
-      // El mensaje ya se muestra en el template
-    }
   }, 300)
 }
 
@@ -160,6 +276,16 @@ const openEditModal = (user: any) => {
 
 const closeModal = () => {
   showModal.value = false
+}
+
+const openDetailsModal = (user: any) => {
+  selectedUser.value = user
+  showDetailsModal.value = true
+}
+
+const closeDetailsModal = () => {
+  showDetailsModal.value = false
+  selectedUser.value = null
 }
 
 const handleSubmit = async (formData: any) => {
@@ -203,12 +329,47 @@ const handleSubmit = async (formData: any) => {
 }
 
 const handleDeactivate = async (user: any) => {
-  if (!confirm(`¿Desactivar al usuario "${user.fullName || user.email}"? El usuario no podrá iniciar sesión.`)) return
+  const result = await Swal.fire({
+    title: '¿Desactivar cliente?',
+    text: `¿Estás seguro de desactivar a "${user.fullName || user.email}"? El usuario no podrá iniciar sesión, pero podrá ser reactivado después.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f59e0b',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Sí, desactivar',
+    cancelButtonText: 'Cancelar'
+  })
+
+  if (!result.isConfirmed) return
+
   try {
     await deactivate(user.id)
-    showToast('Usuario desactivado correctamente')
+    showToast('Cliente desactivado correctamente')
   } catch (e: any) {
     showToast(e.response?.data?.detail || 'Error al desactivar', 'error')
+  }
+}
+
+const handleRemove = async (user: any) => {
+  const result = await Swal.fire({
+    title: '¿Dar de baja cliente?',
+    text: `¿Estás seguro de dar de baja definitivamente a "${user.fullName || user.email}"? Esta acción no se puede deshacer.`,
+    icon: 'error',
+    showCancelButton: true,
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Sí, dar de baja',
+    cancelButtonText: 'Cancelar'
+  })
+
+  if (!result.isConfirmed) return
+
+  try {
+    await remove(user.id)
+    showToast('Cliente dado de baja correctamente')
+    closeDetailsModal()
+  } catch (e: any) {
+    showToast(e.response?.data?.detail || 'Error al dar de baja', 'error')
   }
 }
 

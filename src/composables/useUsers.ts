@@ -53,6 +53,15 @@ export function useUsers() {
   const deactivate = async (id: string) => {
     try {
       await userService.deactivateUser(id)
+
+      // Intentar registrar en auditoría si es un cliente interesado
+      try {
+        await userService.darDeBaja(id, 'Desactivado desde panel de administración')
+      } catch (auditError) {
+        // Si falla el registro en auditoría, no fallar la desactivación completa
+        console.warn('No se pudo registrar en auditoría, pero la desactivación fue exitosa:', auditError)
+      }
+
       const idx = users.value.findIndex(u => u.id === id)
       if (idx !== -1) {
         users.value[idx] = { ...users.value[idx], status: 'INACTIVE' }
