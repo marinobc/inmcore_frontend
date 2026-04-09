@@ -52,15 +52,24 @@
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-          <!-- Download Button (US1 AC1) -->
+          <!-- Download Button (US1 AC1) with 10-second expiration and permanent consumption via localStorage -->
           <button
             @click="downloadDocument(doc)"
-            class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-            title="Descargar"
+            :disabled="isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id)"
+            :title="isDocumentDownloaded(doc.id) ? 'Descarga ya utilizada' : (isDownloadExpired(doc.id) ? 'Link expirado. Haz click para obtener uno nuevo' : 'Descargar (expira en ' + (getDownloadTimeRemaining(doc.id) || '10') + 's)')"
+            :class="[
+              'p-2 rounded-lg transition-colors relative',
+              (isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id))
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30'
+            ]"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
+            <div class="flex items-center gap-1">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              <span v-if="getDownloadTimeRemaining(doc.id)" class="text-xs font-semibold">{{ getDownloadTimeRemaining(doc.id) }}s</span>
+            </div>
           </button>
 
           <!-- Permission Settings (Admin only - US2) -->
@@ -188,6 +197,9 @@ const uploading = ref(false)
 const showPermissionModal = ref(false)
 const selectedDoc = ref<DocumentResponse | null>(null)
 
+// Download expiration tracking (10 seconds per download)
+const downloadTimers = ref<Record<string, { expiresAt: number, timerId: number | null }>>({})
+
 const permissionForm = ref({
   roles: {
     ADMIN: false,
@@ -241,7 +253,7 @@ const handleFileSelect = async (e: Event) => {
   uploading.value = true
   try {
     // US1: Upload contract
-    const doc = await propertyService.uploadExclusivityContract(props.propertyId, file)
+    await propertyService.uploadExclusivityContract(props.propertyId, file)
     await loadDocuments()
     
     // US1 AC3: Property status automatically updates to "CONTRACTED" on backend
@@ -255,16 +267,85 @@ const handleFileSelect = async (e: Event) => {
   }
 }
 
-// US1 AC1 & AC4: Download with temporary URL
+// Get time remaining for download (10 seconds)
+const getDownloadTimeRemaining = (docId: string): number | null => {
+  const timer = downloadTimers.value[docId]
+  if (!timer) return null
+  
+  const now = Date.now()
+  const remaining = Math.ceil((timer.expiresAt - now) / 1000)
+  
+  return remaining > 0 ? remaining : null
+}
+
+// Check if download link is expired
+const isDownloadExpired = (docId: string): boolean => {
+  const timer = downloadTimers.value[docId]
+  if (!timer) return false
+  
+  return Date.now() >= timer.expiresAt
+}
+
+// Check if document was already downloaded (permanently consumed via localStorage)
+const isDocumentDownloaded = (docId: string): boolean => {
+  if (!user.value?.sub) return false
+  const key = `downloaded_${user.value.sub}_${docId}`
+  return localStorage.getItem(key) === 'true'
+}
+
+// Mark document as downloaded permanently in localStorage
+const markDocumentAsDownloaded = (docId: string) => {
+  if (!user.value?.sub) return
+  const key = `downloaded_${user.value.sub}_${docId}`
+  localStorage.setItem(key, 'true')
+}
+
+// Set 10-second download expiration timer
+const setDownloadExpiration = (docId: string) => {
+  // Clear existing timer if any
+  const existingTimer = downloadTimers.value[docId]
+  if (existingTimer && existingTimer.timerId !== null) {
+    clearInterval(existingTimer.timerId)
+  }
+  
+  const expiresAt = Date.now() + 10000 // 10 seconds
+  const timerId = window.setInterval(() => {
+    // Force re-render by updating the reactive object
+    if (downloadTimers.value[docId]) {
+      downloadTimers.value[docId] = { ...downloadTimers.value[docId], expiresAt }
+    }
+  }, 100)
+  
+  downloadTimers.value[docId] = { expiresAt, timerId }
+  
+  // After 10 seconds: mark as downloaded permanently and clear timer
+  setTimeout(() => {
+    // Mark as downloaded in localStorage (permanent, survives page reload)
+    markDocumentAsDownloaded(docId)
+    
+    const timer = downloadTimers.value[docId]
+    if (timer && timer.timerId !== null) {
+      clearInterval(timer.timerId)
+    }
+  }, 10000)
+}
+
+// PA: US1 AC1 & AC4: Download with temporary URL - Requires user action to request new URL after expiration
 const downloadDocument = async (doc: DocumentResponse) => {
   try {
     let downloadUrl = doc.temporaryDownloadUrl
     
-    // If URL expired (AC4), request a new one
-    if (!downloadUrl || doc.expiresInSeconds === 0) {
+    // Request new URL if:
+    // 1. No URL exists
+    // 2. Server URL is expired
+    // 3. Local 10-second timer expired (prevents reusing old links)
+    if (!downloadUrl || doc.expiresInSeconds === 0 || isDownloadExpired(doc.id)) {
       const result = await propertyService.refreshDownloadUrl(doc.id)
       downloadUrl = result.temporaryDownloadUrl
     }
+    
+    // Set 10-second local expiration for UI feedback
+    setDownloadExpiration(doc.id)
     
     // Open in new tab
     window.open(downloadUrl, '_blank')
