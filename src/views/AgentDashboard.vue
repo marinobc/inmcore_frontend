@@ -257,24 +257,29 @@ const closeCreateEditModal = () => {
 const handleCreateEdit = async (data: any) => {
   try {
     if (isEditing.value && editingProperty.value) {
-      // For editing, update price and operation type
-      if (data.price !== editingProperty.value.price) {
-        await propertyService.updatePrice(editingProperty.value.id, data.price)
-      }
-      if (data.operationType !== editingProperty.value.operationType) {
-        await api.patch(`/properties/${editingProperty.value.id}/operation-type`, { operationType: data.operationType })
-      }
-      alert('Propiedad actualizada con éxito')
+      const updatePayload: any = {
+        title: data.title,
+        address: data.address,
+        type: data.type,
+        m2: data.m2,
+        rooms: data.rooms,
+        operationType: data.operationType,
+        ownerId: data.ownerId || null
+      };
+      
+      await propertyService.updatePropertyAsAgent(editingProperty.value.id, updatePayload);
+      alert('Propiedad actualizada con éxito');
     } else {
-      await propertyService.createProperty(data)
-      alert('Inmueble registrado con éxito')
+      await propertyService.createProperty(data);
+      alert('Inmueble registrado con éxito');
     }
-    closeCreateEditModal()
-    await load()
+    closeCreateEditModal();
+    await load();
   } catch (e: any) {
-    alert('Error: ' + (e.response?.data?.detail || 'Error de conexión'))
+    console.error('Error saving property:', e);
+    alert('Error: ' + (e.response?.data?.detail || e.message || 'Error de conexión'));
   }
-}
+};
 
 const confirmDelete = (property: Property) => {
   propertyToDelete.value = property

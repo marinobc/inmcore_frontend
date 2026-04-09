@@ -24,7 +24,19 @@
         </select>
       </div>
 
-      <fwb-input v-model.number="form.price" type="number" label="Precio ($)" required />
+      <div>
+        <fwb-input 
+          v-model.number="form.price" 
+          type="number" 
+          label="Precio ($)" 
+          required 
+          :disabled="isPriceDisabled"
+        />
+        <p v-if="isPriceDisabled" class="text-xs text-yellow-600 mt-1">
+          ⚠️ Los agentes no pueden modificar el precio. Solo administradores.
+        </p>
+      </div>
+
       <fwb-input v-model.number="form.m2" type="number" label="Superficie (m²)" required />
       <fwb-input v-model.number="form.rooms" type="number" label="Habitaciones" required />
 
@@ -62,9 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch } from 'vue'
+import { reactive, ref, onMounted, watch, computed } from 'vue'
 import { FwbInput, FwbButton } from 'flowbite-vue'
 import { userService } from '../../services/userService'
+import { useAuth } from '../../composables/useAuth'
 import ImageUpload from './ImageUpload.vue'
 
 const props = defineProps<{
@@ -75,6 +88,17 @@ const props = defineProps<{
 const emit = defineEmits(['submit', 'cancel'])
 const owners = ref<any[]>([])
 const showValidation = ref(false)
+const { user } = useAuth()
+
+const isAgent = computed(() => {
+  const roles = user.value?.roles || []
+  const userType = user.value?.userType
+  return (roles.includes('AGENT') || userType === 'EMPLOYEE') && !(roles.includes('ADMIN') || userType === 'ADMIN')
+})
+
+const isPriceDisabled = computed(() => {
+  return isAgent.value && !!props.propertyId
+})
 
 const form = reactive({
   title: '',
@@ -105,11 +129,22 @@ const submit = () => {
   showValidation.value = true
   if (!form.operationType) return
   
-  emit('submit', { 
-    ...form, 
+  const submitData: any = {
+    title: form.title,
+    address: form.address,
+    type: form.type,
+    operationType: form.operationType,
+    m2: form.m2,
+    rooms: form.rooms,
     ownerId: form.ownerId || null,
-    imageUrls: form.imageUrls 
-  })
+    imageUrls: form.imageUrls
+  }
+
+  if (!isAgent.value || !props.propertyId) {
+    submitData.price = form.price
+  }
+  
+  emit('submit', submitData)
 }
 
 // Initialize form from props

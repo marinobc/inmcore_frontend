@@ -279,6 +279,11 @@ export const propertyService = {
     return response.data;
   },
 
+  async updatePropertyAsAgent(propertyId: string, payload: any) {
+    const response = await api.patch(`/properties/${propertyId}/agent-update`, payload);
+    return response.data;
+  },
+
   async uploadExclusivityContract(propertyId: string, file: File): Promise<DocumentResponse> {
     const { uploadUrl, objectKey } = await this.generateDocumentUploadUrl({
       propertyId,
