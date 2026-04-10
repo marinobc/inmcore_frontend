@@ -142,6 +142,14 @@
               <option value="DESC">Descendente</option>
             </select>
           </div>
+
+          <!-- Tamaño de Página -->
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ver</label>
+            <select v-model="filters.pageSize" @change="applyFilters" class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option v-for="opt in PAGE_SIZE_OPTIONS" :key="opt" :value="opt">{{ opt }} por página</option>
+            </select>
+          </div>
         </div>
 
         <div class="flex gap-3 mt-3">
@@ -351,26 +359,35 @@
       </div>
 
       <!-- PAGINACIÓN -->
-      <div
-        v-if="totalPages > 1"
-        class="flex justify-center items-center gap-2 mt-6"
-      >
+      <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-6 pb-10">
         <button
           @click="goToPage(filters.page - 1)"
           :disabled="filters.page === 0"
-          class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition-colors"
+          class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
         >
-          ← Anterior
+          Anterior
         </button>
-        <span class="text-sm text-gray-600 dark:text-gray-400">
-          Página {{ filters.page + 1 }} de {{ totalPages }}
-        </span>
+
+        <template v-for="page in totalPages" :key="page">
+          <button 
+            @click="goToPage(page - 1)"
+            :class="[
+              'px-4 py-2 rounded-lg border transition-colors',
+              filters.page === (page - 1) 
+                ? 'bg-blue-600 text-white border-blue-600' 
+                : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100'
+            ]"
+          >
+            {{ page }}
+          </button>
+        </template>
+
         <button
           @click="goToPage(filters.page + 1)"
           :disabled="filters.page >= totalPages - 1"
-          class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-600 disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white transition-colors"
+          class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
         >
-          Siguiente →
+          Siguiente
         </button>
       </div>
     </div>
@@ -631,7 +648,7 @@ const router = useRouter();
 // ── Pagination ──
 const totalElements = ref(0);
 const totalPages = ref(0);
-const PAGE_SIZE = 9;
+const PAGE_SIZE_OPTIONS = [9, 18, 27, 45];
 
 // ── Estado principal ──
 const properties = ref<Property[]>([]);
@@ -649,6 +666,7 @@ const filters = ref({
   sortBy: "price",
   sortOrder: "ASC",
   page: 0,
+  pageSize: 9,
 });
 
 // ── Modales ──
@@ -741,7 +759,7 @@ async function loadProperties() {
       sortBy: filters.value.sortBy,
       sortOrder: filters.value.sortOrder,
       page: filters.value.page,
-      pageSize: PAGE_SIZE,
+      pageSize: filters.value.pageSize,
     });
 
     properties.value = result.data;
@@ -768,7 +786,7 @@ async function loadProperties() {
         sortBy: filters.value.sortBy,
         sortOrder: filters.value.sortOrder,
         page: String(filters.value.page),
-        pageSize: String(PAGE_SIZE),
+        pageSize: String(filters.value.pageSize),
       },
     });
   } catch (e: any) {
@@ -793,6 +811,7 @@ function clearFilters() {
     sortBy: "price",
     sortOrder: "ASC",
     page: 0,
+    pageSize: 9,
   };
   loadProperties();
 }

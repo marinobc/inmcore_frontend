@@ -5,7 +5,7 @@
         <h1 class="text-3xl font-bold dark:text-white">Mis Inmuebles</h1>
         <p class="text-gray-500 text-sm">Gestiona y filtra tus propiedades asignadas</p>
       </div>
-      <fwb-button @click="showCreateEditModal = true" gradient="blue">
+      <fwb-button @click="openCreateModal" gradient="blue">
         <div class="flex items-center">
           <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -16,18 +16,26 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div>
           <label class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider">Buscar por título</label>
           <fwb-input v-model="filterTitle" placeholder="Ej: Departamento..." @input="handleFilterDebounce" />
         </div>
         <div>
           <label class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider">Tipo de Operación</label>
-          <select v-model="filterOpType" @change="load" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white focus:ring-blue-500">
+          <select v-model="filterOpType" @change="resetAndLoad" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white focus:ring-blue-500">
             <option value="">Todos los tipos</option>
             <option value="VENTA">Venta</option>
             <option value="ALQUILER">Alquiler</option>
             <option value="ANTICRETICO">Anticrético</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Mostrar</label>
+          <select v-model="pageSize" @change="resetAndLoad" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white">
+            <option :value="6">6 elementos</option>
+            <option :value="12">12 elementos</option>
+            <option :value="24">24 elementos</option>
           </select>
         </div>
         <div class="flex justify-end">
@@ -118,6 +126,38 @@
        <p class="text-gray-500">No tienes inmuebles que coincidan con la búsqueda.</p>
     </div>
 
+    <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-8 pb-10">
+      <button 
+        @click="changePage(currentPage - 1)" 
+        :disabled="currentPage === 0"
+        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
+      >
+        Anterior
+      </button>
+
+      <template v-for="page in totalPages" :key="page">
+        <button 
+          @click="changePage(page - 1)"
+          :class="[
+            'px-4 py-2 rounded-lg border transition-colors',
+            currentPage === (page - 1) 
+              ? 'bg-blue-600 text-white border-blue-600' 
+              : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100'
+          ]"
+        >
+          {{ page }}
+        </button>
+      </template>
+
+      <button 
+        @click="changePage(currentPage + 1)" 
+        :disabled="currentPage >= totalPages - 1"
+        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
+      >
+        Siguiente
+      </button>
+    </div>
+
     <!-- Create/Edit Modal -->
     <fwb-modal v-if="showCreateEditModal" @close="closeCreateEditModal" size="2xl">
       <template #header>
@@ -188,6 +228,9 @@ const propertyToDelete = ref<Property | null>(null)
 const formKey = ref(0)
 const showDetailsModal = ref(false)
 const selectedProp = ref<any>(null)
+const currentPage = ref(0)
+const totalPages = ref(0)
+const pageSize = ref(6)
 
 // Filtros
 const filterTitle = ref('')
@@ -207,10 +250,13 @@ const load = async () => {
       params: {
         title: filterTitle.value || undefined,
         operationType: filterOpType.value || undefined,
-        agentId: agentId
+        agentId: agentId,
+        page: currentPage.value,
+        pageSize: pageSize.value
       }
     })
     myProperties.value = response.data.data || response.data
+    totalPages.value = response.data.totalPages || 0
   } catch (e) {
     console.error("Error cargando inventario:", e)
   } finally {
@@ -218,15 +264,26 @@ const load = async () => {
   }
 }
 
+const changePage = (p: number) => { 
+  currentPage.value = p
+  load() 
+}
+
+const resetAndLoad = () => { 
+  currentPage.value = 0
+  load() 
+}
+
 const handleFilterDebounce = () => {
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(load, 500)
+  debounceTimer = setTimeout(resetAndLoad, 500)
 }
 
 const clearAllFilters = () => {
   filterTitle.value = ''
   filterOpType.value = ''
-  load()
+  pageSize.value = 6
+  resetAndLoad()
 }
 
 const getOpTypeBadge = (type: string) => {

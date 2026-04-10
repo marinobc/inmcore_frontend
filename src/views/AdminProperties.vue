@@ -19,18 +19,27 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div>
           <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Buscar por título</label>
           <fwb-input v-model="filterTitle" placeholder="Ej: Condominio..." @input="handleFilterDebounce" />
         </div>
         <div>
           <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Tipo de Operación</label>
-          <select v-model="filterOpType" @change="load" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white">
+          <select v-model="filterOpType" @change="resetAndLoad" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white">
             <option value="">Todos los tipos</option>
             <option value="VENTA">Venta</option>
             <option value="ALQUILER">Alquiler</option>
             <option value="ANTICRETICO">Anticrético</option>
+          </select>
+        </div>
+        <div>
+          <label class="block mb-2 text-xs font-black text-gray-400 uppercase">Elementos por página</label>
+          <select v-model="pageSize" @change="resetAndLoad" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white">
+            <option :value="5">5 por página</option>
+            <option :value="9">9 por página</option>
+            <option :value="20">20 por página</option>
+            <option :value="50">50 por página</option>
           </select>
         </div>
         <div class="flex justify-end gap-2">
@@ -71,7 +80,7 @@
         </div>
 
         <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 relative">
-          <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover" @error="handleImageError(p, $event)">
+          <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover" @error="handleImageError($event)">
           <span v-else>Sin imágenes</span>
           <div class="absolute bottom-2 right-2">
             <span
@@ -115,6 +124,38 @@
 
     <div v-if="!loading && allProperties.length === 0" class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700">
        <p class="text-gray-500">No hay inmuebles registrados.</p>
+    </div>
+
+    <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-8 pb-10">
+      <button 
+        @click="changePage(currentPage - 1)" 
+        :disabled="currentPage === 0"
+        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
+      >
+        Anterior
+      </button>
+
+      <template v-for="page in totalPages" :key="page">
+        <button 
+          @click="changePage(page - 1)"
+          :class="[
+            'px-4 py-2 rounded-lg border transition-colors',
+            currentPage === (page - 1) 
+              ? 'bg-blue-600 text-white border-blue-600' 
+              : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100'
+          ]"
+        >
+          {{ page }}
+        </button>
+      </template>
+
+      <button 
+        @click="changePage(currentPage + 1)" 
+        :disabled="currentPage >= totalPages - 1"
+        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
+      >
+        Siguiente
+      </button>
     </div>
 
     <property-details-modal 
@@ -201,6 +242,9 @@ import PropertyDetailsModal from '../components/properties/PropertyDetailsModal.
 const allProperties = ref<any[]>([])
 const allUsers = ref<any[]>([])
 const loading = ref(false)
+const totalPages = ref(0)
+const currentPage = ref(0)
+const pageSize = ref(9)
 const deleting = ref(false)
 const filterTitle = ref('')
 const filterOpType = ref('')
@@ -238,12 +282,17 @@ const load = async () => {
     const filters: any = {}
     if (filterTitle.value) filters.title = filterTitle.value
     if (filterOpType.value) filters.operationType = filterOpType.value
+    filters.page = currentPage.value
+    filters.pageSize = pageSize.value
 
-    const response = await propertyService.getProperties(filters)
-    allProperties.value = response?.data || response?.data?.data || response || []
+    const response = await api.get('/properties', { params: filters })
+    allProperties.value = response.data?.data || response.data?.content || response.data || []
+    totalPages.value = response.data?.totalPages || 0
     
-    const users = await userService.getUsers()
-    allUsers.value = users || []
+    if (allUsers.value.length === 0) {
+      const users = await userService.getUsers()
+      allUsers.value = users || []
+    }
   } catch (error) {
     console.error('Error cargando datos:', error)
   } finally {
@@ -251,15 +300,26 @@ const load = async () => {
   }
 }
 
+const changePage = (page: number) => {
+  currentPage.value = page
+  load()
+}
+
+const resetAndLoad = () => {
+  currentPage.value = 0
+  load()
+}
+
 const handleFilterDebounce = () => {
   clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(load, 500)
+  debounceTimer = setTimeout(resetAndLoad, 500)
 }
 
 const clearAllFilters = () => {
   filterTitle.value = '';
   filterOpType.value = '';
-  load()
+  pageSize.value = 9;
+  resetAndLoad()
 }
 
 const getOpTypeBadge = (type: string): any => {
@@ -363,7 +423,7 @@ const doDeleteProperty = async () => {
   } finally { deleting.value = false }
 }
 
-const handleImageError = (p: any, event: Event) => {
+const handleImageError = (event: Event) => {
   (event.target as HTMLImageElement).style.display = 'none'
 }
 
