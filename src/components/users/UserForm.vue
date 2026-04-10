@@ -77,8 +77,8 @@
       </div>
     </div>
 
-    <!-- Selector de tipo de usuario - Ocultar en modo clientOnly -->
-    <div v-if="!clientOnly">
+    <!-- Selector de tipo de usuario - Ocultar en modo clientOnly o ownerOnly -->
+    <div v-if="!clientOnly && !ownerOnly">
       <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Usuario / Rol</label>
       <select
         v-model="form.userType"
@@ -86,10 +86,9 @@
         :disabled="isEditing"
         required
       >
-        <option value="ADMIN">Administrador</option>
-        <option value="EMPLOYEE">Empleado / Agente</option>
-        <option value="OWNER">Propietario</option>
-        <option value="INTERESTED_CLIENT">Cliente Interesado</option>
+        <option v-for="option in availableUserTypes" :key="option.value" :value="option.value">
+          {{ option.label }}
+        </option>
       </select>
     </div>
 
@@ -134,13 +133,13 @@
     </div>
 
     <!-- Campos de propietario - Ocultar en modo clientOnly -->
-    <div v-if="!clientOnly && form.userType === 'OWNER'" class="space-y-4 border-t pt-4">
-      <h3 class="text-md font-semibold">Información Fiscal</h3>
+    <div v-if="ownerOnly || (!clientOnly && form.userType === 'OWNER')" class="space-y-4 border-t pt-4">
+      <h3 class="text-md font-semibold dark:text-white">Información Fiscal</h3>
       <div>
         <fwb-input
           v-model="form.taxId"
           label="CI / NIT"
-          placeholder="1234567"
+          placeholder="Ej: 1234567 o 10203040"
           required
           :validation-status="errors.taxId ? 'error' : undefined"
           :validation-message="errors.taxId"
@@ -148,6 +147,7 @@
           @blur="validateField('taxId')"
         />
         <p v-if="isFieldModified('taxId')" class="text-xs text-blue-600">✏️ Modificando CI/NIT</p>
+        <p class="text-[10px] text-gray-400 mt-1">Este documento identifica legalmente al propietario del inmueble.</p>
       </div>
     </div>
 
@@ -206,16 +206,19 @@ import { FwbInput, FwbButton } from 'flowbite-vue'
 import { t } from '../../locales/i18n'
 import type { UserFormPayload } from '../../types/user'
 import { userService } from '../../services/userService'
+import { useAuth } from '../../composables/useAuth'
 
 const props = defineProps<{
   initialData?: any
   isEditing?: boolean
   clientOnly?: boolean
+  ownerOnly?: boolean
 }>()
 
 const emit = defineEmits(['submit', 'cancel'])
 const errors = ref<Record<string, string>>({})
 const modifiedFields = ref<Set<string>>(new Set())
+const { user: currentUser } = useAuth()
 
 // Estados específicos para email
 const emailFormatError = ref('')
@@ -223,6 +226,27 @@ const emailDuplicateError = ref('')
 const emailChecking = ref(false)
 let emailDebounceTimer: ReturnType<typeof setTimeout>
 let lastValidatedEmail = ''
+
+// Lógica para filtrar las opciones del selector según el rol del usuario actual
+const availableUserTypes = computed(() => {
+  const roles = currentUser.value?.roles || []
+  const isAgent = roles.includes('AGENT') && !roles.includes('ADMIN')
+
+  if (isAgent) {
+    return [
+      { value: 'OWNER', label: 'Propietario' },
+      { value: 'INTERESTED_CLIENT', label: 'Cliente Interesado' }
+    ]
+  }
+
+  // Si es ADMIN, mostrar todas las opciones
+  return [
+    { value: 'ADMIN', label: 'Administrador' },
+    { value: 'EMPLOYEE', label: 'Empleado / Agente' },
+    { value: 'OWNER', label: 'Propietario' },
+    { value: 'INTERESTED_CLIENT', label: 'Cliente Interesado' }
+  ]
+})
 
 const toDateString = (val: any): string => {
   if (!val) return ''
@@ -232,7 +256,7 @@ const toDateString = (val: any): string => {
 const mapData = (d: any): UserFormPayload => {
   if (!d) {
     return {
-      firstName: '', lastName: '', email: '', phone: '', userType: 'EMPLOYEE', birthDate: '',
+      firstName: '', lastName: '', email: '', phone: '', userType: props.ownerOnly ? 'OWNER' : 'EMPLOYEE', birthDate: '',
       department: '', position: '', hireDate: '', taxId: '',
       preferredContactMethod: '', budget: ''
     }
@@ -243,12 +267,12 @@ const mapData = (d: any): UserFormPayload => {
     lastName: d.lastName || '',
     email: d.email || '',
     phone: d.phone || '',
-    userType: d.userType || 'EMPLOYEE',
+    userType: d.userType || (props.ownerOnly ? 'OWNER' : 'EMPLOYEE'),
     birthDate: toDateString(d.birthDate),
     department: d.department || '',
     position: d.position || '',
     hireDate: toDateString(d.hireDate),
-    taxId: d.taxId || '',
+    taxId: d.taxId || d.nit || '',
     preferredContactMethod: d.preferredContactMethod || '',
     budget: d.budget || '',
     preferredZone: d.preferredZone || '',
@@ -260,6 +284,9 @@ const mapData = (d: any): UserFormPayload => {
 const initialValues = mapData(props.initialData)
 const form = reactive<UserFormPayload>({ ...initialValues })
 const originalValues = reactive<UserFormPayload>({ ...initialValues })
+
+// Asegurar que el userType sea correcto si es modo forzado
+watch(() => props.ownerOnly, (val) => { if (val) form.userType = 'OWNER' }, { immediate: true })
 
 // Validación de formato de email
 const validateEmailFormat = (email: string): boolean => {
@@ -752,8 +779,8 @@ const submit = async () => {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email.trim().toLowerCase(),
-      userType: props.clientOnly ? 'INTERESTED_CLIENT' : form.userType,
-      roleIds: [getRoleIdByUserType(props.clientOnly ? 'INTERESTED_CLIENT' : form.userType)],
+      userType: props.ownerOnly ? 'OWNER' : (props.clientOnly ? 'INTERESTED_CLIENT' : form.userType),
+      roleIds: [getRoleIdByUserType(props.ownerOnly ? 'OWNER' : (props.clientOnly ? 'INTERESTED_CLIENT' : form.userType))],
       birthDate: form.birthDate,
       phone: form.phone.trim(),
       sendTemporaryCredentials: true
@@ -781,6 +808,12 @@ const submit = async () => {
         if (form.preferredRooms)         payload.preferredRooms = Number(form.preferredRooms)
       }
     }
+  }
+
+  // Forzar tipo y rol si es modo propietario exclusivo
+  if (props.ownerOnly) {
+    payload.userType = 'OWNER'
+    payload.roleIds = ['rol_owner']
   }
 
   emit('submit', payload)

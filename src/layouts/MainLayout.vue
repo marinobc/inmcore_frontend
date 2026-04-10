@@ -203,8 +203,6 @@
             <NotificationBadge />
           </router-link>
 
-          <fwb-navbar-link href="#">{{ t.nav.properties }}</fwb-navbar-link>
-          <fwb-navbar-link href="#">{{ t.nav.reports }}</fwb-navbar-link>
         </fwb-navbar-collapse>
       </template>
       <template #right-side>
