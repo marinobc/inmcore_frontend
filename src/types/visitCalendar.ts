@@ -109,7 +109,15 @@ export interface Property {
   type: string; // 'CASA' | 'DEPARTAMENTO' | 'TERRENO' | 'LOCAL'
   m2: number;
   rooms: number;
-status: "Disponible" | "Reservado" | "Vendido" | "En Negociación";
+  status:
+    | "Disponible"
+    | "Reservado"
+    | "Vendido"
+    | "En Negociación"
+    | "DISPONIBLE"
+    | "RESERVADO"
+    | "VENDIDO"
+    | "EN_NEGOCIACION";
   agentId: string;
   agentName: string;
   assignedAgentId: string | null;

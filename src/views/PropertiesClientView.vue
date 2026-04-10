@@ -278,18 +278,18 @@
             <span
               class="absolute top-3 left-3 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm"
               :class="{
-                'bg-green-500 dark:bg-green-600': prop.status === 'Disponible',
-                'bg-yellow-500 dark:bg-yellow-600': prop.status === 'Reservado',
-                'bg-red-500 dark:bg-red-600': prop.status === 'Vendido',
-                'bg-blue-500 dark:bg-blue-600': prop.status === 'En Negociación',
-                'bg-gray-500 dark:bg-gray-600': !['Disponible', 'Reservado', 'Vendido', 'En Negociación'].includes(prop.status)
+                'bg-green-500 dark:bg-green-600': prop.status === 'DISPONIBLE',
+                'bg-yellow-500 dark:bg-yellow-600': prop.status === 'RESERVADO',
+                'bg-red-500 dark:bg-red-600': prop.status === 'VENDIDO',
+                'bg-orange-500 dark:bg-orange-600': prop.status === 'EN_NEGOCIACION',
+                'bg-gray-500 dark:bg-gray-600': !['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'EN_NEGOCIACION'].includes(prop.status)
               }"
             >
               {{ 
-                prop.status === 'Disponible' ? 'Disponible' :
-                prop.status === 'Reservado' ? 'Reservado' :
-                prop.status === 'Vendido' ? 'Vendido' :
-                prop.status === 'En Negociación' ? 'En Negociación' :
+                prop.status === 'DISPONIBLE' ? 'Disponible' :
+                prop.status === 'RESERVADO' ? 'Reservado' :
+                prop.status === 'VENDIDO' ? 'Vendido' :
+                prop.status === 'EN_NEGOCIACION' ? 'En Negociación' :
                 prop.status 
               }}
             </span>
@@ -330,7 +330,7 @@
               
             </div>
             <button
-              v-if="prop.status === 'Disponible'"
+              v-if="prop.status === 'DISPONIBLE'"
               @click.stop="openRequestModal(prop)"
               class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
             >
@@ -341,7 +341,7 @@
               disabled
               class="px-3 py-1.5 text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-not-allowed"
             >
-              {{ prop.status === 'Vendido' ? 'Vendida' : 'Reservada' }}
+              {{ prop.status === 'VENDIDO' ? 'Vendida' : prop.status === 'RESERVADO' ? 'Reservada' : prop.status === 'EN_NEGOCIACION' ? 'En Negociación' : 'No disponible' }}
             </button>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
               Agente: {{ prop.agentName }}

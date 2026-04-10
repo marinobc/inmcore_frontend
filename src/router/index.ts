@@ -7,6 +7,7 @@ import UsersView from "../views/UsersView.vue";
 import AdminProperties from "../views/AdminProperties.vue";
 import AgentDashboard from "../views/AgentDashboard.vue";
 import AgentClients from "../views/AgentClients.vue";
+import AgentOwners from "../views/AgentOwners.vue";
 import CalendarView from "../views/CalendarView.vue";
 import ScheduleVisitView from "../views/ScheduleVisitView.vue";
 import PropertiesClientView from "../views/PropertiesClientView.vue";
@@ -59,6 +60,12 @@ const routes = [
         path: "agent/clients",
         name: "AgentClients",
         component: AgentClients,
+        meta: { role: "AGENT" },
+      },
+      {
+        path: "agent/owners",
+        name: "AgentOwners",
+        component: AgentOwners,
         meta: { role: "AGENT" },
       },
       {
