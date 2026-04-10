@@ -85,13 +85,16 @@
 
     <fwb-modal v-if="showModal" @close="closeModal">
       <template #header>
-        <div class="text-lg font-semibold">{{ isEditing ? 'Editar Propietario' : 'Registrar Nuevo Propietario' }}</div>
+        <div class="text-lg font-bold dark:text-white">
+          {{ isEditing ? 'Editar Perfil de Propietario' : 'Registrar Nuevo Propietario' }}
+        </div>
       </template>
       <template #body>
         <user-form
           :key="formKey"
           :initial-data="editingOwner"
           :is-editing="isEditing"
+          :owner-only="true"
           @submit="handleSubmit"
           @cancel="closeModal"
         />
@@ -115,6 +118,7 @@ import { ref, computed, onMounted } from 'vue';
 import { FwbButton, FwbBadge, FwbModal, FwbCard } from 'flowbite-vue';
 import { userService } from '../services/userService';
 import { useAuth } from '../composables/useAuth';
+import { personService } from '../services/personService';
 import UserForm from '../components/users/UserForm.vue';
 
 const { user } = useAuth();
@@ -147,13 +151,29 @@ const filteredOwners = computed(() => {
 const loadOwners = async () => {
   loading.value = true;
   try {
-    const users = await userService.getUsers();
+    const baseUsers = await userService.getUsers();
+    // Obtenemos el ID del agente logueado
     const agentId = user.value?.sub || user.value?.userId;
-    owners.value = (users || []).filter((u: any) => {
+
+    const filteredBase = (baseUsers || []).filter((u: any) => {
       if (u.userType !== 'OWNER') return false;
+      // FIX: Usamos agentId para filtrar y que TS no se queje de "never read"
       if (!agentId) return true;
       return !u.assignedAgentId || u.assignedAgentId === agentId;
     });
+
+    owners.value = await Promise.all(
+      filteredBase.map(async (u: any) => {
+        try {
+          // Ahora personService ya está importado
+          const profile = await personService.getPersonByAuthUserId(u.id);
+          return { ...u, ...profile };
+        } catch (err) {
+          console.warn(`Sin perfil detallado para: ${u.id}`);
+          return u;
+        }
+      })
+    );
   } catch (e) {
     console.error('Error loading owners:', e);
     showToast('No se pudieron cargar los propietarios', 'error');
@@ -202,6 +222,7 @@ const handleSubmit = async (formData: any) => {
   try {
     const payload = {
       ...formData,
+      taxId: formData.taxId?.toString().trim(), // Limpieza de datos
       userType: 'OWNER',
       roleIds: ['rol_owner']
     };
