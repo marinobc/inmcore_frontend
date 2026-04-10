@@ -313,7 +313,7 @@ const setDownloadExpiration = (docId: string) => {
     clearInterval(existingTimer.timerId)
   }
   
-  const expiresAt = Date.now() + 10000 // 10 seconds
+  const expiresAt = Date.now() + (900*1000) // 10 seconds
   const timerId = window.setInterval(() => {
     // Force re-render by updating the reactive object
     if (downloadTimers.value[docId]) {
