@@ -19,19 +19,52 @@ export const auditService = {
       return map[action] || action
     }
 
-    const identityLogs = identityResult.status === 'fulfilled'
-      ? (identityResult.value.data || []).map((log: any) => ({
-          id: `identity-${log.id}`,
-          action: normalizeIdentityAction(log.action),
-          personId: log.userId,
-          personName: log.userEmail || log.userId || 'Usuario',
-          personType: 'USER',
-          changedBy: log.performedByName || log.performedByEmail || log.performedBy || 'Usuario no identificado',
-          timestamp: log.timestamp,
-          details: log.details,
-          changes: []
-        }))
+    const extractEmailFromDetails = (details?: string): string | undefined => {
+      if (!details) return undefined
+      const match = details.match(/User:\s*([^\s]+)\s*\(/i)
+      return match?.[1]
+    }
+
+    const rawIdentityLogs = identityResult.status === 'fulfilled'
+      ? (identityResult.value.data || [])
       : []
+
+    const userLabelById = new Map<string, string>()
+
+    // Recorremos por antiguedad para conservar el ultimo nombre/email conocido.
+    rawIdentityLogs
+      .slice()
+      .sort((a: any, b: any) => {
+        const ta = new Date(a.timestamp || 0).getTime()
+        const tb = new Date(b.timestamp || 0).getTime()
+        return ta - tb
+      })
+      .forEach((log: any) => {
+        const uid = (log.userId || '').toString().trim()
+        if (!uid) return
+
+        const label = log.userEmail || extractEmailFromDetails(log.details)
+        if (label) {
+          userLabelById.set(uid, label)
+        }
+      })
+
+    const identityLogs = rawIdentityLogs.map((log: any) => ({
+      id: `identity-${log.id}`,
+      action: normalizeIdentityAction(log.action),
+      personId: log.userId,
+      personName:
+        log.userEmail ||
+        extractEmailFromDetails(log.details) ||
+        userLabelById.get((log.userId || '').toString()) ||
+        log.userId ||
+        'Usuario',
+      personType: 'USER',
+      changedBy: log.performedByName || log.performedByEmail || log.performedBy || 'Usuario no identificado',
+      timestamp: log.timestamp,
+      details: log.details,
+      changes: []
+    }))
 
     const personLogs = personResult.status === 'fulfilled'
       ? (personResult.value.data || [])
