@@ -1,4 +1,3 @@
-<!-- Reemplaza el contenido de PropertyAuditView.vue con este código completo -->
 <template>
   <div class="p-6 space-y-6">
     <div class="flex justify-between items-center">
@@ -11,59 +10,51 @@
       <fwb-badge type="indigo">Admin Mode</fwb-badge>
     </div>
 
-    <!-- Filtros -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4"
-    >
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Filtro por Usuario -->
-        <div>
-          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Agente / Usuario
-          </label>
-          <input
-            v-model="filters.userId"
-            type="text"
-            placeholder="ID del usuario"
-            class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
-          />
-        </div>
+    <!-- Filtros con dropdowns buscables -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Filtro por Usuario (Agente) -->
+        <SearchableSelect
+          v-model="filters.userId"
+          :items="userOptions"
+          label="Agente / Usuario"
+          placeholder="Buscar por nombre del agente..."
+          :loading="loadingUsers"
+          show-clear-button
+        />
 
         <!-- Filtro por Propiedad -->
-        <div>
-          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Propiedad ID
-          </label>
-          <input
-            v-model="filters.propertyId"
-            type="text"
-            placeholder="ID de la propiedad"
-            class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
-          />
-        </div>
+        <SearchableSelect
+          v-model="filters.propertyId"
+          :items="propertyOptions"
+          label="Propiedad"
+          placeholder="Buscar por título o dirección..."
+          :loading="loadingProperties"
+          show-clear-button
+        />
 
-        <!-- Filtro Fecha Desde -->
-        <div>
-          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Desde
-          </label>
-          <input
-            v-model="filters.from"
-            type="date"
-            class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
-          />
-        </div>
-
-        <!-- Filtro Fecha Hasta -->
-        <div>
-          <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-            Hasta
-          </label>
-          <input
-            v-model="filters.to"
-            type="date"
-            class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
-          />
+        <!-- Rango de fechas -->
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Desde
+            </label>
+            <input
+              v-model="filters.from"
+              type="date"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              Hasta
+            </label>
+            <input
+              v-model="filters.to"
+              type="date"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm"
+            />
+          </div>
         </div>
       </div>
 
@@ -88,6 +79,25 @@
       </div>
     </div>
 
+    <!-- Resumen de filtros activos -->
+    <div v-if="hasActiveFilters" class="flex flex-wrap gap-2">
+      <span class="text-xs text-gray-500">Filtros activos:</span>
+      <span v-if="filters.userId" class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+        Agente: {{ getUserName(filters.userId) }}
+        <button @click="filters.userId = ''" class="hover:text-blue-600">×</button>
+      </span>
+      <span v-if="filters.propertyId" class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+        Propiedad: {{ getPropertyName(filters.propertyId) }}
+        <button @click="filters.propertyId = ''" class="hover:text-green-600">×</button>
+      </span>
+      <span v-if="filters.from" class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+        Desde: {{ formatDateShort(filters.from) }}
+      </span>
+      <span v-if="filters.to" class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+        Hasta: {{ formatDateShort(filters.to) }}
+      </span>
+    </div>
+
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-20">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
@@ -99,9 +109,9 @@
       <fwb-table hoverable>
         <fwb-table-head>
           <fwb-table-head-cell>Fecha y Hora</fwb-table-head-cell>
-          <fwb-table-head-cell>Usuario (Agente)</fwb-table-head-cell>
+          <fwb-table-head-cell>Agente</fwb-table-head-cell>
           <fwb-table-head-cell>Acción</fwb-table-head-cell>
-          <fwb-table-head-cell>Propiedad ID</fwb-table-head-cell>
+          <fwb-table-head-cell>Propiedad</fwb-table-head-cell>
           <fwb-table-head-cell>Cambio</fwb-table-head-cell>
           <fwb-table-head-cell>
             <span class="sr-only">Detalles</span>
@@ -114,8 +124,13 @@
             </fwb-table-cell>
             <fwb-table-cell>
               <div class="flex items-center gap-2">
-                <span class="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                  {{ log.userId }}
+                <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span class="text-[10px] font-bold text-blue-600">
+                    {{ getUserInitials(log.userId) }}
+                  </span>
+                </div>
+                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ getUserName(log.userId) }}
                 </span>
               </div>
             </fwb-table-cell>
@@ -133,7 +148,14 @@
               </span>
             </fwb-table-cell>
             <fwb-table-cell>
-              <span class="font-mono text-xs">{{ log.propertyId }}</span>
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                  {{ getPropertyName(log.propertyId) }}
+                </span>
+                <span class="text-[10px] text-gray-400 font-mono">
+                  ID: {{ log.propertyId }}
+                </span>
+              </div>
             </fwb-table-cell>
             <fwb-table-cell>
               <div class="flex items-center gap-2 text-sm">
@@ -180,8 +202,9 @@
       <p class="text-gray-400 dark:text-gray-500 text-sm">Prueba con otros filtros o limpia la búsqueda</p>
     </div>
 
-    <!-- Modal de Detalles -->
+    <!-- Modal de Detalles (same as before) -->
     <fwb-modal v-if="selectedLog" @close="selectedLog = null" size="lg">
+      <!-- ... modal content ... -->
       <template #header>
         <div class="flex items-center gap-3">
           <div
@@ -223,19 +246,17 @@
             <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Información del Agente</h4>
             <div class="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span class="text-gray-500">ID del Usuario:</span>
-                <p class="font-mono text-sm font-semibold dark:text-white mt-1">{{ selectedLog.userId }}</p>
+                <span class="text-gray-500">Agente:</span>
+                <p class="font-semibold dark:text-white mt-1">{{ getUserName(selectedLog.userId) }}</p>
               </div>
               <div>
                 <span class="text-gray-500">Propiedad:</span>
-                <p class="font-mono text-sm font-semibold dark:text-white mt-1">{{ selectedLog.propertyId }}</p>
+                <p class="font-semibold dark:text-white mt-1">{{ getPropertyName(selectedLog.propertyId) }}</p>
               </div>
             </div>
           </div>
 
-          <!-- ============================================ -->
-          <!-- AQUÍ VA EL CÓDIGO NUEVO: Campos Modificados -->
-          <!-- ============================================ -->
+          <!-- Campos Modificados -->
           <div class="space-y-6">
             <div v-if="selectedLog.changes && selectedLog.changes.length > 0">
               <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Campos Modificados</h4>
@@ -255,38 +276,17 @@
             </div>
 
             <div v-else class="grid grid-cols-2 gap-6">
-              <!-- Valor Anterior (fallback cuando no hay changes detallados) -->
-              <div
-                class="p-5 rounded-xl border-2 border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 text-center"
-              >
-                <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-3">
-                  Valor Anterior
-                </p>
-                <p class="text-2xl font-black text-red-700 dark:text-red-300">
-                  {{ selectedLog.previousValue || '—' }}
-                </p>
-                <p class="text-xs text-red-500 mt-2">Estado previo a la modificación</p>
+              <div class="p-5 rounded-xl border-2 border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10 text-center">
+                <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-3">Valor Anterior</p>
+                <p class="text-2xl font-black text-red-700 dark:text-red-300">{{ selectedLog.previousValue || '—' }}</p>
               </div>
-
-              <!-- Valor Nuevo (fallback cuando no hay changes detallados) -->
-              <div
-                class="p-5 rounded-xl border-2 border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10 text-center"
-              >
-                <p class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider mb-3">
-                  Valor Nuevo
-                </p>
-                <p class="text-2xl font-black text-green-700 dark:text-green-300">
-                  {{ selectedLog.newValue || '—' }}
-                </p>
-                <p class="text-xs text-green-500 mt-2">Valor actual después del cambio</p>
+              <div class="p-5 rounded-xl border-2 border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10 text-center">
+                <p class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-wider mb-3">Valor Nuevo</p>
+                <p class="text-2xl font-black text-green-700 dark:text-green-300">{{ selectedLog.newValue || '—' }}</p>
               </div>
             </div>
           </div>
-          <!-- ============================================ -->
-          <!-- FIN DEL CÓDIGO NUEVO                        -->
-          <!-- ============================================ -->
 
-          <!-- Flecha visual de transición -->
           <div class="flex justify-center">
             <div class="bg-gray-100 dark:bg-gray-700 rounded-full p-2">
               <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,11 +295,10 @@
             </div>
           </div>
 
-          <!-- Información adicional -->
           <div class="text-center text-sm text-gray-500 dark:text-gray-400">
             <p>
               Cambio realizado por el agente
-              <span class="font-mono font-semibold text-gray-700 dark:text-gray-300">{{ selectedLog.userId }}</span>
+              <span class="font-semibold text-gray-700 dark:text-gray-300">{{ getUserName(selectedLog.userId) }}</span>
             </p>
             <p class="text-xs mt-2">
               Fecha: {{ formatDateTime(selectedLog.timestamp) }}
@@ -317,8 +316,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { api } from '../services/api'
+import { userService } from '../services/userService'
+import { propertyService } from '../services/propertyService'
+import SearchableSelect, { type SelectItem } from '../components/common/SearchableSelect.vue'
 import {
   FwbTable,
   FwbTableHead,
@@ -353,6 +355,28 @@ const loading = ref(false)
 const selectedLog = ref<AuditLog | null>(null)
 const hasSearched = ref(false)
 
+// Data for dropdowns
+const users = ref<any[]>([])
+const properties = ref<any[]>([])
+const loadingUsers = ref(false)
+const loadingProperties = ref(false)
+
+const userOptions = computed<SelectItem[]>(() => {
+  return users.value.map(user => ({
+    value: user.id,
+    label: user.fullName || `${user.firstName} ${user.lastName}`,
+    subtitle: user.email
+  }))
+})
+
+const propertyOptions = computed<SelectItem[]>(() => {
+  return properties.value.map(prop => ({
+    value: prop.id,
+    label: prop.title,
+    subtitle: prop.address
+  }))
+})
+
 const filters = ref({
   userId: '',
   propertyId: '',
@@ -360,9 +384,58 @@ const filters = ref({
   to: ''
 })
 
+const hasActiveFilters = computed(() => {
+  return filters.value.userId || filters.value.propertyId || filters.value.from || filters.value.to
+})
+
+const getUserName = (userId: string) => {
+  const user = users.value.find(u => u.id === userId)
+  if (user) return user.fullName || `${user.firstName} ${user.lastName}`
+  return userId.substring(0, 8) + '...'
+}
+
+const getUserInitials = (userId: string) => {
+  const user = users.value.find(u => u.id === userId)
+  if (user) {
+    const firstName = user.firstName?.charAt(0) || ''
+    const lastName = user.lastName?.charAt(0) || ''
+    return (firstName + lastName).toUpperCase() || 'A'
+  }
+  return 'A'
+}
+
+const getPropertyName = (propertyId: string) => {
+  const prop = properties.value.find(p => p.id === propertyId)
+  return prop ? prop.title : propertyId.substring(0, 8) + '...'
+}
+
+const loadUsers = async () => {
+  loadingUsers.value = true
+  try {
+    users.value = await userService.getUsers()
+  } catch (error) {
+    console.error('Error loading users:', error)
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+const loadProperties = async () => {
+  loadingProperties.value = true
+  try {
+    const props = await propertyService.getProperties()
+    properties.value = props
+  } catch (error) {
+    console.error('Error loading properties:', error)
+  } finally {
+    loadingProperties.value = false
+  }
+}
+
 const formatDateTime = (timestamp: string) => {
   if (!timestamp) return '—'
-  return new Date(timestamp).toLocaleString('es-BO', {
+  // El backend envía UTC, el constructor de Date lo convierte automáticamente a local
+  return new Date(timestamp).toLocaleString(undefined, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -370,6 +443,15 @@ const formatDateTime = (timestamp: string) => {
     minute: '2-digit',
     second: '2-digit'
   })
+}
+
+const formatDateShort = (dateStr: string) => {
+  if (!dateStr) return ''
+  // Para evitar desfases de zona horaria al parsear "YYYY-MM-DD", 
+  // construimos la fecha usando componentes locales
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  return date.toLocaleDateString()
 }
 
 const formatAction = (action: string) => {
@@ -382,8 +464,9 @@ const formatAction = (action: string) => {
     'PROPERTY_UPDATE': 'Edición de Datos',
     'PROPERTY_DELETE': 'Eliminación (Baja)'
   }
-  return actions[action] || action;
+  return actions[action] || action
 }
+
 
 const fetchLogs = async () => {
   loading.value = true
@@ -392,8 +475,20 @@ const fetchLogs = async () => {
     const params = new URLSearchParams()
     if (filters.value.userId) params.append('userId', filters.value.userId)
     if (filters.value.propertyId) params.append('propertyId', filters.value.propertyId)
-    if (filters.value.from) params.append('from', new Date(filters.value.from).toISOString())
-    if (filters.value.to) params.append('to', new Date(filters.value.to).toISOString())
+    
+    if (filters.value.from) {
+      // Parsear año, mes (0-indexed), día para crear fecha en hora LOCAL
+      const [year, month, day] = filters.value.from.split('-').map(Number)
+      const fromDate = new Date(year, month - 1, day, 0, 0, 0, 0)
+      // toISOString() convertirá esta fecha local a su equivalente en UTC
+      params.append('from', fromDate.toISOString())
+    }
+    
+    if (filters.value.to) {
+      const [year, month, day] = filters.value.to.split('-').map(Number)
+      const toDate = new Date(year, month - 1, day, 23, 59, 59, 999)
+      params.append('to', toDate.toISOString())
+    }
 
     const queryString = params.toString()
     const url = queryString ? `/properties/audit?${queryString}` : '/properties/audit'
@@ -406,6 +501,7 @@ const fetchLogs = async () => {
     loading.value = false
   }
 }
+
 
 const clearFilters = () => {
   filters.value = {
@@ -421,7 +517,8 @@ const openModal = (log: AuditLog) => {
   selectedLog.value = log
 }
 
-onMounted(() => {
-  fetchLogs()
+onMounted(async () => {
+  await Promise.all([loadUsers(), loadProperties()])
+  await fetchLogs()
 })
 </script>
