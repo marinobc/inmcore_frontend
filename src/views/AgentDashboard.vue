@@ -81,9 +81,12 @@
           <img v-if="p.imageUrls?.length" :src="p.imageUrls[0]" class="h-full w-full object-cover">
           <span v-else>Sin imágenes</span>
           <div class="absolute bottom-2 right-2">
-            <fwb-badge :color="getStatusColor(p.status)">
+            <span
+              :class="getStatusBadgeClass(p.status)"
+              class="text-xs font-medium px-2.5 py-0.5 rounded"
+            >
               {{ p.status }}
-            </fwb-badge>
+            </span>
           </div>
         </div>
 
@@ -304,13 +307,18 @@ const doDeleteProperty = async () => {
   }
 }
 
-const getStatusColor = (status: string) => {
+const getStatusBadgeClass = (status: string) => {
   switch (status) {
-    case 'DISPONIBLE': return 'green'
-    case 'RESERVADO': return 'yellow'
-    case 'VENDIDO': return 'red'
-    case 'EN_NEGOCIACION': return 'blue'
-    default: return 'gray'
+    case 'DISPONIBLE':
+      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+    case 'RESERVADO':
+      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+    case 'VENDIDO':
+      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+    case 'EN_NEGOCIACION':
+      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+    default:
+      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
   }
 }
 

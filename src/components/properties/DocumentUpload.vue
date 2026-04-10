@@ -55,11 +55,11 @@
           <!-- Download Button (US1 AC1) with 10-second expiration and permanent consumption via localStorage -->
           <button
             @click="downloadDocument(doc)"
-            :disabled="isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id)"
-            :title="isDocumentDownloaded(doc.id) ? 'Descarga ya utilizada' : (isDownloadExpired(doc.id) ? 'Link expirado. Haz click para obtener uno nuevo' : 'Descargar (expira en ' + (getDownloadTimeRemaining(doc.id) || '10') + 's)')"
+            :disabled="!isAdmin && (isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id))"
+            :title="isAdmin ? 'Descargar' : (isDocumentDownloaded(doc.id) ? 'Descarga ya utilizada' : (isDownloadExpired(doc.id) ? 'Link expirado. Haz click para obtener uno nuevo' : 'Descargar (expira en ' + (getDownloadTimeRemaining(doc.id) || '10') + 's)'))"
             :class="[
               'p-2 rounded-lg transition-colors relative',
-              (isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id))
+              (!isAdmin && (isDownloadExpired(doc.id) || isDocumentDownloaded(doc.id)))
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30'
             ]"
@@ -68,12 +68,12 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
               </svg>
-              <span v-if="getDownloadTimeRemaining(doc.id)" class="text-xs font-semibold">{{ getDownloadTimeRemaining(doc.id) }}s</span>
+              <span v-if="!isAdmin && getDownloadTimeRemaining(doc.id)" class="text-xs font-semibold">{{ getDownloadTimeRemaining(doc.id) }}s</span>
             </div>
           </button>
 
           <!-- Permission Settings (Admin only - US2) -->
-          <button
+          <!-- <button
             v-if="isAdmin"
             @click="openPermissionModal(doc)"
             class="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
@@ -82,7 +82,7 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
-          </button>
+          </button> -->
 
           <!-- Delete Button -->
           <button
@@ -269,6 +269,7 @@ const handleFileSelect = async (e: Event) => {
 
 // Get time remaining for download (10 seconds)
 const getDownloadTimeRemaining = (docId: string): number | null => {
+  if (isAdmin.value) return null
   const timer = downloadTimers.value[docId]
   if (!timer) return null
   
@@ -280,6 +281,7 @@ const getDownloadTimeRemaining = (docId: string): number | null => {
 
 // Check if download link is expired
 const isDownloadExpired = (docId: string): boolean => {
+  if (isAdmin.value) return false
   const timer = downloadTimers.value[docId]
   if (!timer) return false
   
@@ -288,6 +290,7 @@ const isDownloadExpired = (docId: string): boolean => {
 
 // Check if document was already downloaded (permanently consumed via localStorage)
 const isDocumentDownloaded = (docId: string): boolean => {
+  if (isAdmin.value) return false
   if (!user.value?.sub) return false
   const key = `downloaded_${user.value.sub}_${docId}`
   return localStorage.getItem(key) === 'true'
@@ -295,6 +298,7 @@ const isDocumentDownloaded = (docId: string): boolean => {
 
 // Mark document as downloaded permanently in localStorage
 const markDocumentAsDownloaded = (docId: string) => {
+  if (isAdmin.value) return
   if (!user.value?.sub) return
   const key = `downloaded_${user.value.sub}_${docId}`
   localStorage.setItem(key, 'true')
@@ -302,6 +306,7 @@ const markDocumentAsDownloaded = (docId: string) => {
 
 // Set 10-second download expiration timer
 const setDownloadExpiration = (docId: string) => {
+  if (isAdmin.value) return
   // Clear existing timer if any
   const existingTimer = downloadTimers.value[docId]
   if (existingTimer && existingTimer.timerId !== null) {
@@ -345,7 +350,9 @@ const downloadDocument = async (doc: DocumentResponse) => {
     }
     
     // Set 10-second local expiration for UI feedback
-    setDownloadExpiration(doc.id)
+    if (!isAdmin.value) {
+      setDownloadExpiration(doc.id)
+    }
     
     // Open in new tab
     window.open(downloadUrl, '_blank')
