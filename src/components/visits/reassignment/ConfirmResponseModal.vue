@@ -56,14 +56,14 @@
             <div>
               <h3 class="text-white font-semibold text-lg">
                 {{
-                  isAccepting ? "Accept reassignment" : "Reject reassignment"
+                  isAccepting ? 'Accept reassignment' : 'Reject reassignment'
                 }}
               </h3>
               <p class="text-white/80 text-sm">
                 {{
                   isAccepting
-                    ? "This visit will be added to your schedule."
-                    : "The visit will remain with the original agent."
+                    ? 'This visit will be added to your schedule.'
+                    : 'The visit will remain with the original agent.'
                 }}
               </p>
             </div>
@@ -124,7 +124,7 @@
                   : 'bg-red-600 hover:bg-red-700'
               "
             >
-              {{ isAccepting ? "Confirm acceptance" : "Confirm rejection" }}
+              {{ isAccepting ? 'Confirm acceptance' : 'Confirm rejection' }}
             </button>
           </div>
         </div>
@@ -134,33 +134,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import type { ReassignmentSolicitation } from "../../../types/reassignment";
+import { ref, computed, watch } from 'vue';
+import type { ReassignmentSolicitation } from '../../../types/reassignment';
 
 const props = defineProps<{
   modelValue: boolean;
   request: ReassignmentSolicitation | null;
-  decision: "ACCEPTED" | "REJECTED";
+  decision: 'ACCEPTED' | 'REJECTED';
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: boolean): void;
-  (e: "confirmed", payload: { comment?: string }): void;
+  (e: 'update:modelValue', val: boolean): void;
+  (e: 'confirmed', payload: { comment?: string }): void;
 }>();
 
-const comment = ref("");
-const isAccepting = computed(() => props.decision === "ACCEPTED");
+const comment = ref('');
+const isAccepting = computed(() => props.decision === 'ACCEPTED');
 
 watch(
   () => props.modelValue,
   (open) => {
-    if (open) comment.value = "";
-  },
+    if (open) comment.value = '';
+  }
 );
 
 function confirm() {
-  emit("confirmed", { comment: comment.value.trim() || undefined });
-  emit("update:modelValue", false);
+  emit('confirmed', { comment: comment.value.trim() || undefined });
+  emit('update:modelValue', false);
 }
 </script>
 

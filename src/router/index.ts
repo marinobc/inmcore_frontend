@@ -1,145 +1,145 @@
-import { createRouter, createWebHistory } from "vue-router";
-import { useAuth } from "../composables/useAuth";
-import MainLayout from "../layouts/MainLayout.vue";
-import LoginView from "../views/LoginView.vue";
-import DashboardView from "../views/DashboardView.vue";
-import UsersView from "../views/UsersView.vue";
-import AdminProperties from "../views/AdminProperties.vue";
-import AgentDashboard from "../views/AgentDashboard.vue";
-import AgentClients from "../views/AgentClients.vue";
-import AgentOwners from "../views/AgentOwners.vue";
-import CalendarView from "../views/CalendarView.vue";
-import ScheduleVisitView from "../views/ScheduleVisitView.vue";
-import PropertiesClientView from "../views/PropertiesClientView.vue";
-import OwnerDashboard from "../views/OwnerDashboard.vue";
-import ClientDashboard from "../views/ClientDashboard.vue";
-import ReassignmentInboxView from "../views/ReassignmentInboxView.vue";
-import OperationDetailView from "../views/OperationDetailView.vue";
-import PropertyAuditView from "../views/PropertyAuditView.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
+import MainLayout from '../layouts/MainLayout.vue';
+import LoginView from '../views/LoginView.vue';
+import DashboardView from '../views/DashboardView.vue';
+import UsersView from '../views/UsersView.vue';
+import AdminProperties from '../views/AdminProperties.vue';
+import AgentDashboard from '../views/AgentDashboard.vue';
+import AgentClients from '../views/AgentClients.vue';
+import AgentOwners from '../views/AgentOwners.vue';
+import CalendarView from '../views/CalendarView.vue';
+import ScheduleVisitView from '../views/ScheduleVisitView.vue';
+import PropertiesClientView from '../views/PropertiesClientView.vue';
+import OwnerDashboard from '../views/OwnerDashboard.vue';
+import ClientDashboard from '../views/ClientDashboard.vue';
+import ReassignmentInboxView from '../views/ReassignmentInboxView.vue';
+import OperationDetailView from '../views/OperationDetailView.vue';
+import PropertyAuditView from '../views/PropertyAuditView.vue';
 import SentRequestsView from '../views/SentRequestsView.vue';
 
 const routes = [
   {
-    path: "/login",
-    name: "Login",
+    path: '/login',
+    name: 'Login',
     component: LoginView,
     meta: { requiresGuest: true },
   },
   {
-    path: "/",
-    redirect: "/dashboard",
+    path: '/',
+    redirect: '/dashboard',
   },
   {
-    path: "/dashboard",
+    path: '/dashboard',
     component: MainLayout,
     meta: { requiresAuth: true },
     children: [
       {
-        path: "",
-        name: "Dashboard",
+        path: '',
+        name: 'Dashboard',
         component: DashboardView,
       },
       {
-        path: "admin/users",
-        name: "Users",
+        path: 'admin/users',
+        name: 'Users',
         component: UsersView,
-        meta: { role: "ADMIN" },
+        meta: { role: 'ADMIN' },
       },
       {
-        path: "admin/properties",
-        name: "AdminProperties",
+        path: 'admin/properties',
+        name: 'AdminProperties',
         component: AdminProperties,
-        meta: { role: "ADMIN" },
+        meta: { role: 'ADMIN' },
       },
       {
-        path: "agent",
-        name: "AgentDashboard",
+        path: 'agent',
+        name: 'AgentDashboard',
         component: AgentDashboard,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "agent/clients",
-        name: "AgentClients",
+        path: 'agent/clients',
+        name: 'AgentClients',
         component: AgentClients,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "agent/owners",
-        name: "AgentOwners",
+        path: 'agent/owners',
+        name: 'AgentOwners',
         component: AgentOwners,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "/reassignments/inbox",
-        name: "ReassignmentInbox",
+        path: '/reassignments/inbox',
+        name: 'ReassignmentInbox',
         component: ReassignmentInboxView,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "/calendar",
-        name: "Calendar",
+        path: '/calendar',
+        name: 'Calendar',
         component: CalendarView,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "/schedule-visit",
-        name: "ScheduleVisit",
+        path: '/schedule-visit',
+        name: 'ScheduleVisit',
         component: ScheduleVisitView,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "/properties",
-        name: "Properties",
+        path: '/properties',
+        name: 'Properties',
         component: PropertiesClientView,
-        meta: { role: "CLIENT" },
+        meta: { role: 'CLIENT' },
       },
       {
-        path: "owner",
-        name: "OwnerDashboard",
+        path: 'owner',
+        name: 'OwnerDashboard',
         component: OwnerDashboard,
-        meta: { role: "OWNER" },
+        meta: { role: 'OWNER' },
       },
       {
-        path: "client/favorites",
-        name: "ClientFavorites",
-        component: () => import("../views/ClientFavorites.vue"),
-        meta: { role: "CLIENT" },
+        path: 'client/favorites',
+        name: 'ClientFavorites',
+        component: () => import('../views/ClientFavorites.vue'),
+        meta: { role: 'CLIENT' },
       },
       {
-        path: "client",
-        name: "ClientDashboard",
+        path: 'client',
+        name: 'ClientDashboard',
         component: ClientDashboard,
-        meta: { role: "CLIENT" },
+        meta: { role: 'CLIENT' },
       },
       {
-        path: "admin/audit",
-        name: "AuditLogs",
-        component: () => import("../views/AuditLogsView.vue"),
-        meta: { requiresAuth: true, role: "ADMIN" },
+        path: 'admin/audit',
+        name: 'AuditLogs',
+        component: () => import('../views/AuditLogsView.vue'),
+        meta: { requiresAuth: true, role: 'ADMIN' },
       },
       {
-        path: "operations",
-        name: "Operations",
-        component: () => import("../views/OperationsView.vue"),
-        meta: { role: "AGENT" },
+        path: 'operations',
+        name: 'Operations',
+        component: () => import('../views/OperationsView.vue'),
+        meta: { role: 'AGENT' },
       },
       {
-        path: "/operations/:id",
-        name: "OperationDetail",
+        path: '/operations/:id',
+        name: 'OperationDetail',
         component: OperationDetailView,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
       {
-        path: "admin/properties/audit",
-        name: "PropertyAudit",
+        path: 'admin/properties/audit',
+        name: 'PropertyAudit',
         component: PropertyAuditView,
-        meta: { requiresAuth: true, role: "ADMIN" }
+        meta: { requiresAuth: true, role: 'ADMIN' },
       },
       {
-        path: "/reassignments/sent",  // ← Sin barra inicial, es relativa al MainLayout
-        name: "SentRequests",
+        path: '/reassignments/sent', // ← Sin barra inicial, es relativa al MainLayout
+        name: 'SentRequests',
         component: SentRequestsView,
-        meta: { role: "AGENT" },
+        meta: { role: 'AGENT' },
       },
     ],
   },
@@ -152,28 +152,28 @@ export const router = createRouter({
 
 router.beforeEach((to, _from, next) => {
   const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated.value && to.name !== "Login") {
-    next({ name: "Login" });
+  if (!isAuthenticated.value && to.name !== 'Login') {
+    next({ name: 'Login' });
   } else if (to.meta.requiresGuest && isAuthenticated.value) {
-    next({ name: "Dashboard" });
+    next({ name: 'Dashboard' });
   } else if (to.meta.role) {
-    const roles = user.value?.roles || [];
+    const roles = (user.value?.roles as string[]) || [];
     const userType = user.value?.userType;
     const hasRole =
-      roles.includes(to.meta.role) ||
-      userType === "ADMIN" ||
-      (to.meta.role === "AGENT" && userType === "EMPLOYEE") ||
-      (to.meta.role === "CLIENT" && userType === "INTERESTED_CLIENT");
+      roles.includes(to.meta.role as string) ||
+      userType === 'ADMIN' ||
+      (to.meta.role === 'AGENT' && userType === 'EMPLOYEE') ||
+      (to.meta.role === 'CLIENT' && userType === 'INTERESTED_CLIENT');
 
-    hasRole ? next() : next({ name: "Dashboard" });
+    hasRole ? next() : next({ name: 'Dashboard' });
   } else {
     next();
   }
 });
 
 router.onError((error) => {
-  console.error("Router error:", error);
-  if (error.message?.includes("Cannot destructure property")) {
+  console.error('Router error:', error);
+  if (error.message?.includes('Cannot destructure property')) {
     window.location.reload();
   }
 });

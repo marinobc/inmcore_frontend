@@ -145,9 +145,18 @@
 
           <!-- Tamaño de Página -->
           <div>
-            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Ver</label>
-            <select v-model="filters.pageSize" @change="applyFilters" class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option v-for="opt in PAGE_SIZE_OPTIONS" :key="opt" :value="opt">{{ opt }} por página</option>
+            <label
+              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
+              >Ver</label
+            >
+            <select
+              v-model="filters.pageSize"
+              @change="applyFilters"
+              class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option v-for="opt in PAGE_SIZE_OPTIONS" :key="opt" :value="opt">
+                {{ opt }} por página
+              </option>
             </select>
           </div>
         </div>
@@ -186,8 +195,8 @@
         <span class="font-semibold text-gray-900 dark:text-white">{{
           properties.length
         }}</span>
-        propiedad{{ properties.length !== 1 ? "es" : "" }} encontrada{{
-          properties.length !== 1 ? "s" : ""
+        propiedad{{ properties.length !== 1 ? 'es' : '' }} encontrada{{
+          properties.length !== 1 ? 's' : ''
         }}
       </p>
 
@@ -289,16 +298,26 @@
                 'bg-green-500 dark:bg-green-600': prop.status === 'DISPONIBLE',
                 'bg-yellow-500 dark:bg-yellow-600': prop.status === 'RESERVADO',
                 'bg-red-500 dark:bg-red-600': prop.status === 'VENDIDO',
-                'bg-orange-500 dark:bg-orange-600': prop.status === 'EN_NEGOCIACION',
-                'bg-gray-500 dark:bg-gray-600': !['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'EN_NEGOCIACION'].includes(prop.status)
+                'bg-orange-500 dark:bg-orange-600':
+                  prop.status === 'EN_NEGOCIACION',
+                'bg-gray-500 dark:bg-gray-600': ![
+                  'DISPONIBLE',
+                  'RESERVADO',
+                  'VENDIDO',
+                  'EN_NEGOCIACION',
+                ].includes(prop.status),
               }"
             >
-              {{ 
-                prop.status === 'DISPONIBLE' ? 'Disponible' :
-                prop.status === 'RESERVADO' ? 'Reservado' :
-                prop.status === 'VENDIDO' ? 'Vendido' :
-                prop.status === 'EN_NEGOCIACION' ? 'En Negociación' :
-                prop.status 
+              {{
+                prop.status === 'DISPONIBLE'
+                  ? 'Disponible'
+                  : prop.status === 'RESERVADO'
+                    ? 'Reservado'
+                    : prop.status === 'VENDIDO'
+                      ? 'Vendido'
+                      : prop.status === 'EN_NEGOCIACION'
+                        ? 'En Negociación'
+                        : prop.status
               }}
             </span>
             <!-- Tipo -->
@@ -308,13 +327,27 @@
               {{ prop.type }}
             </span>
 
-            <button 
+            <button
               @click.stop="toggleFavorite(prop.id)"
               class="absolute top-3 right-12 p-2 rounded-full backdrop-blur-md transition-all"
-              :class="isFavorite(prop.id) ? 'bg-red-500 text-white' : 'bg-white/80 text-gray-400 hover:text-red-500'"
+              :class="
+                isFavorite(prop.id)
+                  ? 'bg-red-500 text-white'
+                  : 'bg-white/80 text-gray-400 hover:text-red-500'
+              "
             >
-              <svg class="w-5 h-5" :fill="isFavorite(prop.id) ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              <svg
+                class="w-5 h-5"
+                :fill="isFavorite(prop.id) ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
               </svg>
             </button>
           </div>
@@ -333,9 +366,8 @@
 
             <div class="flex items-center justify-between mt-3">
               <span class="text-lg font-bold text-blue-700 dark:text-blue-400">
-                ${{ prop.price.toLocaleString("es-BO") }}
+                ${{ prop.price.toLocaleString('es-BO') }}
               </span>
-              
             </div>
             <button
               v-if="prop.status === 'DISPONIBLE'"
@@ -349,7 +381,15 @@
               disabled
               class="px-3 py-1.5 text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-not-allowed"
             >
-              {{ prop.status === 'VENDIDO' ? 'Vendida' : prop.status === 'RESERVADO' ? 'Reservada' : prop.status === 'EN_NEGOCIACION' ? 'En Negociación' : 'No disponible' }}
+              {{
+                prop.status === 'VENDIDO'
+                  ? 'Vendida'
+                  : prop.status === 'RESERVADO'
+                    ? 'Reservada'
+                    : prop.status === 'EN_NEGOCIACION'
+                      ? 'En Negociación'
+                      : 'No disponible'
+              }}
             </button>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
               Agente: {{ prop.agentName }}
@@ -359,7 +399,10 @@
       </div>
 
       <!-- PAGINACIÓN -->
-      <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-6 pb-10">
+      <div
+        v-if="totalPages > 1"
+        class="flex justify-center items-center space-x-2 mt-6 pb-10"
+      >
         <button
           @click="goToPage(filters.page - 1)"
           :disabled="filters.page === 0"
@@ -369,13 +412,13 @@
         </button>
 
         <template v-for="page in totalPages" :key="page">
-          <button 
+          <button
             @click="goToPage(page - 1)"
             :class="[
               'px-4 py-2 rounded-lg border transition-colors',
-              filters.page === (page - 1) 
-                ? 'bg-blue-600 text-white border-blue-600' 
-                : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100'
+              filters.page === page - 1
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100',
             ]"
           >
             {{ page }}
@@ -396,9 +439,9 @@
     <client-property-details-modal
       v-if="selectedProperty && !showRequestModal"
       :show="!!selectedProperty"
-      :property="selectedProperty"
+      :property="selectedProperty as unknown as PropertyType"
       @close="selectedProperty = null"
-      @schedule-visit="openRequestModal"
+      @schedule-visit="handleScheduleVisit"
     />
 
     <!-- ===== MODAL SOLICITUD DE CITA ===== -->
@@ -578,7 +621,7 @@
                 :disabled="requestSubmitting"
                 class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
               >
-                {{ requestSubmitting ? "Enviando..." : "Enviar solicitud" }}
+                {{ requestSubmitting ? 'Enviando...' : 'Enviar solicitud' }}
               </button>
             </div>
           </form>
@@ -621,28 +664,30 @@
 </template>
 
 <script setup lang="ts">
-import Swal from "sweetalert2";
-import { ref, computed, onMounted } from "vue";
+import Swal from 'sweetalert2';
+import { ref, computed, onMounted } from 'vue';
 import {
   getAvailableProperties,
   createVisitRequest,
-} from "../services/visitRequestService";
-import type { Property, ClientVisitRequestDTO } from "../types/visitCalendar";
-import ClientPropertyDetailsModal from '../components/properties/ClientPropertyDetailsModal.vue'
+} from '../services/visitRequestService';
+import type { Property, ClientVisitRequestDTO } from '../types/visitCalendar';
+import type { Property as PropertyType } from '../types/property';
+import ClientPropertyDetailsModal from '../components/properties/ClientPropertyDetailsModal.vue';
 
 // ── Auth — leer del JWT ──
-import { useAuth } from "../composables/useAuth";
+import { useAuth } from '../composables/useAuth';
 const { user } = useAuth();
-const myClientId = computed(() => user.value?.sub || "");
-const myClientEmail = computed(() => user.value?.email || "");
+const myClientId = computed(() => (user.value?.sub || '') as string);
+const myClientEmail = computed(() => (user.value?.email || '') as string);
 const myClientName = computed(() => {
   if (user.value?.name) return user.value.name;
-  if (user.value?.email) return user.value.email.split("@")[0];
-  return "";
+  if (user.value?.email)
+    return ((user.value?.email as string) || '').split('@')[0];
+  return '';
 });
 
-import { useRouter } from "vue-router";
-import { favoriteService } from "../services/favoriteService";
+import { useRouter } from 'vue-router';
+import { favoriteService } from '../services/favoriteService';
 const router = useRouter();
 
 // ── Pagination ──
@@ -653,18 +698,18 @@ const PAGE_SIZE_OPTIONS = [9, 18, 27, 45];
 // ── Estado principal ──
 const properties = ref<Property[]>([]);
 const loading = ref(false);
-const error = ref("");
+const error = ref('');
 
 // ── Filtros PA3 ──
 const filters = ref({
   // zone: "",
-  title: "",
-  type: "",
-  operationType: "",
+  title: '',
+  type: '',
+  operationType: '',
   minPrice: undefined as number | undefined,
   maxPrice: undefined as number | undefined,
-  sortBy: "price",
-  sortOrder: "ASC",
+  sortBy: 'price',
+  sortOrder: 'ASC',
   page: 0,
   pageSize: 9,
 });
@@ -678,12 +723,12 @@ const requestSubmitting = ref(false);
 
 // ── Formulario de solicitud ──
 const requestForm = ref({
-  clientName: myClientName.value,
-  clientEmail: myClientEmail.value,
-  clientPhone: "",
-  preferredDateTime: "",
-  alternativeDateTime: "",
-  message: "",
+  clientName: myClientName.value as string,
+  clientEmail: myClientEmail.value as string,
+  clientPhone: '',
+  preferredDateTime: '',
+  alternativeDateTime: '',
+  message: '',
 });
 const reqErrors = ref<Record<string, string>>({});
 
@@ -695,60 +740,66 @@ const minDatetime = computed(() => {
 
 const agentNames = ref<Record<string, string>>({});
 
-function loadAgentNames(propList: any[]) {
+function loadAgentNames(propList: Property[]) {
   // El nombre del agente viene directamente de la propiedad
   // No se llama a /users porque el cliente no tiene permiso
-  propList.forEach((p: any) => {
+  propList.forEach((p: Property) => {
     if (p.assignedAgentId && p.agentName) {
       agentNames.value[p.assignedAgentId] = p.agentName;
     }
   });
 }
 
-const favorites = ref<Set<string>>(new Set())
+const favorites = ref<Set<string>>(new Set());
 
 const toggleFavorite = async (propertyId: string) => {
   try {
     if (favorites.value.has(propertyId)) {
-      favorites.value.delete(propertyId) // Optimistic update
-      await favoriteService.removeFavorite(propertyId)
+      favorites.value.delete(propertyId); // Optimistic update
+      await favoriteService.removeFavorite(propertyId);
     } else {
-      favorites.value.add(propertyId)
-      await favoriteService.addFavorite(propertyId)
+      favorites.value.add(propertyId);
+      await favoriteService.addFavorite(propertyId);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Revert optimistic update on error
     if (favorites.value.has(propertyId)) {
-      favorites.value.delete(propertyId)
+      favorites.value.delete(propertyId);
     } else {
-      favorites.value.add(propertyId)
+      favorites.value.add(propertyId);
     }
-    const msg = error.response?.data?.message || error.response?.data?.detail || 'Error al actualizar favorito'
+    const err = error as {
+      response?: { data?: { message?: string; detail?: string } };
+    };
+    const msg =
+      err.response?.data?.message ||
+      err.response?.data?.detail ||
+      'Error al actualizar favorito';
     await Swal.fire({
       icon: 'error',
       title: 'Error',
       text: msg,
       confirmButtonColor: '#dc2626',
-    })
+    });
   }
-}
+};
 
 const loadFavorites = async () => {
   try {
-    const ids = await favoriteService.getFavorites()
-    favorites.value = new Set(ids)
+    const ids = await favoriteService.getFavorites();
+    favorites.value = new Set(ids);
   } catch (e) {
-    console.error('Error loading favorites:', e)
-    favorites.value = new Set()
+    console.error('Error loading favorites:', e);
+    favorites.value = new Set();
   }
-}
+};
 
-const isFavorite = (id: string) => favorites.value.has(id)
+const isFavorite = (id: string) => favorites.value.has(id);
 
 // ── Cargar propiedades ──
 async function loadProperties() {
   loading.value = true;
-  error.value = "";
+  error.value = '';
   try {
     const result = await getAvailableProperties({
       title: filters.value.title || undefined,
@@ -771,7 +822,7 @@ async function loadProperties() {
     // Reflejar en la URL para Postman / compartir
     router.replace({
       query: {
-        status: "DISPONIBLE",
+        status: 'DISPONIBLE',
         ...(filters.value.title && { title: filters.value.title }),
         ...(filters.value.type && { type: filters.value.type }),
         ...(filters.value.operationType && {
@@ -789,8 +840,9 @@ async function loadProperties() {
         pageSize: String(filters.value.pageSize),
       },
     });
-  } catch (e: any) {
-    error.value = e.message || "No se pudieron cargar las propiedades";
+  } catch (e: unknown) {
+    const err = e as { message?: string };
+    error.value = err.message || 'No se pudieron cargar las propiedades';
   } finally {
     loading.value = false;
   }
@@ -803,13 +855,13 @@ function applyFilters() {
 
 function clearFilters() {
   filters.value = {
-    title: "",
-    type: "",
-    operationType: "",
+    title: '',
+    type: '',
+    operationType: '',
     minPrice: undefined as number | undefined,
     maxPrice: undefined as number | undefined,
-    sortBy: "price",
-    sortOrder: "ASC",
+    sortBy: 'price',
+    sortOrder: 'ASC',
     page: 0,
     pageSize: 9,
   };
@@ -827,25 +879,34 @@ function openPropertyModal(prop: Property) {
   showRequestModal.value = false;
 }
 
-function openRequestModal(prop: any) {
+function handleScheduleVisit(_propertyId: string | undefined) {
+  if (selectedProperty.value) {
+    openRequestModal(selectedProperty.value);
+  }
+}
+
+function openRequestModal(prop: Property) {
+  const agentId = prop.assignedAgentId || prop.agentId || '';
   requestTarget.value = {
     ...prop,
     id: prop.id,
-    name: prop.title || prop.name || "",
-    agentId: prop.assignedAgentId || prop.agentId || "",
+    name: prop.title || prop.name || '',
+    agentId: agentId,
     agentName:
-      agentNames.value[prop.assignedAgentId] || prop.agentName || "Agente",
+      (agentId ? agentNames.value[agentId] : undefined) ||
+      prop.agentName ||
+      'Agente',
   };
   showRequestModal.value = true;
   selectedProperty.value = null;
   requestSuccess.value = false;
   requestForm.value = {
-    clientName: myClientName.value,
-    clientEmail: myClientEmail.value,
-    clientPhone: "",
-    preferredDateTime: "",
-    alternativeDateTime: "",
-    message: "",
+    clientName: myClientName.value as string,
+    clientEmail: myClientEmail.value as string,
+    clientPhone: '',
+    preferredDateTime: '',
+    alternativeDateTime: '',
+    message: '',
   };
   reqErrors.value = {};
 }
@@ -858,12 +919,12 @@ function closeRequestModal() {
 // ── Validar solicitud ──
 function validateRequest(): boolean {
   reqErrors.value = {};
-  if (!requestForm.value.clientName.trim())
-    reqErrors.value.clientName = "Tu nombre es obligatorio";
-  if (!requestForm.value.clientEmail.trim())
-    reqErrors.value.clientEmail = "El email es obligatorio";
+  if (!String(requestForm.value.clientName).trim())
+    reqErrors.value.clientName = 'Tu nombre es obligatorio';
+  if (!String(requestForm.value.clientEmail).trim())
+    reqErrors.value.clientEmail = 'El email es obligatorio';
   if (!requestForm.value.preferredDateTime)
-    reqErrors.value.preferredDateTime = "El horario preferido es obligatorio";
+    reqErrors.value.preferredDateTime = 'El horario preferido es obligatorio';
   return Object.keys(reqErrors.value).length === 0;
 }
 
@@ -873,16 +934,16 @@ async function submitVisitRequest() {
   requestSubmitting.value = true;
   try {
     const dto: ClientVisitRequestDTO = {
-      propertyId: requestTarget.value.id || "",
-      propertyName: requestTarget.value.name || "",
-      agentId: requestTarget.value.agentId || "",
-      agentName: requestTarget.value.agentName || "",
-      clientId: myClientId.value,
-      clientName: requestForm.value.clientName,
-      clientEmail: requestForm.value.clientEmail,
+      propertyId: requestTarget.value.id || '',
+      propertyName: requestTarget.value.name || '',
+      agentId: requestTarget.value.agentId || '',
+      agentName: requestTarget.value.agentName || '',
+      clientId: myClientId.value as string,
+      clientName: String(requestForm.value.clientName),
+      clientEmail: requestForm.value.clientEmail as string,
       clientPhone: requestForm.value.clientPhone || undefined,
       preferredDateTime: new Date(
-        requestForm.value.preferredDateTime,
+        requestForm.value.preferredDateTime
       ).toISOString(),
       alternativeDateTime: requestForm.value.alternativeDateTime
         ? new Date(requestForm.value.alternativeDateTime).toISOString()
@@ -892,21 +953,24 @@ async function submitVisitRequest() {
     await createVisitRequest(dto);
     closeRequestModal();
     await Swal.fire({
-      icon: "success",
-      title: "¡Solicitud enviada!",
+      icon: 'success',
+      title: '¡Solicitud enviada!',
       text: `El agente ${requestTarget.value?.agentName} ha sido notificado.`,
-      confirmButtonText: "Aceptar",
-      confirmButtonColor: "#2563eb",
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#2563eb',
     });
-  } catch (e: any) {
-    alert("Error al enviar la solicitud: " + e.message);
+  } catch (e: unknown) {
+    const err = e as { message?: string };
+    alert(
+      'Error al enviar la solicitud: ' + (err.message || 'Error desconocido')
+    );
   } finally {
     requestSubmitting.value = false;
   }
 }
 
 onMounted(() => {
-  loadProperties()
-  loadFavorites()
-})
+  loadProperties();
+  loadFavorites();
+});
 </script>

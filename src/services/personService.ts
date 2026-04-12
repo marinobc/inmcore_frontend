@@ -1,44 +1,66 @@
-import { api } from './api'
+import { api } from './api';
+
+interface PersonProfile {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface CreatePersonPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  [key: string]: unknown;
+}
+
+interface ClientPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  [key: string]: unknown;
+}
 
 export const personService = {
-  async getPersonByAuthUserId(authUserId: string) {
+  async getPersonByAuthUserId(authUserId: string): Promise<PersonProfile> {
     try {
-      const response = await api.get(`/persons/by-auth/${authUserId}`)
-      return response.data
+      const response = await api.get(`/persons/by-auth/${authUserId}`);
+      return response.data;
     } catch (error) {
-      console.error('Error fetching person by authUserId:', error)
-      throw error
+      console.error('Error fetching person by authUserId:', error);
+      throw error;
     }
   },
 
-  async createPerson(payload: any) {
+  async createPerson(payload: CreatePersonPayload): Promise<PersonProfile> {
     try {
-      console.log('Creating person with payload:', payload)
-      const response = await api.post('/persons', payload)
-      console.log('Person created successfully:', response.data)
-      return response.data
+      console.log('Creating person with payload:', payload);
+      const response = await api.post('/persons', payload);
+      console.log('Person created successfully:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Error creating person:', error)
-      throw error
+      console.error('Error creating person:', error);
+      throw error;
     }
   },
 
-  async updatePersonByAuthUserId(authUserId: string, payload: any) {
+  async updatePersonByAuthUserId(
+    authUserId: string,
+    payload: Record<string, unknown>
+  ): Promise<PersonProfile> {
     try {
-      const response = await api.put(`/persons/by-auth/${authUserId}`, payload)
-      return response.data
+      const response = await api.put(`/persons/by-auth/${authUserId}`, payload);
+      return response.data;
     } catch (error) {
-      console.error('Error updating person by authUserId:', error)
-      throw error
+      console.error('Error updating person by authUserId:', error);
+      throw error;
     }
   },
 
   async deletePersonByAuthUserId(authUserId: string) {
     try {
-      await api.delete(`/persons/by-auth/${authUserId}`)
+      await api.delete(`/persons/by-auth/${authUserId}`);
     } catch (error) {
-      console.error('Error deleting person by authUserId:', error)
-      throw error
+      console.error('Error deleting person by authUserId:', error);
+      throw error;
     }
   },
 
@@ -47,13 +69,16 @@ export const personService = {
     return response.data;
   },
 
-  async createClientForAgent(payload: any) {
+  async createClientForAgent(payload: ClientPayload) {
     const response = await api.post('/persons/agents/clients', payload);
     return response.data;
   },
 
-  async updateClientForAgent(clientId: string, payload: any) {
-    const response = await api.put(`/persons/agents/clients/${clientId}`, payload);
+  async updateClientForAgent(clientId: string, payload: ClientPayload) {
+    const response = await api.put(
+      `/persons/agents/clients/${clientId}`,
+      payload
+    );
     return response.data;
-  }
-}
+  },
+};

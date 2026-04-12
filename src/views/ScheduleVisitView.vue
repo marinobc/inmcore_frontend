@@ -330,7 +330,7 @@
               "
               class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:shadow-none"
             >
-              {{ submitting ? "Guardando..." : "Programar Visita" }}
+              {{ submitting ? 'Guardando...' : 'Programar Visita' }}
             </button>
           </div>
         </form>
@@ -382,7 +382,7 @@
                 {{ ev.propertyName }}
               </p>
               <p class="text-[10px] text-gray-500 truncate">
-                {{ ev.ownEvent ? "Tú eres el responsable" : ev.agentName }}
+                {{ ev.ownEvent ? 'Tú eres el responsable' : ev.agentName }}
               </p>
             </div>
           </div>
@@ -393,48 +393,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useAuth } from "../composables/useAuth"; // Importamos useAuth
-import { propertyService } from "../services/propertyService";
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useAuth } from '../composables/useAuth'; // Importamos useAuth
+import { propertyService } from '../services/propertyService';
 import {
   checkConflict,
   createVisit,
   getDayAgenda,
-} from "../services/calendarService";
-import ConflictAlert from "../components/visits/ConflictAlert.vue";
+} from '../services/calendarService';
+import ConflictAlert from '../components/visits/ConflictAlert.vue';
 import type {
   ConflictResponse,
   CalendarEventResponse,
-} from "../types/visitCalendar";
-import Swal from "sweetalert2";
+  Property as VisitProperty,
+} from '../types/visitCalendar';
+import type { Property } from '../types/property';
+import Swal from 'sweetalert2';
 
 // --- AUTH ---
 const { user } = useAuth(); // Obtenemos el usuario decodificado del token
 
 // Extraemos los datos del agente de forma reactiva
-const myAgentId = computed(() => user.value?.sub || user.value?.userId || "");
+const myAgentId = computed(
+  () => (user.value?.sub || user.value?.userId || '') as string
+);
 const myAgentName = computed(() => {
   if (user.value?.fullName) return user.value.fullName;
   if (user.value?.name) return user.value.name;
   // Si el token no tiene nombre, usamos el email como fallback
-  return user.value?.email?.split("@")[0] || "Agente";
+  return (user.value?.email as string)?.split('@')[0] || 'Agente';
 });
 
 // --- ESTADO ---
 const form = ref({
-  propertyId: "",
-  propertyName: "",
-  propertyAddress: "",
-  startTimeLocal: "",
-  endTimeLocal: "",
-  notes: "",
+  propertyId: '',
+  propertyName: '',
+  propertyAddress: '',
+  startTimeLocal: '',
+  endTimeLocal: '',
+  notes: '',
 });
 
 const loadingList = ref(false);
-const allProperties = ref<any[]>([]); // Lista completa cacheada
-const searchTerm = ref("");
+const allProperties = ref<VisitProperty[]>([]); // Lista completa cacheada
+const searchTerm = ref('');
 const showDropdown = ref(false);
-const propertyInfo = ref<any | null>(null); // Detalle del seleccionado
+const propertyInfo = ref<Property | null>(null); // Detalle del seleccionado
 
 const errors = ref<Record<string, string>>({});
 const conflictResult = ref<ConflictResponse | null>(null);
@@ -450,9 +454,11 @@ const loadInitialData = async () => {
     // Cargamos todos de una vez para filtrar en cliente (Mejor UX)
     const data = await propertyService.getProperties();
     // Filtramos solo los que están disponibles para ahorrarle trabajo al agente
-    allProperties.value = data.filter((p: any) => p.status === "DISPONIBLE");
-  } catch (e) {
-    console.error("Error cargando inmuebles", e);
+    allProperties.value = data.filter(
+      (p: VisitProperty) => p.status === 'DISPONIBLE'
+    ) as VisitProperty[];
+  } catch {
+    console.error('Error cargando inmuebles');
   } finally {
     loadingList.value = false;
   }
@@ -464,14 +470,15 @@ const filteredProperties = computed(() => {
   return allProperties.value
     .filter(
       (p) =>
-        p.title.toLowerCase().includes(s) || p.address.toLowerCase().includes(s)
+        String(p.title).toLowerCase().includes(s) ||
+        String(p.address).toLowerCase().includes(s)
     )
     .slice(0, 20); // Limitamos visualmente el dropdown
 });
 
 const handleSelect = async (id: string) => {
   showDropdown.value = false;
-  searchTerm.value = "Cargando detalle...";
+  searchTerm.value = 'Cargando detalle...';
 
   try {
     // UX: Traemos el detalle fresco del servidor por ID
@@ -485,9 +492,9 @@ const handleSelect = async (id: string) => {
 
     // Al seleccionar, disparamos validación de tiempo si ya están llenos
     if (form.value.startTimeLocal) onTimeChange();
-  } catch (e) {
-    alert("No se pudo obtener el detalle del inmueble.");
-    searchTerm.value = "";
+  } catch {
+    alert('No se pudo obtener el detalle del inmueble.');
+    searchTerm.value = '';
   }
 };
 
@@ -525,16 +532,16 @@ const handleSubmit = async () => {
 
   // Validaciones básicas antes de enviar
   if (!form.value.propertyId) {
-    errors.value.propertyId = "Selecciona un inmueble";
+    errors.value.propertyId = 'Selecciona un inmueble';
     return;
   }
   if (!myAgentId.value) {
     await Swal.fire({
-      title: "Error",
-      text: "Error: No se pudo identificar tu ID de agente. Reintenta loguear.",
-      icon: "error",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#dc2626",
+      title: 'Error',
+      text: 'Error: No se pudo identificar tu ID de agente. Reintenta loguear.',
+      icon: 'error',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#dc2626',
     });
     return;
   }
@@ -547,37 +554,37 @@ const handleSubmit = async () => {
         propertyId: form.value.propertyId,
         propertyName: form.value.propertyName,
         propertyAddress: form.value.propertyAddress,
-        agentId: myAgentId.value, // <--- Corregido (.value)
-        agentName: myAgentName.value, // <--- Corregido (.value)
+        agentId: myAgentId.value as string, // <--- Corregido (.value)
+        agentName: myAgentName.value as string, // <--- Corregido (.value)
         startTime: new Date(form.value.startTimeLocal).toISOString(),
         endTime: new Date(form.value.endTimeLocal).toISOString(),
         notes: form.value.notes,
       },
-      myAgentId.value
+      myAgentId.value as string
     );
 
     // Cargar agenda actualizada
     dayAgenda.value = await getDayAgenda(
-      myAgentId.value,
+      myAgentId.value as string,
       new Date(form.value.startTimeLocal).toISOString()
     );
 
-    form.value.notes = "";
+    form.value.notes = '';
     await Swal.fire({
-      title: "¡Visita programada exitosamente!",
-      icon: "success",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#2563eb",
+      title: '¡Visita programada exitosamente!',
+      icon: 'success',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#2563eb',
     });
-  } catch (e: any) {
-    // Si el backend devuelve un 400 con los errores de validación
-    const msg = e.response?.data?.message || "Error al programar visita";
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } };
+    const msg = err.response?.data?.message || 'Error al programar visita';
     await Swal.fire({
-      title: "Error",
+      title: 'Error',
       text: msg,
-      icon: "error",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#dc2626",
+      icon: 'error',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#dc2626',
     });
   } finally {
     submitting.value = false;
@@ -594,9 +601,9 @@ const applySuggestion = (start?: string, end?: string) => {
 };
 
 const shortTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString("es-BO", {
-    hour: "2-digit",
-    minute: "2-digit",
+  new Date(iso).toLocaleTimeString('es-BO', {
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
 const minDatetime = computed(() => {
@@ -606,18 +613,21 @@ const minDatetime = computed(() => {
 });
 
 // Cerrar dropdown al hacer clic fuera
-const closeClickOutside = (e: any) => {
-  if (!e.target.closest("#property-select-container"))
+const closeClickOutside = (e: Event) => {
+  if (
+    !(e.target instanceof HTMLElement) ||
+    !e.target.closest('#property-select-container')
+  )
     showDropdown.value = false;
 };
 
 onMounted(() => {
   loadInitialData();
-  window.addEventListener("click", closeClickOutside);
+  window.addEventListener('click', closeClickOutside);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("click", closeClickOutside);
+  window.removeEventListener('click', closeClickOutside);
 });
 </script>
 

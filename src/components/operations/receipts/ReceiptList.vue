@@ -273,8 +273,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Receipt } from "../../../types/receipt";
+import { ref } from 'vue';
+import type { Receipt } from '../../../types/receipt';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 defineProps<{
@@ -283,7 +283,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "delete", receiptId: string): void;
+  (e: 'delete', receiptId: string): void;
 }>();
 
 // ── State ─────────────────────────────────────────────────────────────────
@@ -298,7 +298,7 @@ function confirmDelete(receipt: Receipt) {
 function handleDelete() {
   if (!receiptToDelete.value) return;
   deletingId.value = receiptToDelete.value.id;
-  emit("delete", receiptToDelete.value.id);
+  emit('delete', receiptToDelete.value.id);
   receiptToDelete.value = null;
   // Parent clears deletingId via receipts list update; reset after short delay
   setTimeout(() => {
@@ -307,32 +307,32 @@ function handleDelete() {
 }
 
 function isPdf(receipt: Receipt): boolean {
-  return receipt.contentType === "application/pdf";
+  return receipt.contentType === 'application/pdf';
 }
 
 function formatDate(iso: string): string {
-  if (!iso) return "";
-  return new Date(iso).toLocaleString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
 function formatAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency,
     minimumFractionDigits: 2,
   }).format(amount);
 }
 
 function formatSize(bytes: number): string {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 </script>
 

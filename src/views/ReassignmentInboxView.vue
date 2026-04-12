@@ -256,10 +256,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useReassignment } from "../composables/useReassignment";
-import ConfirmResponseModal from "../components/visits/reassignment/ConfirmResponseModal.vue";
-import type { ReassignmentSolicitation } from "../types/reassignment";
+import { ref, onMounted } from 'vue';
+import { useReassignment } from '../composables/useReassignment';
+import ConfirmResponseModal from '../components/visits/reassignment/ConfirmResponseModal.vue';
+import type { ReassignmentSolicitation } from '../types/reassignment';
 
 const {
   receivedRequests: requests,
@@ -272,10 +272,10 @@ const {
 // ── Local state ───────────────────────────────────────────────────────────
 const responseModalVisible = ref(false);
 const selectedRequest = ref<ReassignmentSolicitation | null>(null);
-const selectedDecision = ref<"ACCEPTED" | "REJECTED">("ACCEPTED");
+const selectedDecision = ref<'ACCEPTED' | 'REJECTED'>('ACCEPTED');
 const processingId = ref<string | null>(null);
 const toastVisible = ref(false);
-const toastMsg = ref("");
+const toastMsg = ref('');
 
 // ── Lifecycle ─────────────────────────────────────────────────────────────
 onMounted(load);
@@ -287,7 +287,7 @@ async function load() {
 // ── Methods ───────────────────────────────────────────────────────────────
 function openResponseModal(
   r: ReassignmentSolicitation,
-  decision: "ACCEPTED" | "REJECTED",
+  decision: 'ACCEPTED' | 'REJECTED'
 ) {
   selectedRequest.value = r;
   selectedDecision.value = decision;
@@ -305,9 +305,9 @@ async function handleConfirmed(payload: { comment?: string }) {
 
   if (success) {
     showToast(
-      selectedDecision.value === "ACCEPTED"
-        ? "Request accepted. The visit has been added to your schedule."
-        : "Request rejected. The original agent keeps the visit.",
+      selectedDecision.value === 'ACCEPTED'
+        ? 'Request accepted. The visit has been added to your schedule.'
+        : 'Request rejected. The original agent keeps the visit.'
     );
   }
   processingId.value = null;
@@ -320,13 +320,13 @@ function showToast(msg: string) {
 }
 
 function formatDate(iso: string): string {
-  if (!iso) return "";
-  return new Date(iso).toLocaleString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 </script>

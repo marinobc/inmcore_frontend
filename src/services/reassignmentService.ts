@@ -2,16 +2,16 @@
 // Consumes the reassignment endpoints from the visit-calendar-service.
 // Uses the shared axios instance (with auth interceptor) from the project.
 
-import { api } from "./api";
+import { api } from './api';
 import type {
   ReassignmentSolicitation,
   ReassignmentRequest,
   ReassignmentResponseRequest,
   PendingCount,
   AvailableAgent,
-} from "../types/reassignment";
+} from '../types/reassignment';
 
-const BASE = "/api";
+const BASE = '/api';
 
 const reassignmentService = {
   /**
@@ -20,11 +20,11 @@ const reassignmentService = {
    */
   async requestReassignment(
     visitId: string,
-    payload: ReassignmentRequest,
+    payload: ReassignmentRequest
   ): Promise<ReassignmentSolicitation> {
     const { data } = await api.post<ReassignmentSolicitation>(
       `${BASE}/visits/${visitId}/reassignment`,
-      payload,
+      payload
     );
     return data;
   },
@@ -35,11 +35,11 @@ const reassignmentService = {
    */
   async respondToRequest(
     requestId: string,
-    payload: ReassignmentResponseRequest,
+    payload: ReassignmentResponseRequest
   ): Promise<ReassignmentSolicitation> {
     const { data } = await api.put<ReassignmentSolicitation>(
       `${BASE}/reassignments/${requestId}/reply`,
-      payload,
+      payload
     );
     return data;
   },
@@ -50,7 +50,7 @@ const reassignmentService = {
    */
   async getReceivedRequests(): Promise<ReassignmentSolicitation[]> {
     const { data } = await api.get<ReassignmentSolicitation[]>(
-      `${BASE}/reassignments/received`,
+      `${BASE}/reassignments/received`
     );
     return data;
   },
@@ -61,7 +61,7 @@ const reassignmentService = {
    */
   async getPendingCount(): Promise<number> {
     const { data } = await api.get<PendingCount>(
-      `${BASE}/reassignments/pending/count`,
+      `${BASE}/reassignments/pending/count`
     );
     return data.pending;
   },
@@ -72,18 +72,18 @@ const reassignmentService = {
    * Filters by EMPLOYEE userType to exclude admins and clients.
    */
   async getAvailableAgents(): Promise<AvailableAgent[]> {
-    const { data } = await api.get<AvailableAgent[]>("/users", {
-      params: { userType: "EMPLOYEE" }
+    const { data } = await api.get<AvailableAgent[]>('/users', {
+      params: { userType: 'EMPLOYEE' },
     });
     return data;
   },
 
   // GET /api/reassignments/sent → Solicitudes enviadas por el agente autenticado
   async getSentRequests(): Promise<ReassignmentSolicitation[]> {
-      const { data } = await api.get<ReassignmentSolicitation[]>(
-          `${BASE}/reassignments/sent`,
-      );
-      return data;
+    const { data } = await api.get<ReassignmentSolicitation[]>(
+      `${BASE}/reassignments/sent`
+    );
+    return data;
   },
 };
 

@@ -59,7 +59,7 @@
                 Operation
               </span>
               <h1 class="text-2xl font-bold text-gray-900">
-                {{ operation?.propertyName ?? "Operation #" + operationId }}
+                {{ operation?.propertyName ?? 'Operation #' + operationId }}
               </h1>
               <p class="text-gray-500 text-sm mt-1">ID: {{ operationId }}</p>
             </div>
@@ -67,7 +67,7 @@
               class="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium"
               :class="statusClass"
             >
-              {{ operation?.status ?? "—" }}
+              {{ operation?.status ?? '—' }}
             </span>
           </div>
 
@@ -79,7 +79,7 @@
                 Property
               </p>
               <p class="text-sm font-medium text-gray-800 mt-0.5">
-                {{ operation?.propertyName ?? "—" }}
+                {{ operation?.propertyName ?? '—' }}
               </p>
             </div>
             <div>
@@ -87,13 +87,13 @@
                 Client
               </p>
               <p class="text-sm font-medium text-gray-800 mt-0.5">
-                {{ operation?.clientName ?? "—" }}
+                {{ operation?.clientName ?? '—' }}
               </p>
             </div>
             <div>
               <p class="text-xs text-gray-400 uppercase tracking-wide">Agent</p>
               <p class="text-sm font-medium text-gray-800 mt-0.5">
-                {{ operation?.agentName ?? "—" }}
+                {{ operation?.agentName ?? '—' }}
               </p>
             </div>
             <div>
@@ -115,17 +115,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import OperationReceiptsSection from "../components/operations/receipts/OperationReceiptsSection.vue";
-import { api } from "../services/api";
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import OperationReceiptsSection from '../components/operations/receipts/OperationReceiptsSection.vue';
+import { api } from '../services/api';
 
 // ── Route params ──────────────────────────────────────────────────────────
 const route = useRoute();
 const operationId = route.params.id as string;
 
 // ── Operation data ────────────────────────────────────────────────────────
-const operation = ref<any>(null);
+const operation = ref<Record<string, unknown> | null>(null);
 const loadingOperation = ref(false);
 const operationError = ref<string | null>(null);
 
@@ -134,9 +134,8 @@ onMounted(async () => {
   try {
     const { data } = await api.get(`/api/operations/${operationId}`);
     operation.value = data;
-  } catch (e: any) {
-    operationError.value =
-      e?.response?.data?.error ?? "Failed to load operation details.";
+  } catch {
+    operationError.value = 'Failed to load operation details.';
   } finally {
     loadingOperation.value = false;
   }
@@ -144,23 +143,23 @@ onMounted(async () => {
 
 // ── Computed ──────────────────────────────────────────────────────────────
 const statusClass = computed(() => {
-  const status = operation.value?.status ?? "";
+  const status = (operation.value?.status ?? '') as string;
   const map: Record<string, string> = {
-    ACTIVE: "bg-green-100 text-green-800",
-    CLOSED: "bg-gray-100 text-gray-700",
-    CANCELLED: "bg-red-100 text-red-700",
-    PENDING: "bg-yellow-100 text-yellow-800",
+    ACTIVE: 'bg-green-100 text-green-800',
+    CLOSED: 'bg-gray-100 text-gray-700',
+    CANCELLED: 'bg-red-100 text-red-700',
+    PENDING: 'bg-yellow-100 text-yellow-800',
   };
-  return map[status] ?? "bg-gray-100 text-gray-700";
+  return map[status] ?? 'bg-gray-100 text-gray-700';
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────
-function formatDate(iso?: string): string {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+function formatDate(iso?: unknown): string {
+  if (!iso || typeof iso !== 'string') return '—';
+  return new Date(iso).toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 }
 </script>

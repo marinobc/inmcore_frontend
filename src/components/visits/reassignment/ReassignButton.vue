@@ -67,8 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import ReassignmentModal from "./ReassignmentModal.vue";
+import { ref } from 'vue';
+import ReassignmentModal from './ReassignmentModal.vue';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 defineProps<{
@@ -77,7 +77,7 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "requestSent"): void;
+  (e: 'requestSent'): void;
 }>();
 
 // ── State ─────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ function openModal() {
 
 function onRequestSent() {
   showToast();
-  emit("requestSent");
+  emit('requestSent');
 }
 
 function showToast() {

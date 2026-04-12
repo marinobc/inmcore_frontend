@@ -9,35 +9,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useAuth } from '../../../composables/useAuth'
-import { getPendingRequestsForAgent } from '../../../services/visitRequestService'
+import { ref, onMounted, onUnmounted } from 'vue';
+import { useAuth } from '../../../composables/useAuth';
+import { getPendingRequestsForAgent } from '../../../services/visitRequestService';
 
-const { user } = useAuth()
-const count = ref(0)
-let intervalId: ReturnType<typeof setInterval> | null = null
+const { user } = useAuth();
+const count = ref(0);
+let intervalId: ReturnType<typeof setInterval> | null = null;
 
 async function fetchCount() {
-  const agentId = user.value?.sub || user.value?.userId
+  const agentId = (user.value?.sub || user.value?.userId || '') as string;
   if (!agentId) {
-    count.value = 0
-    return
+    count.value = 0;
+    return;
   }
 
   try {
-    const requests = await getPendingRequestsForAgent(agentId)
-    count.value = requests.filter(request => request.status === 'PENDING').length
+    const requests = await getPendingRequestsForAgent(agentId);
+    count.value = requests.filter(
+      (request) => request.status === 'PENDING'
+    ).length;
   } catch {
     // Silent fallback: no bloquear la UI del navbar.
   }
 }
 
 onMounted(() => {
-  fetchCount()
-  intervalId = setInterval(fetchCount, 30_000)
-})
+  fetchCount();
+  intervalId = setInterval(fetchCount, 30_000);
+});
 
 onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId)
-})
+  if (intervalId) clearInterval(intervalId);
+});
 </script>

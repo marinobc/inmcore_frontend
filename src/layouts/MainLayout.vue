@@ -93,7 +93,10 @@
             v-if="isAdmin"
             to="/dashboard/admin/properties/audit"
             class="block py-2 pr-4 pl-3 rounded md:p-0 text-gray-700 hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 dark:text-gray-400 md:dark:hover:text-white"
-            :class="{ 'text-blue-700 dark:text-white font-bold': $route.name === 'PropertyAudit' }"
+            :class="{
+              'text-blue-700 dark:text-white font-bold':
+                $route.name === 'PropertyAudit',
+            }"
           >
             Auditoría Inmuebles
           </router-link>
@@ -105,7 +108,7 @@
           >
             Auditoría Usuarios
           </router-link>
-          
+
           <router-link
             v-if="isAgent"
             to="/dashboard/agent/clients"
@@ -161,8 +164,18 @@
             class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
             active-class="bg-blue-50 text-blue-700 font-medium"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             Operaciones
           </router-link>
@@ -196,13 +209,22 @@
             class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
             active-class="bg-blue-50 text-blue-700 font-medium"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
             </svg>
             Mis Solicitudes Enviadas
             <NotificationBadge />
           </router-link>
-
         </fwb-navbar-collapse>
       </template>
       <template #right-side>
@@ -273,22 +295,21 @@
 import {
   FwbNavbar,
   FwbNavbarCollapse,
-  FwbNavbarLink,
   FwbDropdown,
   FwbListGroup,
-} from "flowbite-vue";
-import NotificationBadge from "../components/visits/reassignment/NotificationBadge.vue";
-import VisitRequestNotificationBadge from "../components/visits/requests/VisitRequestNotificationBadge.vue";
-import { useAuth } from "../composables/useAuth";
-import { t } from "../locales/i18n";
-import ThemeToggle from "../components/ThemeToggle.vue";
-import { computed } from "vue";
+} from 'flowbite-vue';
+import NotificationBadge from '../components/visits/reassignment/NotificationBadge.vue';
+import VisitRequestNotificationBadge from '../components/visits/requests/VisitRequestNotificationBadge.vue';
+import { useAuth } from '../composables/useAuth';
+import { t } from '../locales/i18n';
+import ThemeToggle from '../components/ThemeToggle.vue';
+import { computed } from 'vue';
 
 const { user, logout } = useAuth();
 
 // Helper functions to get user information
 const getUserEmail = () => {
-  return user.value?.email || user.value?.sub || "No email";
+  return user.value?.email || user.value?.sub || 'No email';
 };
 
 const getUserDisplayName = () => {
@@ -298,52 +319,52 @@ const getUserDisplayName = () => {
   // Fallback to email or user ID
   const email = getUserEmail();
   if (email && email !== user.value?.sub) {
-    return email.split("@")[0]; // Show part before @
+    return String(email).split('@')[0]; // Show part before @
   }
-  return "User";
+  return 'User';
 };
 
 const getUserInitial = () => {
-  const name = getUserDisplayName();
+  const name = String(getUserDisplayName());
   return name.charAt(0).toUpperCase();
 };
 
 const getUserTypeLabel = () => {
   const userType = user.value?.userType;
   switch (userType) {
-    case "ADMIN":
-      return "Administrator";
-    case "EMPLOYEE":
-      return "Agent / Employee";
-    case "OWNER":
-      return "Property Owner";
-    case "INTERESTED_CLIENT":
-      return "Interested Client";
+    case 'ADMIN':
+      return 'Administrator';
+    case 'EMPLOYEE':
+      return 'Agent / Employee';
+    case 'OWNER':
+      return 'Property Owner';
+    case 'INTERESTED_CLIENT':
+      return 'Interested Client';
     default:
-      return userType || "User";
+      return userType || 'User';
   }
 };
 
 const isAdmin = computed(() => {
-  const roles = user.value?.roles || [];
-  return roles.includes("ADMIN") || user.value?.userType === "ADMIN";
+  const roles = (user.value?.roles || []) as string[];
+  return roles.includes('ADMIN') || user.value?.userType === 'ADMIN';
 });
 
 const isAgent = computed(() => {
-  const roles = user.value?.roles || [];
-  return roles.includes("AGENT") || user.value?.userType === "EMPLOYEE";
+  const roles = (user.value?.roles || []) as string[];
+  return roles.includes('AGENT') || user.value?.userType === 'EMPLOYEE';
 });
 
 const isOwner = computed(() => {
-  const roles = user.value?.roles || [];
-  return roles.includes("OWNER") || user.value?.userType === "OWNER";
+  const roles = (user.value?.roles || []) as string[];
+  return roles.includes('OWNER') || user.value?.userType === 'OWNER';
 });
 
 const isClient = computed(() => {
-  const roles = user.value?.roles || [];
+  const roles = (user.value?.roles || []) as string[];
   return (
-    roles.includes("INTERESTED_CLIENT") ||
-    user.value?.userType === "INTERESTED_CLIENT"
+    roles.includes('INTERESTED_CLIENT') ||
+    user.value?.userType === 'INTERESTED_CLIENT'
   );
 });
 
@@ -351,9 +372,9 @@ const handleLogout = async () => {
   try {
     await logout();
   } catch (e) {
-    console.error("Logout error:", e);
+    console.error('Logout error:', e);
   } finally {
-    window.location.href = "/login";
+    window.location.href = '/login';
   }
 };
 </script>

@@ -1,4 +1,3 @@
-
 export const en = {
   auth: {
     welcome: 'Welcome Back',
@@ -11,7 +10,7 @@ export const en = {
     forgotPassword: 'Lost Password?',
     signIn: 'Sign In',
     notRegistered: 'Not registered?',
-    createAccount: 'Create account'
+    createAccount: 'Create account',
   },
   nav: {
     brand: 'TD Inmobiliaria',
@@ -19,7 +18,7 @@ export const en = {
     properties: 'Properties',
     reports: 'Reports',
     openUserMenu: 'Open user menu',
-    logout: 'Logout'
+    logout: 'Logout',
   },
   users: {
     title: 'User Management',
@@ -29,15 +28,15 @@ export const en = {
     addNew: 'Add New User',
     editUser: 'Edit User',
     createTitle: 'Create New User',
-    
+
     table: {
       name: 'Name',
       email: 'Email',
       phone: 'Phone',
       role: 'Role',
-      actions: 'Actions'
+      actions: 'Actions',
     },
-    
+
     form: {
       firstName: 'First Name',
       lastName: 'Last Name',
@@ -53,11 +52,11 @@ export const en = {
       selectRole: 'Select a role',
       cancel: 'Cancel',
       update: 'Update User',
-      create: 'Create User'
-    }
+      create: 'Create User',
+    },
   },
   common: {
     loading: 'Loading...',
-    error: 'Error'
-  }
-}
+    error: 'Error',
+  },
+};

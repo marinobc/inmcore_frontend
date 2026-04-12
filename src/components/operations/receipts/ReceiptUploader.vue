@@ -315,31 +315,31 @@
             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
           />
         </svg>
-        {{ uploading ? "Uploading..." : "Attach Receipt" }}
+        {{ uploading ? 'Uploading...' : 'Attach Receipt' }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
-import { useReceipts } from "../../../composables/useReceipts";
+import { ref, reactive, computed } from 'vue';
+import { useReceipts } from '../../../composables/useReceipts';
 import {
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
   ALLOWED_TYPE_LABELS,
-} from "../../../types/receipt";
+} from '../../../types/receipt';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 const props = defineProps<{ operationId: string }>();
 
 const emit = defineEmits<{
-  (e: "uploaded"): void;
+  (e: 'uploaded'): void;
 }>();
 
 // ── Composable ────────────────────────────────────────────────────────────
 const { attachReceipt, uploading, uploadProgress, uploadError } = useReceipts(
-  props.operationId,
+  props.operationId
 );
 
 // ── Local state ───────────────────────────────────────────────────────────
@@ -349,21 +349,21 @@ const isDragging = ref(false);
 const fileError = ref<string | null>(null);
 
 const form = reactive({
-  amount: "",
-  currency: "BOB",
-  paymentDate: "",
-  concept: "",
+  amount: '',
+  currency: 'BOB',
+  paymentDate: '',
+  concept: '',
 });
 
 const formErrors = reactive({
-  amount: "",
-  currency: "",
-  paymentDate: "",
-  concept: "",
+  amount: '',
+  currency: '',
+  paymentDate: '',
+  concept: '',
 });
 
 // ── Computed ──────────────────────────────────────────────────────────────
-const isPdf = computed(() => selectedFile.value?.type === "application/pdf");
+const isPdf = computed(() => selectedFile.value?.type === 'application/pdf');
 
 // ── File handling ─────────────────────────────────────────────────────────
 function triggerFilePicker() {
@@ -384,7 +384,11 @@ function onDrop(event: DragEvent) {
 function applyFile(file: File) {
   fileError.value = null;
   // Client-side validation (PA2: show format error immediately)
-  if (!ALLOWED_MIME_TYPES.includes(file.type as any)) {
+  if (
+    !ALLOWED_MIME_TYPES.includes(
+      file.type as (typeof ALLOWED_MIME_TYPES)[number]
+    )
+  ) {
     fileError.value = `Invalid file format. Only ${ALLOWED_TYPE_LABELS} files are accepted.`;
     selectedFile.value = null;
     return;
@@ -401,31 +405,31 @@ function applyFile(file: File) {
 function clearFile() {
   selectedFile.value = null;
   fileError.value = null;
-  if (fileInputRef.value) fileInputRef.value.value = "";
+  if (fileInputRef.value) fileInputRef.value.value = '';
 }
 
 // ── Form validation ───────────────────────────────────────────────────────
 function validateForm(): boolean {
-  formErrors.amount = "";
-  formErrors.currency = "";
-  formErrors.paymentDate = "";
-  formErrors.concept = "";
+  formErrors.amount = '';
+  formErrors.currency = '';
+  formErrors.paymentDate = '';
+  formErrors.concept = '';
   let valid = true;
 
   if (!form.amount || Number(form.amount) <= 0) {
-    formErrors.amount = "A valid amount greater than zero is required.";
+    formErrors.amount = 'A valid amount greater than zero is required.';
     valid = false;
   }
   if (!form.currency) {
-    formErrors.currency = "Please select a currency.";
+    formErrors.currency = 'Please select a currency.';
     valid = false;
   }
   if (!form.paymentDate) {
-    formErrors.paymentDate = "Payment date is required.";
+    formErrors.paymentDate = 'Payment date is required.';
     valid = false;
   }
   if (!form.concept.trim()) {
-    formErrors.concept = "Concept is required.";
+    formErrors.concept = 'Concept is required.';
     valid = false;
   }
   return valid;
@@ -434,7 +438,7 @@ function validateForm(): boolean {
 // ── Submit ────────────────────────────────────────────────────────────────
 async function handleSubmit() {
   if (!selectedFile.value) {
-    fileError.value = "Please select a file to upload.";
+    fileError.value = 'Please select a file to upload.';
     return;
   }
   if (!validateForm()) return;
@@ -449,18 +453,18 @@ async function handleSubmit() {
   if (success) {
     // Reset form
     clearFile();
-    form.amount = "";
-    form.currency = "BOB";
-    form.paymentDate = "";
-    form.concept = "";
-    emit("uploaded");
+    form.amount = '';
+    form.currency = 'BOB';
+    form.paymentDate = '';
+    form.concept = '';
+    emit('uploaded');
   }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 function formatSize(bytes: number): string {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 </script>

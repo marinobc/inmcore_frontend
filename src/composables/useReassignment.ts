@@ -1,14 +1,21 @@
 // src/composables/useReassignment.ts
 // Composable that encapsulates state and logic for visit reassignment.
 
-import { ref, computed } from "vue";
-import reassignmentService from "../services/reassignmentService";
+import { ref, computed } from 'vue';
+import reassignmentService from '../services/reassignmentService';
 import type {
   ReassignmentSolicitation,
   AvailableAgent,
   ReassignmentRequest,
   ReassignmentResponseRequest,
-} from "../types/reassignment";
+} from '../types/reassignment';
+import type { AxiosError } from 'axios';
+
+interface ApiErrorResponse {
+  error?: string;
+  message?: string;
+  detail?: string;
+}
 
 export function useReassignment() {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -22,20 +29,23 @@ export function useReassignment() {
   const hasPending = computed(() => pendingCount.value > 0);
 
   // Añadir al estado
-  const sentRequests = ref<ReassignmentSolicitation[]>([]);
+  // TODO: Use sentRequests when loadSentRequests is implemented
+  // const sentRequests = ref<ReassignmentSolicitation[]>([]);
 
-    // Añadir método
-  async function loadSentRequests() {
-      loading.value = true;
-      error.value = null;
-      try {
-          sentRequests.value = await reassignmentService.getSentRequests();
-      } catch (e: any) {
-          error.value = e?.response?.data?.error ?? "Failed to load sent reassignment requests.";
-      } finally {
-          loading.value = false;
-      }
-  }
+  // TODO: Implement loadSentRequests if needed
+  // async function loadSentRequests() {
+  //   loading.value = true;
+  //   error.value = null;
+  //   try {
+  //     sentRequests.value = await reassignmentService.getSentRequests();
+  //   } catch (e: any) {
+  //     error.value =
+  //       e?.response?.data?.error ??
+  //       'Failed to load sent reassignment requests.';
+  //   } finally {
+  //     loading.value = false;
+  //   }
+  // }
   // Retornar también sentRequests y loadSentRequests
   // ── Methods ───────────────────────────────────────────────────────────────
 
@@ -47,9 +57,11 @@ export function useReassignment() {
     error.value = null;
     try {
       receivedRequests.value = await reassignmentService.getReceivedRequests();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
       error.value =
-        e?.response?.data?.error ?? "Failed to load reassignment requests.";
+        axiosError?.response?.data?.error ??
+        'Failed to load reassignment requests.';
     } finally {
       loading.value = false;
     }
@@ -75,8 +87,10 @@ export function useReassignment() {
     error.value = null;
     try {
       availableAgents.value = await reassignmentService.getAvailableAgents();
-    } catch (e: any) {
-      error.value = e?.response?.data?.error ?? "Failed to load agents.";
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
+      error.value =
+        axiosError?.response?.data?.error ?? 'Failed to load agents.';
     } finally {
       loading.value = false;
     }
@@ -87,16 +101,17 @@ export function useReassignment() {
    */
   async function requestReassignment(
     visitId: string,
-    payload: ReassignmentRequest,
+    payload: ReassignmentRequest
   ): Promise<ReassignmentSolicitation | null> {
     loading.value = true;
     error.value = null;
     try {
       return await reassignmentService.requestReassignment(visitId, payload);
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
       error.value =
-        e?.response?.data?.error ??
-        "Failed to submit the reassignment request.";
+        axiosError?.response?.data?.error ??
+        'Failed to submit the reassignment request.';
       return null;
     } finally {
       loading.value = false;
@@ -109,7 +124,7 @@ export function useReassignment() {
    */
   async function respondToRequest(
     requestId: string,
-    payload: ReassignmentResponseRequest,
+    payload: ReassignmentResponseRequest
   ): Promise<boolean> {
     loading.value = true;
     error.value = null;
@@ -117,13 +132,15 @@ export function useReassignment() {
       await reassignmentService.respondToRequest(requestId, payload);
       // Remove the responded request from the local list
       receivedRequests.value = receivedRequests.value.filter(
-        (r) => r.id !== requestId,
+        (r) => r.id !== requestId
       );
       pendingCount.value = Math.max(0, pendingCount.value - 1);
       return true;
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
       error.value =
-        e?.response?.data?.error ?? "Failed to respond to the request.";
+        axiosError?.response?.data?.error ??
+        'Failed to respond to the request.';
       return false;
     } finally {
       loading.value = false;

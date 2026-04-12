@@ -4,14 +4,14 @@
 //  HU1: calendario compartido | HU2: programar visita
 // ============================================================
 
-import { api } from './api'
+import { api } from './api';
 
 import type {
   CalendarResponse,
   CalendarEventResponse,
   ConflictResponse,
   CreateVisitRequest,
-} from '../types/visitCalendar'
+} from '../types/visitCalendar';
 
 // ---------------------------------------------------------------
 //  HU1: GET /api/calendar
@@ -31,16 +31,16 @@ export async function getCalendar(
   to: string,
   myAgentId?: string,
   agentId?: string,
-  propertyId?: string,
+  propertyId?: string
 ): Promise<CalendarResponse> {
-  const params = new URLSearchParams({ from, to })
-  if (agentId) params.append('agentId', agentId)
-  if (propertyId) params.append('propertyId', propertyId)
+  const params = new URLSearchParams({ from, to });
+  if (agentId) params.append('agentId', agentId);
+  if (propertyId) params.append('propertyId', propertyId);
 
   const response = await api.get(`/api/calendar?${params}`, {
     headers: myAgentId ? { 'X-Agent-Id': myAgentId } : {},
-  })
-  return response.data.data
+  });
+  return response.data.data;
 }
 
 // ---------------------------------------------------------------
@@ -54,11 +54,11 @@ export async function getCalendar(
 export async function checkConflict(
   propertyId: string,
   startTime: string,
-  endTime: string,
+  endTime: string
 ): Promise<ConflictResponse> {
-  const params = new URLSearchParams({ propertyId, startTime, endTime })
-  const response = await api.get(`/api/visits/conflict-check?${params}`)
-  return response.data.data
+  const params = new URLSearchParams({ propertyId, startTime, endTime });
+  const response = await api.get(`/api/visits/conflict-check?${params}`);
+  return response.data.data;
 }
 
 /**
@@ -68,12 +68,12 @@ export async function checkConflict(
  */
 export async function createVisit(
   data: CreateVisitRequest,
-  agentId: string,
+  agentId: string
 ): Promise<CalendarEventResponse> {
   const response = await api.post('/api/visits', data, {
     headers: { 'X-Agent-Id': agentId },
-  })
-  return response.data.data
+  });
+  return response.data.data;
 }
 
 /**
@@ -83,13 +83,13 @@ export async function createVisit(
  */
 export async function getDayAgenda(
   agentId: string,
-  day: string,
+  day: string
 ): Promise<CalendarEventResponse[]> {
-  const params = new URLSearchParams({ agentId, day })
+  const params = new URLSearchParams({ agentId, day });
   const response = await api.get(`/api/visits/agenda?${params}`, {
     headers: { 'X-Agent-Id': agentId },
-  })
-  return response.data.data
+  });
+  return response.data.data;
 }
 
 /**
@@ -97,12 +97,16 @@ export async function getDayAgenda(
  */
 export async function cancelVisit(
   visitId: string,
-  agentId: string,
+  agentId: string
 ): Promise<CalendarEventResponse> {
-  const response = await api.patch(`/api/visits/${visitId}/cancel`, {}, {
-    headers: { 'X-Agent-Id': agentId },
-  })
-  return response.data.data
+  const response = await api.patch(
+    `/api/visits/${visitId}/cancel`,
+    {},
+    {
+      headers: { 'X-Agent-Id': agentId },
+    }
+  );
+  return response.data.data;
 }
 
 // ---------------------------------------------------------------
@@ -111,20 +115,20 @@ export async function cancelVisit(
 
 /** Devuelve el inicio y fin de la semana que contiene la fecha dada */
 export function getWeekRange(date: Date): { from: string; to: string } {
-  const day = date.getDay()
-  const diffToMonday = (day === 0 ? -6 : 1 - day)
-  const monday = new Date(date)
-  monday.setDate(date.getDate() + diffToMonday)
-  monday.setHours(0, 0, 0, 0)
+  const day = date.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + diffToMonday);
+  monday.setHours(0, 0, 0, 0);
 
-  const sunday = new Date(monday)
-  sunday.setDate(monday.getDate() + 6)
-  sunday.setHours(23, 59, 59, 999)
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
 
   return {
     from: monday.toISOString(),
     to: sunday.toISOString(),
-  }
+  };
 }
 
 /** Formatea un datetime ISO a "Lun 2 Jun, 10:00" */
@@ -135,15 +139,15 @@ export function formatEventTime(iso: string): string {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 
 /** Convierte un ISO string a input[type=datetime-local] value */
 export function isoToDatetimeLocal(iso: string): string {
-  return iso.slice(0, 16)
+  return iso.slice(0, 16);
 }
 
 /** Convierte un input[type=datetime-local] value a ISO string */
 export function datetimeLocalToIso(val: string): string {
-  return new Date(val).toISOString()
+  return new Date(val).toISOString();
 }

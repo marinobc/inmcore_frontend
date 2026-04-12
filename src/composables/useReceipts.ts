@@ -1,14 +1,14 @@
 // src/composables/useReceipts.ts
 // Composable encapsulating receipt state and operations for an operation detail view.
 
-import { ref } from "vue";
-import receiptService from "../services/receiptService";
-import type { Receipt, ReceiptUploadPayload } from "../types/receipt";
+import { ref } from 'vue';
+import receiptService from '../services/receiptService';
+import type { Receipt, ReceiptUploadPayload } from '../types/receipt';
 import {
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
   ALLOWED_TYPE_LABELS,
-} from "../types/receipt";
+} from '../types/receipt';
 
 export function useReceipts(operationId: string) {
   // ── State ─────────────────────────────────────────────────────────────────
@@ -27,8 +27,10 @@ export function useReceipts(operationId: string) {
     error.value = null;
     try {
       receipts.value = await receiptService.listReceipts(operationId);
-    } catch (e: any) {
-      error.value = e?.response?.data?.error ?? "Failed to load receipts.";
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string } } };
+      error.value =
+        errorObj?.response?.data?.error ?? 'Failed to load receipts.';
     } finally {
       loading.value = false;
     }
@@ -40,7 +42,7 @@ export function useReceipts(operationId: string) {
    */
   async function attachReceipt(
     file: File,
-    payload: ReceiptUploadPayload,
+    payload: ReceiptUploadPayload
   ): Promise<boolean> {
     uploadError.value = null;
 
@@ -61,15 +63,16 @@ export function useReceipts(operationId: string) {
         payload,
         (percent) => {
           uploadProgress.value = percent;
-        },
+        }
       );
       // Prepend to the list so the newest receipt appears first
       receipts.value = [newReceipt, ...receipts.value];
       return true;
-    } catch (e: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string } } };
       uploadError.value =
-        e?.response?.data?.error ??
-        "Failed to upload the receipt. Please try again.";
+        errorObj?.response?.data?.error ??
+        'Failed to upload the receipt. Please try again.';
       return false;
     } finally {
       uploading.value = false;
@@ -84,8 +87,10 @@ export function useReceipts(operationId: string) {
       await receiptService.deleteReceipt(operationId, receiptId);
       receipts.value = receipts.value.filter((r) => r.id !== receiptId);
       return true;
-    } catch (e: any) {
-      error.value = e?.response?.data?.error ?? "Failed to delete the receipt.";
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { error?: string } } };
+      error.value =
+        errorObj?.response?.data?.error ?? 'Failed to delete the receipt.';
       return false;
     }
   }
@@ -97,7 +102,11 @@ export function useReceipts(operationId: string) {
    * Mirrors the backend validation in MinioStorageService.
    */
   function validateFile(file: File): string | null {
-    if (!ALLOWED_MIME_TYPES.includes(file.type as any)) {
+    if (
+      !ALLOWED_MIME_TYPES.includes(
+        file.type as (typeof ALLOWED_MIME_TYPES)[number]
+      )
+    ) {
       return `Invalid file format. Only ${ALLOWED_TYPE_LABELS} files are accepted.`;
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {

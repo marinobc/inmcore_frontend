@@ -6,8 +6,13 @@
     </template>
     <template #body>
       <div class="space-y-4">
-        <p class="text-sm text-gray-600">Inmueble: <span class="font-bold">{{ property?.title }}</span></p>
-        <select v-model="selectedId" class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white">
+        <p class="text-sm text-gray-600">
+          Inmueble: <span class="font-bold">{{ property?.title }}</span>
+        </p>
+        <select
+          v-model="selectedId"
+          class="w-full border rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"
+        >
           <option :value="null" disabled>Seleccione un empleado...</option>
           <option v-for="a in agents" :key="a.id" :value="a.id">
             {{ a.fullName }} ({{ a.userType }})
@@ -17,24 +22,40 @@
     </template>
     <template #footer>
       <div class="flex justify-end space-x-2">
-        <fwb-button color="alternative" @click="$emit('close')">Cancelar</fwb-button>
-        <fwb-button :disabled="!selectedId" gradient="blue" @click="confirm">Confirmar</fwb-button>
+        <fwb-button color="alternative" @click="$emit('close')"
+          >Cancelar</fwb-button
+        >
+        <fwb-button :disabled="!selectedId" gradient="blue" @click="confirm"
+          >Confirmar</fwb-button
+        >
       </div>
     </template>
   </fwb-modal>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { FwbModal, FwbButton } from 'flowbite-vue'
-const props = defineProps<{ show: boolean, property: any, agents: any[] }>()
-const emit = defineEmits(['close', 'confirm'])
-const selectedId = ref(null)
+import { ref } from 'vue';
+import { FwbModal, FwbButton } from 'flowbite-vue';
+import type { Property } from '../../types/property';
+
+interface Agent {
+  id: string;
+  fullName: string;
+  userType: string;
+  [key: string]: unknown;
+}
+
+defineProps<{ show: boolean; property: Property | null; agents: Agent[] }>();
+const emit = defineEmits<{
+  close: [];
+  confirm: [agentId: string];
+}>();
+const selectedId = ref<string | null>(null);
 
 const confirm = () => {
   if (selectedId.value) {
-    emit('confirm', selectedId.value)
-    selectedId.value = null
+    emit('confirm', selectedId.value);
+    selectedId.value = null;
   }
-}
+};
 </script>

@@ -6,9 +6,9 @@
 
 // --- Enums ---
 
-export type EventType = "VISIT" | "CLIENT_REQUEST";
-export type EventStatus = "SCHEDULED" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
-export type RequestStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+export type EventType = 'VISIT' | 'CLIENT_REQUEST';
+export type EventStatus = 'SCHEDULED' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+export type RequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
 // --- CalendarEvent ---
 
@@ -110,14 +110,14 @@ export interface Property {
   m2: number;
   rooms: number;
   status:
-    | "Disponible"
-    | "Reservado"
-    | "Vendido"
-    | "En Negociación"
-    | "DISPONIBLE"
-    | "RESERVADO"
-    | "VENDIDO"
-    | "EN_NEGOCIACION";
+    | 'Disponible'
+    | 'Reservado'
+    | 'Vendido'
+    | 'En Negociación'
+    | 'DISPONIBLE'
+    | 'RESERVADO'
+    | 'VENDIDO'
+    | 'EN_NEGOCIACION';
   agentId: string;
   agentName: string;
   assignedAgentId: string | null;

@@ -71,7 +71,10 @@
               Solicitudes de visita pendientes
             </h2>
             <p class="text-xs text-amber-700 dark:text-amber-300">
-              Tienes {{ pendingRequests.length }} solicitud{{ pendingRequests.length !== 1 ? 'es' : '' }} nueva{{ pendingRequests.length !== 1 ? 's' : '' }} de clientes.
+              Tienes {{ pendingRequests.length }} solicitud{{
+                pendingRequests.length !== 1 ? 'es' : ''
+              }}
+              nueva{{ pendingRequests.length !== 1 ? 's' : '' }} de clientes.
             </p>
           </div>
           <button
@@ -90,7 +93,9 @@
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-white truncate"
+                >
                   {{ request.propertyName }}
                 </p>
                 <p class="text-xs text-gray-600 dark:text-gray-300">
@@ -99,11 +104,16 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400">
                   {{ formatPendingDate(request.preferredDateTime) }}
                 </p>
-                <p v-if="request.message" class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                <p
+                  v-if="request.message"
+                  class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2"
+                >
                   {{ request.message }}
                 </p>
               </div>
-              <span class="shrink-0 px-2 py-1 text-[10px] font-bold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
+              <span
+                class="shrink-0 px-2 py-1 text-[10px] font-bold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300"
+              >
                 Pendiente
               </span>
             </div>
@@ -114,7 +124,11 @@
                 :disabled="requestActionLoadingId === request.id"
                 class="px-3 py-1.5 text-xs font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
               >
-                {{ requestActionLoadingId === request.id ? 'Procesando...' : 'Aceptar' }}
+                {{
+                  requestActionLoadingId === request.id
+                    ? 'Procesando...'
+                    : 'Aceptar'
+                }}
               </button>
               <button
                 @click="handleRejectRequest(request.id)"
@@ -502,8 +516,8 @@
             <div class="flex justify-between">
               <span class="text-gray-500">Horario:</span
               ><span class="font-bold dark:text-white"
-                >{{ shortTime(selectedEvent?.startTime ?? "") }} -
-                {{ shortTime(selectedEvent?.endTime ?? "") }}</span
+                >{{ shortTime(selectedEvent?.startTime ?? '') }} -
+                {{ shortTime(selectedEvent?.endTime ?? '') }}</span
               >
             </div>
             <div class="flex justify-between">
@@ -511,7 +525,7 @@
               ><span
                 class="px-2 rounded-full text-[10px] font-black uppercase"
                 :class="statusBadge(selectedEvent?.status ?? '')"
-                >{{ statusLabel(selectedEvent?.status ?? "") }}</span
+                >{{ statusLabel(selectedEvent?.status ?? '') }}</span
               >
             </div>
           </div>
@@ -524,14 +538,16 @@
             </button>
 
             <template
-              v-if="selectedEvent?.ownEvent && selectedEvent?.status !== 'CANCELLED'"
+              v-if="
+                selectedEvent?.ownEvent && selectedEvent?.status !== 'CANCELLED'
+              "
             >
               <button
                 @click="handleCancel(selectedEvent!)"
                 :disabled="cancelling"
                 class="flex-1 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50"
               >
-                {{ cancelling ? "Procesando..." : "Cancelar" }}
+                {{ cancelling ? 'Procesando...' : 'Cancelar' }}
               </button>
 
               <ReassignButton
@@ -549,47 +565,59 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { getCalendar, cancelVisit } from "../services/calendarService";
-import { propertyService } from "../services/propertyService";
-import { userService } from "../services/userService";
-import { useAuth } from "../composables/useAuth";
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { getCalendar, cancelVisit } from '../services/calendarService';
+import { propertyService } from '../services/propertyService';
+import { userService } from '../services/userService';
+import { useAuth } from '../composables/useAuth';
 import type {
   CalendarResponse,
   CalendarEventResponse,
   VisitRequestResponse,
-} from "../types/visitCalendar";
+} from '../types/visitCalendar';
 import {
   getPendingRequestsForAgent,
   acceptVisitRequest,
   rejectVisitRequest,
-} from "../services/visitRequestService";
-import ReassignButton from "../components/visits/reassignment/ReassignButton.vue";
+} from '../services/visitRequestService';
+import ReassignButton from '../components/visits/reassignment/ReassignButton.vue';
 
 // --- AUTH & CONFIG ---
 const { user } = useAuth();
-const myAgentId = computed(() => user.value?.sub || user.value?.userId || "");
+const myAgentId = computed(
+  () => (user.value?.sub || user.value?.userId || '') as string
+);
 
 // --- ESTADOS PRINCIPALES ---
 const loading = ref(false);
-const error = ref("");
+const error = ref('');
 const calendarData = ref<CalendarResponse | null>(null);
 const selectedEvent = ref<CalendarEventResponse | null>(null);
 const cancelling = ref(false);
 const currentWeekStart = ref(getMonday(new Date()));
-const pendingRequests = ref<VisitRequestResponse[]>([])
-const requestActionLoadingId = ref("")
-let pendingRequestsIntervalId: ReturnType<typeof setInterval> | null = null
+const pendingRequests = ref<VisitRequestResponse[]>([]);
+const requestActionLoadingId = ref('');
+let pendingRequestsIntervalId: ReturnType<typeof setInterval> | null = null;
 
 // --- ESTADOS FILTROS (DROPDOWNS) ---
-const allProperties = ref<any[]>([]);
-const allAgents = ref<any[]>([]);
-const searchTermProperty = ref("");
+const allProperties = ref<
+  { id: string; title: string; address: string; [key: string]: unknown }[]
+>([]);
+const allAgents = ref<
+  {
+    id: string;
+    fullName: string;
+    email: string;
+    userType: string;
+    [key: string]: unknown;
+  }[]
+>([]);
+const searchTermProperty = ref('');
 const showPropertyDropdown = ref(false);
-const filterPropertyId = ref("");
-const searchTermAgent = ref("");
+const filterPropertyId = ref('');
+const searchTermAgent = ref('');
 const showAgentDropdown = ref(false);
-const filterAgentId = ref("");
+const filterAgentId = ref('');
 
 // --- LÓGICA DE SEMANA ---
 function getMonday(d: Date): Date {
@@ -605,12 +633,12 @@ const weekDays = computed(() =>
     const d = new Date(currentWeekStart.value);
     d.setDate(currentWeekStart.value.getDate() + i);
     return d;
-  }),
+  })
 );
 const weekLabel = computed(() => {
   const from = weekDays.value[0];
   const to = weekDays.value[6];
-  return `${from.getDate()} ${from.toLocaleString("es-BO", { month: "short" })} — ${to.getDate()} ${to.toLocaleString("es-BO", { month: "short", year: "numeric" })}`;
+  return `${from.getDate()} ${from.toLocaleString('es-BO', { month: 'short' })} — ${to.getDate()} ${to.toLocaleString('es-BO', { month: 'short', year: 'numeric' })}`;
 });
 
 // --- CARGA DE DATOS ---
@@ -620,32 +648,43 @@ const loadFilterData = async () => {
       propertyService.getProperties(),
       userService.getUsers(),
     ]);
-    allProperties.value = p;
-    allAgents.value = u.filter(
-      (x: any) => x.userType === "EMPLOYEE" || x.userType === "ADMIN",
-    );
-  } catch (e) {
-    console.error("Error al cargar datos de filtros", e);
+    allProperties.value = p as {
+      id: string;
+      title: string;
+      address: string;
+      [key: string]: unknown;
+    }[];
+    allAgents.value = (
+      u as {
+        id: string;
+        fullName: string;
+        email: string;
+        userType: string;
+        [key: string]: unknown;
+      }[]
+    ).filter((x) => x.userType === 'EMPLOYEE' || x.userType === 'ADMIN');
+  } catch {
+    console.error('Error al cargar datos de filtros');
   }
 };
 
 async function loadCalendar() {
   loading.value = true;
-  error.value = "";
+  error.value = '';
   try {
     const from = weekDays.value[0].toISOString();
     const to =
-      new Date(weekDays.value[6]).toISOString().split("T")[0] +
-      "T23:59:59.999Z";
+      new Date(weekDays.value[6]).toISOString().split('T')[0] +
+      'T23:59:59.999Z';
     calendarData.value = await getCalendar(
       from,
       to,
       myAgentId.value,
       filterAgentId.value || undefined,
-      filterPropertyId.value || undefined,
+      filterPropertyId.value || undefined
     );
-  } catch (e) {
-    error.value = "No se pudo cargar el calendario";
+  } catch {
+    error.value = 'No se pudo cargar el calendario';
   } finally {
     loading.value = false;
   }
@@ -653,15 +692,17 @@ async function loadCalendar() {
 
 async function loadPendingRequests() {
   if (!myAgentId.value) {
-    pendingRequests.value = []
-    return
+    pendingRequests.value = [];
+    return;
   }
 
   try {
-    const requests = await getPendingRequestsForAgent(myAgentId.value)
-    pendingRequests.value = requests.filter(request => request.status === 'PENDING')
-  } catch (e) {
-    console.error('No se pudieron cargar las solicitudes pendientes:', e)
+    const requests = await getPendingRequestsForAgent(myAgentId.value);
+    pendingRequests.value = requests.filter(
+      (request) => request.status === 'PENDING'
+    );
+  } catch {
+    console.error('No se pudieron cargar las solicitudes pendientes');
   }
 }
 
@@ -672,8 +713,8 @@ const filteredProperties = computed(() => {
   return allProperties.value
     .filter(
       (p) =>
-        p.title.toLowerCase().includes(s) ||
-        p.address.toLowerCase().includes(s),
+        String(p.title).toLowerCase().includes(s) ||
+        String(p.address).toLowerCase().includes(s)
     )
     .slice(0, 10);
 });
@@ -682,96 +723,103 @@ const filteredAgents = computed(() => {
   const s = searchTermAgent.value.toLowerCase();
   if (!s) return allAgents.value.slice(0, 10);
   return allAgents.value
-    .filter((a) => a.fullName.toLowerCase().includes(s))
+    .filter((a) => String(a.fullName).toLowerCase().includes(s))
     .slice(0, 10);
 });
 
 // --- ACCIONES DE FILTRO ---
-const selectProperty = (p: any) => {
+const selectProperty = (p: {
+  id: string;
+  title: string;
+  [key: string]: unknown;
+}) => {
   filterPropertyId.value = p.id;
   searchTermProperty.value = p.title;
   showPropertyDropdown.value = false;
   loadCalendar();
 };
-const selectAgent = (a: any) => {
+const selectAgent = (a: {
+  id: string;
+  fullName: string;
+  [key: string]: unknown;
+}) => {
   filterAgentId.value = a.id;
   searchTermAgent.value = a.fullName;
   showAgentDropdown.value = false;
   loadCalendar();
 };
 function clearFilters() {
-  filterPropertyId.value = "";
-  searchTermProperty.value = "";
-  filterAgentId.value = "";
-  searchTermAgent.value = "";
+  filterPropertyId.value = '';
+  searchTermProperty.value = '';
+  filterAgentId.value = '';
+  searchTermAgent.value = '';
   loadCalendar();
 }
 
 // --- HELPERS VISUALES ---
 const eventsForDay = (day: Date) =>
   calendarData.value?.events.filter(
-    (ev) => new Date(ev.startTime).toDateString() === day.toDateString(),
+    (ev) => new Date(ev.startTime).toDateString() === day.toDateString()
   ) || [];
 const isToday = (d: Date) => d.toDateString() === new Date().toDateString();
-const dayName = (d: Date) => d.toLocaleString("es-BO", { weekday: "short" });
+const dayName = (d: Date) => d.toLocaleString('es-BO', { weekday: 'short' });
 const shortTime = (iso: string) =>
   iso
-    ? new Date(iso).toLocaleTimeString("es-BO", {
-        hour: "2-digit",
-        minute: "2-digit",
+    ? new Date(iso).toLocaleTimeString('es-BO', {
+        hour: '2-digit',
+        minute: '2-digit',
       })
-    : "";
+    : '';
 const teamEvents = computed(
   () =>
-    (calendarData.value?.totalEvents ?? 0) -
-    (calendarData.value?.myEvents ?? 0),
+    (calendarData.value?.totalEvents ?? 0) - (calendarData.value?.myEvents ?? 0)
 );
 const uniqueProperties = computed(
-  () => new Set(calendarData.value?.events.map((e) => e.propertyId)).size,
+  () => new Set(calendarData.value?.events.map((e) => e.propertyId)).size
 );
 
 const formatPendingDate = (iso: string) =>
-  new Date(iso).toLocaleString("es-BO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  new Date(iso).toLocaleString('es-BO', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
 function eventCardClass(ev: CalendarEventResponse) {
-  if (ev.status === "CANCELLED")
-    return "bg-gray-100 dark:bg-gray-800 text-gray-400 border-gray-300 line-through";
+  if (ev.status === 'CANCELLED')
+    return 'bg-gray-100 dark:bg-gray-800 text-gray-400 border-gray-300 line-through';
   return ev.ownEvent
-    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-100 border-blue-500"
-    : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200";
+    ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-900 dark:text-blue-100 border-blue-500'
+    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200';
 }
 
 function statusBadge(s: string) {
-  const map: any = {
-    SCHEDULED: "bg-yellow-100 text-yellow-700",
-    CONFIRMED: "bg-green-100 text-green-700",
-    CANCELLED: "bg-red-100 text-red-700",
+  const map: Record<string, string> = {
+    SCHEDULED: 'bg-yellow-100 text-yellow-700',
+    CONFIRMED: 'bg-green-100 text-green-700',
+    CANCELLED: 'bg-red-100 text-red-700',
   };
-  return map[s] || "bg-gray-100";
+  return map[s] || 'bg-gray-100';
 }
 const statusLabel = (s: string) =>
   ({
-    SCHEDULED: "Programada",
-    CONFIRMED: "Confirmada",
-    CANCELLED: "Cancelada",
+    SCHEDULED: 'Programada',
+    CONFIRMED: 'Confirmada',
+    CANCELLED: 'Cancelada',
   })[s] || s;
 
 // --- ACCIONES NAVEGACIÓN ---
 function prevWeek() {
   currentWeekStart.value = new Date(
-    currentWeekStart.value.setDate(currentWeekStart.value.getDate() - 7),
+    currentWeekStart.value.setDate(currentWeekStart.value.getDate() - 7)
   );
   loadCalendar();
 }
 function nextWeek() {
   currentWeekStart.value = new Date(
-    currentWeekStart.value.setDate(currentWeekStart.value.getDate() + 7),
+    currentWeekStart.value.setDate(currentWeekStart.value.getDate() + 7)
   );
   loadCalendar();
 }
@@ -785,7 +833,7 @@ const selectEvent = (ev: CalendarEventResponse) => {
   selectedEvent.value = ev;
 };
 async function handleCancel(ev: CalendarEventResponse) {
-  if (!confirm("¿Confirmas la cancelación?")) return;
+  if (!confirm('¿Confirmas la cancelación?')) return;
   cancelling.value = true;
   try {
     const updated = await cancelVisit(ev.id, myAgentId.value);
@@ -794,8 +842,8 @@ async function handleCancel(ev: CalendarEventResponse) {
       if (idx !== -1) calendarData.value.events[idx] = updated;
     }
     selectedEvent.value = null;
-  } catch (e: any) {
-    alert(e.message);
+  } catch {
+    alert('No se pudo cancelar la visita');
   } finally {
     cancelling.value = false;
   }
@@ -813,38 +861,39 @@ function handleReassignmentSent() {
 }
 
 async function handleAcceptRequest(requestId: string) {
-  if (!myAgentId.value) return
+  if (!myAgentId.value) return;
 
-  requestActionLoadingId.value = requestId
+  requestActionLoadingId.value = requestId;
   try {
-    await acceptVisitRequest(requestId, myAgentId.value)
-    await Promise.all([loadPendingRequests(), loadCalendar()])
-  } catch (e: any) {
-    alert(e?.response?.data?.message || e?.message || 'No se pudo aceptar la solicitud')
+    await acceptVisitRequest(requestId, myAgentId.value);
+    await Promise.all([loadPendingRequests(), loadCalendar()]);
+  } catch {
+    alert('No se pudo aceptar la solicitud');
   } finally {
-    requestActionLoadingId.value = ""
+    requestActionLoadingId.value = '';
   }
 }
 
 async function handleRejectRequest(requestId: string) {
-  if (!myAgentId.value) return
+  if (!myAgentId.value) return;
 
-  requestActionLoadingId.value = requestId
+  requestActionLoadingId.value = requestId;
   try {
-    await rejectVisitRequest(requestId, myAgentId.value)
-    await loadPendingRequests()
-  } catch (e: any) {
-    alert(e?.response?.data?.message || e?.message || 'No se pudo rechazar la solicitud')
+    await rejectVisitRequest(requestId, myAgentId.value);
+    await loadPendingRequests();
+  } catch {
+    alert('No se pudo rechazar la solicitud');
   } finally {
-    requestActionLoadingId.value = ""
+    requestActionLoadingId.value = '';
   }
 }
 
 // --- EVENTOS DE CIERRE ---
-const closeClickOutside = (e: any) => {
-  if (!e.target.closest("#prop-filter-container"))
+const closeClickOutside = (e: MouseEvent) => {
+  if (!e.target || !(e.target instanceof HTMLElement)) return;
+  if (!e.target.closest('#prop-filter-container'))
     showPropertyDropdown.value = false;
-  if (!e.target.closest("#agent-filter-container"))
+  if (!e.target.closest('#agent-filter-container'))
     showAgentDropdown.value = false;
 };
 
@@ -852,12 +901,12 @@ onMounted(() => {
   loadFilterData();
   loadCalendar();
   loadPendingRequests();
-  window.addEventListener("click", closeClickOutside);
-  pendingRequestsIntervalId = setInterval(loadPendingRequests, 30_000)
+  window.addEventListener('click', closeClickOutside);
+  pendingRequestsIntervalId = setInterval(loadPendingRequests, 30_000);
 });
 onUnmounted(() => {
-  window.removeEventListener("click", closeClickOutside)
-  if (pendingRequestsIntervalId) clearInterval(pendingRequestsIntervalId)
+  window.removeEventListener('click', closeClickOutside);
+  if (pendingRequestsIntervalId) clearInterval(pendingRequestsIntervalId);
 });
 </script>
 

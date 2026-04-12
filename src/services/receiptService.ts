@@ -2,10 +2,10 @@
 // Consumes the receipt endpoints from the operation-service (port 8086).
 // Uses the project's shared axios instance with the JWT auth interceptor.
 
-import { api } from "./api"; // existing axios instance with baseURL + JWT interceptor
-import type { Receipt, ReceiptUploadPayload } from "../types/receipt";
+import { api } from './api'; // existing axios instance with baseURL + JWT interceptor
+import type { Receipt, ReceiptUploadPayload } from '../types/receipt';
 
-const BASE = "/api/operations";
+const BASE = '/api/operations';
 
 const receiptService = {
   /**
@@ -23,20 +23,20 @@ const receiptService = {
     operationId: string,
     file: File,
     payload: ReceiptUploadPayload,
-    onProgress?: (percent: number) => void,
+    onProgress?: (percent: number) => void
   ): Promise<Receipt> {
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("amount", String(payload.amount));
-    formData.append("currency", payload.currency);
-    formData.append("paymentDate", payload.paymentDate);
-    formData.append("concept", payload.concept);
+    formData.append('file', file);
+    formData.append('amount', String(payload.amount));
+    formData.append('currency', payload.currency);
+    formData.append('paymentDate', payload.paymentDate);
+    formData.append('concept', payload.concept);
 
     const { data } = await api.post<Receipt>(
       `${BASE}/${operationId}/receipts`,
       formData,
       {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: onProgress
           ? (event) => {
               const percent = event.total
@@ -45,7 +45,7 @@ const receiptService = {
               onProgress(percent);
             }
           : undefined,
-      },
+      }
     );
     return data;
   },
@@ -58,7 +58,7 @@ const receiptService = {
    */
   async listReceipts(operationId: string): Promise<Receipt[]> {
     const { data } = await api.get<Receipt[]>(
-      `${BASE}/${operationId}/receipts`,
+      `${BASE}/${operationId}/receipts`
     );
     return data;
   },

@@ -4,8 +4,13 @@
 //  Refactored: Gestión de imágenes por ID para evitar errores de Gateway (//)
 // ============================================================
 
-import { api } from './api'
-import type { Property, PropertyFormPayload, AssignAgentPayload, OperationType } from '../types/property'
+import { api } from './api';
+import type {
+  Property,
+  PropertyFormPayload,
+  AssignAgentPayload,
+  OperationType,
+} from '../types/property';
 
 // --- Document Interfaces ---
 export interface DocumentResponse {
@@ -56,21 +61,20 @@ export interface ImageResponse {
 }
 
 export interface GenerateImageUploadUrlRequest {
-    fileName: string;
-    fileSize?: number;
-    mimeType?: string;
+  fileName: string;
+  fileSize?: number;
+  mimeType?: string;
 }
 
 export interface ConfirmImageUploadRequest {
-    objectKey: string;
-    originalFileName?: string;
-    fileSize?: number;
-    mimeType?: string;
-    isPrimary?: boolean;
+  objectKey: string;
+  originalFileName?: string;
+  fileSize?: number;
+  mimeType?: string;
+  isPrimary?: boolean;
 }
 
 export const propertyService = {
-
   // ============================================================
   // PROPERTY AGGREGATE ROOT (CRUD & Lifecycle)
   // ============================================================
@@ -78,15 +82,28 @@ export const propertyService = {
   /**
    * Obtiene todas las propiedades (requiere rol ADMIN)
    */
-  async getProperties(filters?: { title?: string; operationType?: string; status?: string; agentId?: string }) {
+  async getProperties(filters?: {
+    title?: string;
+    operationType?: string;
+    status?: string;
+    agentId?: string;
+  }) {
     try {
       const response = await api.get('/properties', { params: filters });
-      
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
+
+      if (
+        response.data &&
+        response.data.data &&
+        Array.isArray(response.data.data)
+      ) {
         return response.data.data;
       } else if (Array.isArray(response.data)) {
         return response.data;
-      } else if (response.data && response.data.content && Array.isArray(response.data.content)) {
+      } else if (
+        response.data &&
+        response.data.content &&
+        Array.isArray(response.data.content)
+      ) {
         return response.data.content;
       } else {
         console.warn('Formato de respuesta no reconocido:', response.data);
@@ -134,7 +151,10 @@ export const propertyService = {
    * Actualiza el precio de una propiedad (Admin)
    */
   async updatePrice(propertyId: string, newPrice: number) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/price`, { newPrice });
+    const response = await api.patch<Property>(
+      `/properties/${propertyId}/price`,
+      { newPrice }
+    );
     return response.data;
   },
 
@@ -142,7 +162,10 @@ export const propertyService = {
    * Asigna un agente a una propiedad (Admin)
    */
   async assignAgent(propertyId: string, payload: AssignAgentPayload) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/assign-agent`, payload);
+    const response = await api.patch<Property>(
+      `/properties/${propertyId}/assign-agent`,
+      payload
+    );
     return response.data;
   },
 
@@ -150,15 +173,21 @@ export const propertyService = {
    * Asigna un propietario a una propiedad (Admin)
    */
   async assignOwner(propertyId: string, payload: { ownerId: string }) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/assign-owner`, payload);
+    const response = await api.patch<Property>(
+      `/properties/${propertyId}/assign-owner`,
+      payload
+    );
     return response.data;
   },
-  
+
   /**
    * Actualiza el tipo de operación (Admin)
    */
   async updateOperationType(propertyId: string, operationType: OperationType) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/operation-type`, { operationType });
+    const response = await api.patch<Property>(
+      `/properties/${propertyId}/operation-type`,
+      { operationType }
+    );
     return response.data;
   },
 
@@ -176,21 +205,33 @@ export const propertyService = {
   /**
    * Genera URL prefirmada para subir una imagen.
    */
-  async generateImageUploadUrl(propertyId: string, file: File): Promise<{ uploadUrl: string; publicUrl: string; objectKey: string }> {
-    const response = await api.post(`/properties/${propertyId}/images/upload-url`, { 
+  async generateImageUploadUrl(
+    propertyId: string,
+    file: File
+  ): Promise<{ uploadUrl: string; publicUrl: string; objectKey: string }> {
+    const response = await api.post(
+      `/properties/${propertyId}/images/upload-url`,
+      {
         fileName: file.name,
         fileSize: file.size,
-        mimeType: file.type
-    });
+        mimeType: file.type,
+      }
+    );
     return response.data;
   },
 
   /**
    * Confirma la subida de una imagen y adjunta metadatos.
    */
-  async confirmImageUpload(propertyId: string, payload: ConfirmImageUploadRequest): Promise<Property> {
-      const response = await api.post(`/properties/${propertyId}/images/confirm`, payload);
-      return response.data;
+  async confirmImageUpload(
+    propertyId: string,
+    payload: ConfirmImageUploadRequest
+  ): Promise<Property> {
+    const response = await api.post(
+      `/properties/${propertyId}/images/confirm`,
+      payload
+    );
+    return response.data;
   },
 
   /**
@@ -212,8 +253,14 @@ export const propertyService = {
   /**
    * Reordena las imágenes de la propiedad.
    */
-  async reorderImages(propertyId: string, orderedImageIds: string[]): Promise<ImageResponse[]> {
-    const response = await api.post(`/properties/${propertyId}/images/reorder`, orderedImageIds);
+  async reorderImages(
+    propertyId: string,
+    orderedImageIds: string[]
+  ): Promise<ImageResponse[]> {
+    const response = await api.post(
+      `/properties/${propertyId}/images/reorder`,
+      orderedImageIds
+    );
     return response.data;
   },
 
@@ -221,27 +268,34 @@ export const propertyService = {
   // DOCUMENT MANAGEMENT (US1 & US2)
   // ============================================================
 
-  async generateDocumentUploadUrl(request: GenerateUploadUrlRequest): Promise<{ uploadUrl: string; objectKey: string; publicUrl: string; expiresInSeconds: string }> {
+  async generateDocumentUploadUrl(request: GenerateUploadUrlRequest): Promise<{
+    uploadUrl: string;
+    objectKey: string;
+    publicUrl: string;
+    expiresInSeconds: string;
+  }> {
     const response = await api.post('/documents/upload-url', request);
     return response.data;
   },
 
   async updateStatus(id: string, status: string): Promise<Property> {
-    const response = await api.patch<Property>(`/properties/${id}/status`, { status });
+    const response = await api.patch<Property>(`/properties/${id}/status`, {
+      status,
+    });
     return response.data;
   },
 
-  async getStatusHistory(id: string): Promise<any[]> {
+  async getStatusHistory(id: string): Promise<Record<string, unknown>[]> {
     const response = await api.get(`/properties/${id}/status-history`);
     return response.data;
   },
 
   async confirmDocumentUpload(
-    propertyId: string, 
-    documentType: string, 
-    objectKey: string, 
-    originalFileName: string, 
-    fileSize?: number, 
+    propertyId: string,
+    documentType: string,
+    objectKey: string,
+    originalFileName: string,
+    fileSize?: number,
     mimeType?: string
   ): Promise<DocumentResponse> {
     const response = await api.post('/documents/confirm', {
@@ -250,7 +304,7 @@ export const propertyService = {
       objectKey,
       originalFileName,
       fileSize,
-      mimeType
+      mimeType,
     });
     return response.data;
   },
@@ -260,12 +314,20 @@ export const propertyService = {
     return response.data;
   },
 
-  async updateDocumentPermissions(documentId: string, accessPolicy: string[]): Promise<DocumentResponse> {
-    const response = await api.patch(`/documents/${documentId}/permissions`, { documentId, accessPolicy });
+  async updateDocumentPermissions(
+    documentId: string,
+    accessPolicy: string[]
+  ): Promise<DocumentResponse> {
+    const response = await api.patch(`/documents/${documentId}/permissions`, {
+      documentId,
+      accessPolicy,
+    });
     return response.data;
   },
 
-  async refreshDownloadUrl(documentId: string): Promise<{ temporaryDownloadUrl: string; expiresInSeconds: string }> {
+  async refreshDownloadUrl(
+    documentId: string
+  ): Promise<{ temporaryDownloadUrl: string; expiresInSeconds: string }> {
     const response = await api.post(`/documents/${documentId}/refresh-url`);
     return response.data;
   },
@@ -274,41 +336,52 @@ export const propertyService = {
     await api.delete(`/documents/${documentId}`);
   },
 
-  async updateProperty(propertyId: string, payload: any) {
+  async updateProperty(propertyId: string, payload: Record<string, unknown>) {
     const response = await api.put(`/properties/${propertyId}`, payload);
     return response.data;
   },
 
-  async updatePropertyAsAgent(propertyId: string, payload: any) {
-    const response = await api.patch(`/properties/${propertyId}/agent-update`, payload);
+  async updatePropertyAsAgent(
+    propertyId: string,
+    payload: Record<string, unknown>
+  ) {
+    const response = await api.patch(
+      `/properties/${propertyId}/agent-update`,
+      payload
+    );
     return response.data;
   },
 
-  async uploadExclusivityContract(propertyId: string, file: File): Promise<DocumentResponse> {
+  async uploadExclusivityContract(
+    propertyId: string,
+    file: File
+  ): Promise<DocumentResponse> {
     const { uploadUrl, objectKey } = await this.generateDocumentUploadUrl({
       propertyId,
       documentType: 'EXCLUSIVITY_CONTRACT',
       fileName: file.name,
       fileSize: file.size,
-      mimeType: file.type
+      mimeType: file.type,
     });
-    
+
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
       body: file,
-      headers: { 'Content-Type': file.type }
+      headers: { 'Content-Type': file.type },
     });
-    
+
     if (!uploadResponse.ok) {
-      throw new Error(`Error al subir el archivo: ${uploadResponse.statusText}`);
+      throw new Error(
+        `Error al subir el archivo: ${uploadResponse.statusText}`
+      );
     }
-    
+
     return await this.confirmDocumentUpload(
-      propertyId, 
-      'EXCLUSIVITY_CONTRACT', 
-      objectKey, 
-      file.name, 
-      file.size, 
+      propertyId,
+      'EXCLUSIVITY_CONTRACT',
+      objectKey,
+      file.name,
+      file.size,
       file.type
     );
   },

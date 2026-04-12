@@ -1,16 +1,32 @@
 <template>
   <div class="p-6 space-y-6">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+    >
       <div>
         <h1 class="text-3xl font-bold dark:text-white">Mis Propietarios</h1>
-        <p class="text-gray-500 text-sm">Gestion de propietarios y validacion de CI/NIT</p>
+        <p class="text-gray-500 text-sm">
+          Gestion de propietarios y validacion de CI/NIT
+        </p>
       </div>
       <div class="flex items-center space-x-3">
-        <fwb-badge type="indigo">Agente: {{ user?.fullName || 'Asesor' }}</fwb-badge>
+        <fwb-badge type="indigo"
+          >Agente: {{ user?.fullName || 'Asesor' }}</fwb-badge
+        >
         <fwb-button @click="openCreateModal" gradient="blue">
           <div class="flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
             </svg>
             Nuevo Propietario
           </div>
@@ -18,11 +34,20 @@
       </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4"
+    >
       <div class="relative max-w-md">
-        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        <div
+          class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+        >
+          <svg
+            class="w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
         <input
@@ -30,19 +55,29 @@
           type="text"
           placeholder="Buscar propietario por nombre o CI/NIT..."
           class="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-white"
-        >
+        />
       </div>
     </div>
 
     <div v-if="loading" class="text-center py-20">
-      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
+      <div
+        class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
+      ></div>
       <p class="mt-2 text-gray-500">Cargando propietarios...</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <fwb-card v-for="o in filteredOwners" :key="o.id" class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative">
-        <div class="h-32 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative">
-          <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-2xl font-black uppercase shadow-inner">
+      <fwb-card
+        v-for="o in filteredOwners"
+        :key="o.id"
+        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative"
+      >
+        <div
+          class="h-32 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative"
+        >
+          <div
+            class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-2xl font-black uppercase shadow-inner"
+          >
             {{ o.firstName?.charAt(0) }}{{ o.lastName?.charAt(0) }}
           </div>
           <div class="absolute bottom-2 right-2">
@@ -55,23 +90,45 @@
             {{ o.fullName || `${o.firstName} ${o.lastName}` }}
           </h5>
           <p class="text-sm text-gray-500 mb-2 truncate">{{ o.email }}</p>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">CI/NIT: {{ o.taxId || 'N/A' }}</p>
+          <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            CI/NIT: {{ o.taxId || 'N/A' }}
+          </p>
 
           <div class="flex justify-between items-end mt-auto">
             <div>
-              <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Telefono</p>
-              <p class="text-sm font-semibold dark:text-gray-200">{{ o.phone || 'N/A' }}</p>
+              <p
+                class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter"
+              >
+                Telefono
+              </p>
+              <p class="text-sm font-semibold dark:text-gray-200">
+                {{ o.phone || 'N/A' }}
+              </p>
             </div>
             <div class="text-right">
-              <p class="text-[10px] text-gray-400 uppercase font-bold">Estado</p>
-              <p class="text-sm font-semibold" :class="o.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'">
+              <p class="text-[10px] text-gray-400 uppercase font-bold">
+                Estado
+              </p>
+              <p
+                class="text-sm font-semibold"
+                :class="
+                  o.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'
+                "
+              >
                 {{ o.status || 'N/A' }}
               </p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 gap-2 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700">
-            <fwb-button size="sm" color="alternative" @click="openEditModal(o)" class="w-full">
+          <div
+            class="grid grid-cols-1 gap-2 mt-6 pt-4 border-t border-gray-100 dark:border-gray-700"
+          >
+            <fwb-button
+              size="sm"
+              color="alternative"
+              @click="openEditModal(o)"
+              class="w-full"
+            >
               Editar Perfil
             </fwb-button>
           </div>
@@ -79,20 +136,27 @@
       </fwb-card>
     </div>
 
-    <div v-if="!loading && filteredOwners.length === 0" class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed">
+    <div
+      v-if="!loading && filteredOwners.length === 0"
+      class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed"
+    >
       <p class="text-gray-500">No se encontraron propietarios que coincidan.</p>
     </div>
 
     <fwb-modal v-if="showModal" @close="closeModal">
       <template #header>
         <div class="text-lg font-bold dark:text-white">
-          {{ isEditing ? 'Editar Perfil de Propietario' : 'Registrar Nuevo Propietario' }}
+          {{
+            isEditing
+              ? 'Editar Perfil de Propietario'
+              : 'Registrar Nuevo Propietario'
+          }}
         </div>
       </template>
       <template #body>
         <user-form
           :key="formKey"
-          :initial-data="editingOwner"
+          :initial-data="editingOwner || undefined"
           :is-editing="isEditing"
           :owner-only="true"
           @submit="handleSubmit"
@@ -105,7 +169,7 @@
       v-if="toast.visible"
       :class="[
         'fixed bottom-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transition-all max-w-md',
-        toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        toast.type === 'success' ? 'bg-green-600' : 'bg-red-600',
       ]"
     >
       {{ toast.message }}
@@ -121,15 +185,32 @@ import { useAuth } from '../composables/useAuth';
 import { personService } from '../services/personService';
 import UserForm from '../components/users/UserForm.vue';
 
+interface Owner {
+  id: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  taxId?: string;
+  phone?: string;
+  status?: string;
+  userType: string;
+  assignedAgentId?: string;
+}
+
 const { user } = useAuth();
-const owners = ref<any[]>([]);
+const owners = ref<Owner[]>([]);
 const loading = ref(false);
 const showModal = ref(false);
 const isEditing = ref(false);
-const editingOwner = ref<any>(null);
+const editingOwner = ref<Record<string, unknown> | null>(null);
 const formKey = ref(0);
 const searchName = ref('');
-const toast = ref({ visible: false, message: '', type: 'success' as 'success' | 'error' });
+const toast = ref({
+  visible: false,
+  message: '',
+  type: 'success' as 'success' | 'error',
+});
 
 const showToast = (message: string, type: 'success' | 'error' = 'success') => {
   toast.value = { visible: true, message, type };
@@ -142,7 +223,9 @@ const filteredOwners = computed(() => {
   const term = searchName.value.trim().toLowerCase();
   if (!term) return owners.value;
   return owners.value.filter((o) => {
-    const name = (o.fullName || `${o.firstName || ''} ${o.lastName || ''}`).toLowerCase();
+    const name = (
+      o.fullName || `${o.firstName || ''} ${o.lastName || ''}`
+    ).toLowerCase();
     const taxId = (o.taxId || '').toString().toLowerCase();
     return name.includes(term) || taxId.includes(term);
   });
@@ -155,7 +238,7 @@ const loadOwners = async () => {
     // Obtenemos el ID del agente logueado
     const agentId = user.value?.sub || user.value?.userId;
 
-    const filteredBase = (baseUsers || []).filter((u: any) => {
+    const filteredBase = (baseUsers || []).filter((u: Owner) => {
       if (u.userType !== 'OWNER') return false;
       // FIX: Usamos agentId para filtrar y que TS no se queje de "never read"
       if (!agentId) return true;
@@ -163,12 +246,12 @@ const loadOwners = async () => {
     });
 
     owners.value = await Promise.all(
-      filteredBase.map(async (u: any) => {
+      filteredBase.map(async (u: Owner) => {
         try {
           // Ahora personService ya está importado
           const profile = await personService.getPersonByAuthUserId(u.id);
           return { ...u, ...profile };
-        } catch (err) {
+        } catch {
           console.warn(`Sin perfil detallado para: ${u.id}`);
           return u;
         }
@@ -184,15 +267,15 @@ const loadOwners = async () => {
 
 const openCreateModal = () => {
   editingOwner.value = {
-    userType: 'OWNER'
+    userType: 'OWNER',
   };
   isEditing.value = false;
   formKey.value++;
   showModal.value = true;
 };
 
-const openEditModal = (owner: any) => {
-  editingOwner.value = { ...owner, userType: 'OWNER' };
+const openEditModal = (owner: Owner) => {
+  editingOwner.value = { ...owner } as Record<string, unknown>;
   isEditing.value = true;
   formKey.value++;
   showModal.value = true;
@@ -206,16 +289,20 @@ const hasDuplicateTaxId = (taxId: string, currentId?: string) => {
   const normalized = (taxId || '').toString().trim().toLowerCase();
   if (!normalized) return false;
 
-  return owners.value.some((o) =>
-    (o.taxId || '').toString().trim().toLowerCase() === normalized &&
-    o.id !== currentId
+  return owners.value.some(
+    (o) =>
+      (o.taxId || '').toString().trim().toLowerCase() === normalized &&
+      o.id !== currentId
   );
 };
 
-const handleSubmit = async (formData: any) => {
+const handleSubmit = async (formData: Record<string, unknown>) => {
   const taxId = (formData.taxId || '').toString().trim();
-  if (hasDuplicateTaxId(taxId, editingOwner.value?.id)) {
-    showToast('⚠️ El numero de CI/NIT ya esta registrado en el sistema. No se puede guardar un propietario duplicado.', 'error');
+  if (hasDuplicateTaxId(taxId, editingOwner.value?.id as string | undefined)) {
+    showToast(
+      '⚠️ El numero de CI/NIT ya esta registrado en el sistema. No se puede guardar un propietario duplicado.',
+      'error'
+    );
     return;
   }
 
@@ -224,38 +311,25 @@ const handleSubmit = async (formData: any) => {
       ...formData,
       taxId: formData.taxId?.toString().trim(), // Limpieza de datos
       userType: 'OWNER',
-      roleIds: ['rol_owner']
+      roleIds: ['rol_owner'],
     };
 
     if (isEditing.value && editingOwner.value) {
-      await userService.updateUser(editingOwner.value.id, payload);
+      await userService.updateUser(editingOwner.value.id as string, payload);
       showToast('Propietario actualizado correctamente');
     } else {
       const agentId = user.value?.sub || user.value?.userId;
       await userService.createUser({
         ...payload,
-        assignedAgentId: agentId
+        assignedAgentId: agentId,
       });
       showToast('Propietario creado correctamente');
     }
 
     await loadOwners();
     closeModal();
-  } catch (error: any) {
-    const detail = error?.response?.data?.detail || '';
-    const message = error?.response?.data?.message || '';
-
-    if (
-      detail.includes('An owner with CI') ||
-      detail.includes('taxId already exists') ||
-      detail.includes('already exists') ||
-      message.includes('already exists')
-    ) {
-      showToast('⚠️ El numero de CI/NIT ya esta registrado en el sistema. No se puede guardar un propietario duplicado.', 'error');
-      return;
-    }
-
-    showToast(error.response?.data?.detail || 'Error al procesar la solicitud', 'error');
+  } catch {
+    showToast('Error al procesar la solicitud', 'error');
   }
 };
 

@@ -9,11 +9,23 @@
               to="/dashboard"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
               </svg>
             </router-link>
-            <h1 class="text-2xl font-bold text-gray-900">Mis Solicitudes de Reasignación</h1>
+            <h1 class="text-2xl font-bold text-gray-900">
+              Mis Solicitudes de Reasignación
+            </h1>
           </div>
           <p class="text-gray-500 text-sm mt-1">
             Estado de las solicitudes que has enviado a tus colegas
@@ -44,15 +56,25 @@
 
       <!-- Stats summary -->
       <div class="grid grid-cols-3 gap-4">
-        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center shadow-sm">
+        <div
+          class="bg-white rounded-xl border border-gray-200 p-4 text-center shadow-sm"
+        >
           <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
-          <p class="text-xs text-gray-500 uppercase font-medium">Total enviadas</p>
+          <p class="text-xs text-gray-500 uppercase font-medium">
+            Total enviadas
+          </p>
         </div>
-        <div class="bg-yellow-50 rounded-xl border border-yellow-200 p-4 text-center shadow-sm">
+        <div
+          class="bg-yellow-50 rounded-xl border border-yellow-200 p-4 text-center shadow-sm"
+        >
           <p class="text-2xl font-bold text-yellow-700">{{ stats.pending }}</p>
-          <p class="text-xs text-yellow-600 uppercase font-medium">Pendientes</p>
+          <p class="text-xs text-yellow-600 uppercase font-medium">
+            Pendientes
+          </p>
         </div>
-        <div class="bg-green-50 rounded-xl border border-green-200 p-4 text-center shadow-sm">
+        <div
+          class="bg-green-50 rounded-xl border border-green-200 p-4 text-center shadow-sm"
+        >
           <p class="text-2xl font-bold text-green-700">{{ stats.accepted }}</p>
           <p class="text-xs text-green-600 uppercase font-medium">Aceptadas</p>
         </div>
@@ -60,7 +82,11 @@
 
       <!-- Loading skeleton -->
       <div v-if="loading" class="space-y-3">
-        <div v-for="i in 3" :key="i" class="bg-white rounded-2xl p-5 animate-pulse">
+        <div
+          v-for="i in 3"
+          :key="i"
+          class="bg-white rounded-2xl p-5 animate-pulse"
+        >
           <div class="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
           <div class="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
           <div class="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -87,8 +113,15 @@
         v-else-if="sentRequests.length === 0"
         class="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100"
       >
-        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div
+          class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <svg
+            class="w-8 h-8 text-blue-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -97,7 +130,9 @@
             />
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-gray-700 mb-1">No has enviado solicitudes</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-1">
+          No has enviado solicitudes
+        </h3>
         <p class="text-gray-500 text-sm">
           Cuando solicites una reasignación desde el calendario, aparecerá aquí.
         </p>
@@ -122,7 +157,7 @@
             :class="{
               'bg-yellow-50/30': r.status === 'PENDING',
               'bg-green-50/30': r.status === 'ACCEPTED',
-              'bg-red-50/30': r.status === 'REJECTED'
+              'bg-red-50/30': r.status === 'REJECTED',
             }"
           >
             <div class="flex items-center gap-3">
@@ -132,7 +167,7 @@
                 :class="{
                   'bg-yellow-100': r.status === 'PENDING',
                   'bg-green-100': r.status === 'ACCEPTED',
-                  'bg-red-100': r.status === 'REJECTED'
+                  'bg-red-100': r.status === 'REJECTED',
                 }"
               >
                 <svg
@@ -140,7 +175,7 @@
                   :class="{
                     'text-yellow-600': r.status === 'PENDING',
                     'text-green-600': r.status === 'ACCEPTED',
-                    'text-red-600': r.status === 'REJECTED'
+                    'text-red-600': r.status === 'REJECTED',
                   }"
                   fill="none"
                   stroke="currentColor"
@@ -156,7 +191,10 @@
               </div>
               <div>
                 <p class="font-semibold text-gray-800 text-sm">
-                  Para: <span class="font-mono text-xs">{{ r.destinationAgentId }}</span>
+                  Para:
+                  <span class="font-mono text-xs">{{
+                    r.destinationAgentId
+                  }}</span>
                 </p>
                 <p class="text-xs text-gray-500">
                   Enviada el {{ formatDate(r.requestedAt) }}
@@ -167,19 +205,35 @@
               :class="statusBadgeClass(r.status)"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0"
             >
-              <span v-if="r.status === 'PENDING'" class="flex items-center gap-1">
-                <span class="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-pulse"></span>
+              <span
+                v-if="r.status === 'PENDING'"
+                class="flex items-center gap-1"
+              >
+                <span
+                  class="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-pulse"
+                ></span>
                 Pendiente
               </span>
-              <span v-else-if="r.status === 'ACCEPTED'" class="flex items-center gap-1">
+              <span
+                v-else-if="r.status === 'ACCEPTED'"
+                class="flex items-center gap-1"
+              >
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 Aceptada
               </span>
               <span v-else class="flex items-center gap-1">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
                 Rechazada
               </span>
@@ -190,11 +244,23 @@
           <div class="px-5 py-4 space-y-3">
             <!-- Visit ID -->
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              <svg
+                class="w-4 h-4 text-gray-400 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
               </svg>
               <span class="text-gray-500">Cita ID:</span>
-              <span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{{ r.visitId }}</span>
+              <span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{{
+                r.visitId
+              }}</span>
             </div>
 
             <!-- Reason -->
@@ -202,10 +268,12 @@
               class="rounded-xl px-4 py-3"
               :class="{
                 'bg-yellow-50': r.status === 'PENDING',
-                'bg-gray-50': r.status !== 'PENDING'
+                'bg-gray-50': r.status !== 'PENDING',
               }"
             >
-              <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
+              <p
+                class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide"
+              >
                 Motivo de la solicitud
               </p>
               <p class="text-sm text-gray-700">{{ r.reason }}</p>
@@ -217,10 +285,22 @@
               class="bg-blue-50 rounded-xl px-4 py-3 border border-blue-100"
             >
               <div class="flex items-center gap-2 mb-1">
-                <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <svg
+                  class="w-3.5 h-3.5 text-blue-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
-                <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                <p
+                  class="text-xs font-medium text-blue-600 uppercase tracking-wide"
+                >
                   Respuesta de tu colega
                 </p>
               </div>
@@ -235,8 +315,18 @@
               v-if="r.status === 'PENDING'"
               class="flex items-center gap-2 text-xs text-yellow-600 bg-yellow-50 rounded-lg px-3 py-2"
             >
-              <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                class="w-4 h-4 animate-pulse"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Esperando respuesta de tu colega...
             </div>
@@ -247,9 +337,14 @@
               class="flex items-center gap-2 text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clip-rule="evenodd"
+                />
               </svg>
-              ¡Tu colega ha aceptado la reasignación! La cita ahora está en su agenda.
+              ¡Tu colega ha aceptado la reasignación! La cita ahora está en su
+              agenda.
             </div>
 
             <!-- Info message for rejected requests -->
@@ -258,7 +353,11 @@
               class="flex items-center gap-2 text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
               </svg>
               Tu colega ha rechazado la solicitud. La cita sigue siendo tuya.
             </div>
@@ -278,8 +377,19 @@
                   fill="none"
                   viewBox="0 0 24 24"
                 >
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  />
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
                 </svg>
                 <span v-else>Cancelar solicitud</span>
               </button>
@@ -314,9 +424,15 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 // ── Computed stats ────────────────────────────────────────────────────────
 const stats = computed(() => {
   const total = sentRequests.value.length;
-  const pending = sentRequests.value.filter(r => r.status === 'PENDING').length;
-  const accepted = sentRequests.value.filter(r => r.status === 'ACCEPTED').length;
-  const rejected = sentRequests.value.filter(r => r.status === 'REJECTED').length;
+  const pending = sentRequests.value.filter(
+    (r) => r.status === 'PENDING'
+  ).length;
+  const accepted = sentRequests.value.filter(
+    (r) => r.status === 'ACCEPTED'
+  ).length;
+  const rejected = sentRequests.value.filter(
+    (r) => r.status === 'REJECTED'
+  ).length;
   return { total, pending, accepted, rejected };
 });
 
@@ -325,10 +441,12 @@ async function load() {
   loading.value = true;
   error.value = '';
   try {
-    const { data } = await api.get<ReassignmentSolicitation[]>('/api/reassignments/sent');
+    const { data } = await api.get<ReassignmentSolicitation[]>(
+      '/api/reassignments/sent'
+    );
     sentRequests.value = data;
-  } catch (e: any) {
-    error.value = e?.response?.data?.error || 'Error al cargar tus solicitudes';
+  } catch {
+    error.value = 'Error al cargar tus solicitudes';
   } finally {
     loading.value = false;
   }
@@ -343,7 +461,7 @@ async function cancelRequest(requestId: string) {
     confirmButtonColor: '#dc2626',
     cancelButtonColor: '#6b7280',
     confirmButtonText: 'Sí, cancelar',
-    cancelButtonText: 'No, mantener'
+    cancelButtonText: 'No, mantener',
   });
 
   if (!result.isConfirmed) return;
@@ -358,14 +476,14 @@ async function cancelRequest(requestId: string) {
       text: 'La solicitud ha sido cancelada',
       icon: 'success',
       timer: 2000,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
-  } catch (e: any) {
+  } catch {
     Swal.fire({
       title: 'Error',
-      text: e?.response?.data?.error || 'No se pudo cancelar la solicitud',
+      text: 'No se pudo cancelar la solicitud',
       icon: 'error',
-      confirmButtonColor: '#dc2626'
+      confirmButtonColor: '#dc2626',
     });
   } finally {
     cancellingId.value = null;
@@ -392,7 +510,7 @@ function formatDate(iso: string): string {
     month: 'short',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 }
 

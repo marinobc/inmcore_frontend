@@ -32,7 +32,7 @@
         <div>
           <h2 class="text-lg font-bold text-gray-900">Reservation Receipts</h2>
           <p class="text-xs text-gray-500 mt-0.5">
-            {{ receipts.length }} receipt{{ receipts.length !== 1 ? "s" : "" }}
+            {{ receipts.length }} receipt{{ receipts.length !== 1 ? 's' : '' }}
             attached
           </p>
         </div>
@@ -62,7 +62,7 @@
             d="M12 4v16m8-8H4"
           />
         </svg>
-        {{ showUploader ? "Cancel" : "Add Receipt" }}
+        {{ showUploader ? 'Cancel' : 'Add Receipt' }}
       </button>
     </div>
 
@@ -131,7 +131,7 @@
             Total Attached
           </p>
           <p class="text-lg font-bold text-gray-800 mt-0.5">
-            {{ receipts.length }} receipt{{ receipts.length !== 1 ? "s" : "" }}
+            {{ receipts.length }} receipt{{ receipts.length !== 1 ? 's' : '' }}
           </p>
         </div>
 
@@ -158,17 +158,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useReceipts } from "../../../composables/useReceipts";
-import ReceiptUploader from "./ReceiptUploader.vue";
-import ReceiptList from "./ReceiptList.vue";
+import { ref, computed, onMounted } from 'vue';
+import { useReceipts } from '../../../composables/useReceipts';
+import ReceiptUploader from './ReceiptUploader.vue';
+import ReceiptList from './ReceiptList.vue';
 
 // ── Props ─────────────────────────────────────────────────────────────────
 const props = defineProps<{ operationId: string }>();
 
 // ── Composable ────────────────────────────────────────────────────────────
 const { receipts, loading, error, loadReceipts, deleteReceipt } = useReceipts(
-  props.operationId,
+  props.operationId
 );
 
 // ── Local state ───────────────────────────────────────────────────────────
@@ -202,8 +202,8 @@ function showToast() {
 }
 
 function formatAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
     currency,
     minimumFractionDigits: 2,
   }).format(amount);

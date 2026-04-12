@@ -179,7 +179,10 @@
                 </p>
               </div>
 
-              <p v-if="errors.destinationAgentId" class="text-red-500 text-xs mt-1">
+              <p
+                v-if="errors.destinationAgentId"
+                class="text-red-500 text-xs mt-1"
+              >
                 {{ errors.destinationAgentId }}
               </p>
             </div>
@@ -242,7 +245,7 @@
                   d="M4 12a8 8 0 018-8v8H4z"
                 />
               </svg>
-              <span>{{ loading ? "Sending..." : "Send request" }}</span>
+              <span>{{ loading ? 'Sending...' : 'Send request' }}</span>
             </button>
           </div>
         </div>
@@ -252,9 +255,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from "vue";
-import type { AvailableAgent } from "../../../types/reassignment";
-import reassignmentService from "../../../services/reassignmentService";
+import { ref, watch, reactive } from 'vue';
+import type { AvailableAgent } from '../../../types/reassignment';
+import reassignmentService from '../../../services/reassignmentService';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 const props = defineProps<{
@@ -264,8 +267,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: boolean): void;
-  (e: "requestSent"): void;
+  (e: 'update:modelValue', val: boolean): void;
+  (e: 'requestSent'): void;
 }>();
 
 // ── Local state ───────────────────────────────────────────────────────────
@@ -275,13 +278,13 @@ const loading = ref(false);
 const errorMsg = ref<string | null>(null);
 
 const form = reactive({
-  destinationAgentId: "", // ← Cambiado de targetAgentId
-  reason: "",
+  destinationAgentId: '', // ← Cambiado de targetAgentId
+  reason: '',
 });
 
 const errors = reactive({
-  destinationAgentId: "", // ← Cambiado de targetAgentId
-  reason: "",
+  destinationAgentId: '', // ← Cambiado de targetAgentId
+  reason: '',
 });
 
 // ── Watchers ──────────────────────────────────────────────────────────────
@@ -292,7 +295,7 @@ watch(
       resetForm();
       await fetchAgents();
     }
-  },
+  }
 );
 
 // ── Methods ───────────────────────────────────────────────────────────────
@@ -301,27 +304,27 @@ async function fetchAgents() {
   try {
     agents.value = await reassignmentService.getAvailableAgents();
   } catch {
-    errorMsg.value = "Could not load the list of agents.";
+    errorMsg.value = 'Could not load the list of agents.';
   } finally {
     loadingAgents.value = false;
   }
 }
 
 function validate(): boolean {
-  errors.destinationAgentId = "";
-  errors.reason = "";
+  errors.destinationAgentId = '';
+  errors.reason = '';
   let valid = true;
 
   if (!form.destinationAgentId) {
-    errors.destinationAgentId = "You must select a target colleague.";
+    errors.destinationAgentId = 'You must select a target colleague.';
     valid = false;
   }
   if (!form.reason.trim() || form.reason.trim().length < 10) {
-    errors.reason = "The reason must be at least 10 characters long.";
+    errors.reason = 'The reason must be at least 10 characters long.';
     valid = false;
   }
   if (form.reason.length > 300) {
-    errors.reason = "The reason cannot exceed 300 characters.";
+    errors.reason = 'The reason cannot exceed 300 characters.';
     valid = false;
   }
   return valid;
@@ -336,22 +339,23 @@ async function handleSubmit() {
       destinationAgentId: form.destinationAgentId, // ← Cambiado de targetAgentId
       reason: form.reason.trim(),
     });
-    emit("requestSent");
-    emit("update:modelValue", false);
-  } catch (e: any) {
+    emit('requestSent');
+    emit('update:modelValue', false);
+  } catch (e: unknown) {
+    const err = e as Record<string, { data?: { error?: string } } | undefined>;
     errorMsg.value =
-      e?.response?.data?.error ??
-      "Failed to send the request. Please try again.";
+      err?.response?.data?.error ??
+      'Failed to send the request. Please try again.';
   } finally {
     loading.value = false;
   }
 }
 
 function resetForm() {
-  form.destinationAgentId = "";
-  form.reason = "";
-  errors.destinationAgentId = "";
-  errors.reason = "";
+  form.destinationAgentId = '';
+  form.reason = '';
+  errors.destinationAgentId = '';
+  errors.reason = '';
   errorMsg.value = null;
   agents.value = [];
 }
