@@ -1,21 +1,16 @@
 <template>
   <div class="p-6 space-y-6">
-    <h1 class="text-3xl font-bold dark:text-white">Mis Propiedades</h1>
-    <p class="text-gray-500">
-      Visualiza tus propiedades y el número de visitas recibidas
-    </p>
+    <h1 class="text-3xl font-bold dark:text-white">{{ t('ownerDashboard.title') }}</h1>
+    <p class="text-gray-500">{{ t('ownerDashboard.subtitle') }}</p>
 
     <div v-if="loading" class="text-center py-10">
       <div
         class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
       ></div>
-      <p class="mt-2 text-gray-500">Cargando tus propiedades...</p>
+      <p class="mt-2 text-gray-500">{{ t('ownerDashboard.loading') }}</p>
     </div>
 
-    <div
-      v-else-if="error"
-      class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700"
-    >
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
       {{ error }}
     </div>
 
@@ -23,11 +18,9 @@
       v-else-if="properties.length === 0"
       class="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center"
     >
-      <p class="text-yellow-800">
-        No tienes propiedades registradas en el sistema.
-      </p>
+      <p class="text-yellow-800">{{ t('ownerDashboard.emptyTitle') }}</p>
       <p class="text-yellow-600 text-sm mt-2">
-        Contacta con un agente para registrar tus propiedades.
+        {{ t('ownerDashboard.emptySubtext') }}
       </p>
     </div>
 
@@ -43,13 +36,11 @@
           >
             <IconLucideEye class="w-4 h-4" />
             {{ prop.visitCount || 0 }}
-            {{ prop.visitCount === 1 ? 'visita' : 'visitas' }}
+            {{ t('ownerDashboard.visits', { n: prop.visitCount || 0 }) }}
           </div>
         </div>
 
-        <div
-          class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative"
-        >
+        <div class="h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center relative">
           <img
             v-if="prop.imageUrls && prop.imageUrls.length > 0"
             :src="prop.imageUrls[0]"
@@ -57,7 +48,7 @@
           />
           <div v-else class="text-gray-400 flex flex-col items-center">
             <IconLucideImage class="w-12 h-12 mb-2" />
-            <span class="text-sm">Sin imagen</span>
+            <span class="text-sm">{{ t('common.noImage') }}</span>
           </div>
           <div class="absolute top-4 left-4">
             <span
@@ -76,23 +67,21 @@
             >
               {{
                 prop.status === 'DISPONIBLE'
-                  ? 'Disponible'
+                  ? t('status.available')
                   : prop.status === 'RESERVADO'
-                    ? 'Reservado'
+                    ? t('status.reserved')
                     : prop.status === 'VENDIDO'
-                      ? 'Vendido'
+                      ? t('status.sold')
                       : prop.status === 'EN_NEGOCIACION'
-                        ? 'En Negociación'
-                        : prop.status || 'Ocupado'
+                        ? t('status.negotiating')
+                        : prop.status || t('status.occupied')
               }}
             </span>
           </div>
         </div>
 
         <div class="p-5">
-          <h5
-            class="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1"
-          >
+          <h5 class="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-1">
             {{ prop.title }}
           </h5>
           <p class="text-gray-500 dark:text-gray-400 text-sm mb-3 line-clamp-2">
@@ -101,15 +90,11 @@
 
           <div class="flex justify-between items-center mb-4">
             <div>
-              <p class="text-xs text-gray-400 uppercase tracking-wider">
-                Precio
-              </p>
-              <p class="text-2xl font-bold text-blue-600">
-                ${{ prop.price.toLocaleString() }}
-              </p>
+              <p class="text-xs text-gray-400 uppercase tracking-wider">{{ t('common.price') }}</p>
+              <p class="text-2xl font-bold text-blue-600">${{ prop.price.toLocaleString() }}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-400 uppercase tracking-wider">Tipo</p>
+              <p class="text-xs text-gray-400 uppercase tracking-wider">{{ t('common.type') }}</p>
               <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                 {{ prop.type }}
               </p>
@@ -120,17 +105,17 @@
             class="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700 pt-3"
           >
             <div class="flex items-center gap-1">
-              <span>📐</span> {{ prop.m2 }} m²
+              <span>📐</span>
+              {{ prop.m2 }} m²
             </div>
             <div class="flex items-center gap-1">
-              <span>🛏️</span> {{ prop.rooms }}
-              {{ prop.rooms === 1 ? 'habitación' : 'habitaciones' }}
+              <span>🛏️</span>
+              {{ prop.rooms }} {{ t('users.view.rooms') }}
             </div>
             <div class="flex items-center gap-1 col-span-2">
-              <span>👤</span> Agente:
-              {{
-                prop.assignedAgentName || prop.assignedAgentId || 'No asignado'
-              }}
+              <span>👤</span>
+              {{ t('common.agent') }}
+              {{ prop.assignedAgentName || prop.assignedAgentId || t('common.unassigned') }}
             </div>
           </div>
         </div>
@@ -140,112 +125,89 @@
 </template>
 
 <script setup lang="ts">
-import IconLucideEye from '~icons/lucide/eye';
-import IconLucideImage from '~icons/lucide/image';
-import { ref, onMounted } from 'vue';
-import { FwbCard } from 'flowbite-vue';
-import { useAuth } from '@/composables/useAuth';
-import { propertyService } from '@/services/propertyService';
-import { getVisitCountForProperty } from '@/services/visitRequestService';
+  import IconLucideEye from '~icons/lucide/eye';
+  import IconLucideImage from '~icons/lucide/image';
+  import { ref, onMounted } from 'vue';
+  import { FwbCard } from 'flowbite-vue';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import { propertyService } from '@/modules/properties';
+  import { getVisitCountForProperty } from '@/services/visitRequestService';
+  import { useI18n } from 'vue-i18n';
 
-interface PropertyWithVisits {
-  id: string;
-  title: string;
-  address: string;
-  price: number;
-  type: string;
-  status: string;
-  m2: number;
-  rooms: number;
-  assignedAgentName?: string;
-  assignedAgentId?: string | null;
-  imageUrls?: string[];
-  visitCount: number;
-}
+  const { t } = useI18n();
 
-const { user } = useAuth();
-const properties = ref<PropertyWithVisits[]>([]);
-const loading = ref(false);
-const error = ref('');
-
-const loadProperties = async () => {
-  loading.value = true;
-  error.value = '';
-
-  try {
-    const ownerId = (user.value?.sub ||
-      user.value?.userId ||
-      user.value?.id ||
-      '') as string;
-
-    if (!ownerId) {
-      throw new Error(
-        'No se pudo identificar al propietario. Por favor, inicia sesión nuevamente.'
-      );
-    }
-
-    console.log('Loading properties for owner:', ownerId);
-
-    const props = await propertyService.getPropertiesByOwner(ownerId);
-
-    console.log('Properties found:', props.length);
-
-    const propsWithVisits = await Promise.all(
-      (props as PropertyWithVisits[]).map(async (prop: PropertyWithVisits) => {
-        try {
-          const visitCount = await getVisitCountForProperty(prop.id);
-          console.log(
-            `Property ${prop.id} (${prop.title}) has ${visitCount} visits`
-          );
-          return { ...prop, visitCount };
-        } catch {
-          console.error(`Error fetching visits for property ${prop.id}:`);
-          return { ...prop, visitCount: 0 };
-        }
-      })
-    );
-
-    properties.value = propsWithVisits;
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { status?: number };
-      message?: string;
-    };
-    console.error('Error loading owner properties:', err);
-
-    if (errorObj.response?.status === 403) {
-      error.value =
-        'No tienes permiso para ver estas propiedades. Solo los propietarios pueden acceder a este panel.';
-    } else if (errorObj.response?.status === 404) {
-      error.value = 'No se encontraron propiedades registradas para tu cuenta.';
-    } else if (errorObj.message === 'Network Error') {
-      error.value =
-        'Error de conexión. Verifica que los servicios del backend estén funcionando.';
-    } else {
-      error.value =
-        errorObj.message ||
-        'Error al cargar tus propiedades. Intenta nuevamente.';
-    }
-  } finally {
-    loading.value = false;
+  interface PropertyWithVisits {
+    id: string;
+    title: string;
+    address: string;
+    price: number;
+    type: string;
+    status: string;
+    m2: number;
+    rooms: number;
+    assignedAgentName?: string;
+    assignedAgentId?: string | null;
+    imageUrls?: string[];
+    visitCount: number;
   }
-};
 
-onMounted(loadProperties);
+  const authStore = useAuthStore();
+  const properties = ref<PropertyWithVisits[]>([]);
+  const loading = ref(false);
+  const error = ref('');
+
+  const loadProperties = async () => {
+    loading.value = true;
+    error.value = '';
+
+    try {
+      const u = authStore.user as UserClaims | null;
+      const ownerId = (u?.sub || u?.userId || u?.id || '') as string;
+
+      if (!ownerId) {
+        throw new Error(t('ownerDashboard.loadError'));
+      }
+
+      console.log('Loading properties for owner:', ownerId);
+
+      const props = await propertyService.getPropertiesByOwner(ownerId);
+
+      console.log('Properties found:', props.length);
+
+      const propsWithVisits = await Promise.all(
+        (props as PropertyWithVisits[]).map(async (prop: PropertyWithVisits) => {
+          try {
+            const visitCount = await getVisitCountForProperty(prop.id);
+            console.log(`Property ${prop.id} (${prop.title}) has ${visitCount} visits`);
+            return { ...prop, visitCount };
+          } catch {
+            console.error(`Error fetching visits for property ${prop.id}:`);
+            return { ...prop, visitCount: 0 };
+          }
+        })
+      );
+
+      properties.value = propsWithVisits;
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { status?: number };
+        message?: string;
+      };
+      console.error('Error loading owner properties:', err);
+
+      if (errorObj.response?.status === 403) {
+        error.value = t('ownerDashboard.loadError');
+      } else if (errorObj.response?.status === 404) {
+        error.value = t('ownerDashboard.emptyTitle');
+      } else if (errorObj.message === 'Network Error') {
+        error.value = t('common.error') + ': ' + t('ownerDashboard.loadError');
+      } else {
+        error.value = errorObj.message || t('ownerDashboard.loadError');
+      }
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  onMounted(loadProperties);
 </script>
-
-<style scoped>
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-</style>

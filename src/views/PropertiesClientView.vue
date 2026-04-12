@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
-  >
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div
       class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors"
     >
@@ -14,11 +12,11 @@
             <IconLucideArrowLeft class="h-5 w-5" />
           </router-link>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Propiedades disponibles
+            {{ t('clientProperties.title') }}
           </h1>
         </div>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-          Encuentra tu próximo hogar y agenda una visita con un agente
+          {{ t('clientProperties.subtitle') }}
         </p>
       </div>
     </div>
@@ -29,38 +27,35 @@
       >
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Buscar por título</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.searchTitle') }}
+            </label>
             <input
               v-model="filters.title"
-              placeholder="Casa Blanca..."
+              :placeholder="t('clientProperties.titlePlaceholder')"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Tipo</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('common.type') }}
+            </label>
             <select
               v-model="filters.type"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Todos</option>
-              <option value="CASA">Casa</option>
-              <option value="APARTAMENTO">Apartamento</option>
-              <option value="LOCAL">Local Comercial</option>
+              <option value="">{{ t('clientProperties.allTypeOption') }}</option>
+              <option value="CASA">{{ t('propertyForm.house') }}</option>
+              <option value="APARTAMENTO">{{ t('propertyForm.apartment') }}</option>
+              <option value="LOCAL">{{ t('propertyForm.commercialSpace') }}</option>
             </select>
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Precio mínimo ($)</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.minPrice') }}
+            </label>
             <input
               v-model.number="filters.minPrice"
               type="number"
@@ -71,61 +66,57 @@
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Precio máximo ($)</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.maxPrice') }}
+            </label>
             <input
               v-model.number="filters.maxPrice"
               type="number"
               min="0"
-              placeholder="Sin límite"
+              :placeholder="t('clientProperties.noLimit')"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Ordenar por</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.sortBy') }}
+            </label>
             <select
               v-model="filters.sortBy"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="price">Precio</option>
-              <option value="title">Título</option>
-              <option value="m2">Superficie</option>
-              <option value="rooms">Habitaciones</option>
+              <option value="price">{{ t('clientProperties.sort.price') }}</option>
+              <option value="title">{{ t('clientProperties.sort.title') }}</option>
+              <option value="m2">{{ t('clientProperties.sort.area') }}</option>
+              <option value="rooms">{{ t('clientProperties.sort.rooms') }}</option>
             </select>
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Orden</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.sortOrder') }}
+            </label>
             <select
               v-model="filters.sortOrder"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="ASC">Ascendente</option>
-              <option value="DESC">Descendente</option>
+              <option value="ASC">{{ t('clientProperties.order.ascending') }}</option>
+              <option value="DESC">{{ t('clientProperties.order.descending') }}</option>
             </select>
           </div>
 
           <div>
-            <label
-              class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1"
-              >Ver</label
-            >
+            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+              {{ t('clientProperties.pageSizeLabel') }}
+            </label>
             <select
               v-model="filters.pageSize"
               @change="applyFilters"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option v-for="opt in PAGE_SIZE_OPTIONS" :key="opt" :value="opt">
-                {{ opt }} por página
+                {{ opt }} {{ t('clientProperties.perPage') }}
               </option>
             </select>
           </div>
@@ -136,37 +127,28 @@
             @click="applyFilters"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Aplicar filtros
+            {{ t('clientProperties.applyFilters') }}
           </button>
           <button
             @click="clearFilters"
             class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            Limpiar
+            {{ t('common.clear') }}
           </button>
         </div>
 
-        <p
-          class="text-xs text-green-700 dark:text-green-400 mt-2 flex items-center gap-1"
-        >
+        <p class="text-xs text-green-700 dark:text-green-400 mt-2 flex items-center gap-1">
           <IconLucideCircleCheck class="h-3.5 w-3.5" />
-          Mostrando solo propiedades <strong class="ml-0.5">Disponibles</strong>
+          {{ t('clientProperties.availableOnly') }}
         </p>
       </div>
 
       <p class="text-sm text-gray-600 dark:text-gray-400">
-        <span class="font-semibold text-gray-900 dark:text-white">{{
-          properties.length
-        }}</span>
-        propiedad{{ properties.length !== 1 ? 'es' : '' }} encontrada{{
-          properties.length !== 1 ? 's' : ''
-        }}
+        <span class="font-semibold text-gray-900 dark:text-white">{{ properties.length }}</span>
+        {{ properties.length }} {{ t('clientProperties.resultsCount') }}
       </p>
 
-      <div
-        v-if="loading"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
+      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="i in 6"
           :key="i"
@@ -189,7 +171,7 @@
           @click="loadProperties"
           class="ml-2 underline hover:text-red-800 dark:hover:text-red-300"
         >
-          Reintentar
+          {{ t('common.retry') }}
         </button>
       </div>
 
@@ -197,17 +179,15 @@
         v-else-if="properties.length === 0"
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center transition-colors"
       >
-        <IconLucideHome
-          class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"
-        />
+        <IconLucideHome class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
         <p class="text-gray-500 dark:text-gray-400 font-medium">
-          No hay propiedades disponibles con esos filtros.
+          {{ t('clientProperties.emptyText') }}
         </p>
         <button
           @click="clearFilters"
           class="mt-2 text-sm text-blue-600 dark:text-blue-400 underline"
         >
-          Ver todas
+          {{ t('clientProperties.viewAll') }}
         </button>
       </div>
 
@@ -227,18 +207,14 @@
               :alt="prop.title"
               class="w-full h-full object-cover"
             />
-            <IconLucideHome
-              v-else
-              class="h-16 w-16 text-blue-300 dark:text-gray-500"
-            />
+            <IconLucideHome v-else class="h-16 w-16 text-blue-300 dark:text-gray-500" />
             <span
               class="absolute top-3 left-3 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm"
               :class="{
                 'bg-green-500 dark:bg-green-600': prop.status === 'DISPONIBLE',
                 'bg-yellow-500 dark:bg-yellow-600': prop.status === 'RESERVADO',
                 'bg-red-500 dark:bg-red-600': prop.status === 'VENDIDO',
-                'bg-orange-500 dark:bg-orange-600':
-                  prop.status === 'EN_NEGOCIACION',
+                'bg-orange-500 dark:bg-orange-600': prop.status === 'EN_NEGOCIACION',
                 'bg-gray-500 dark:bg-gray-600': ![
                   'DISPONIBLE',
                   'RESERVADO',
@@ -247,22 +223,12 @@
                 ].includes(prop.status),
               }"
             >
-              {{
-                prop.status === 'DISPONIBLE'
-                  ? 'Disponible'
-                  : prop.status === 'RESERVADO'
-                    ? 'Reservado'
-                    : prop.status === 'VENDIDO'
-                      ? 'Vendido'
-                      : prop.status === 'EN_NEGOCIACION'
-                        ? 'En Negociación'
-                        : prop.status
-              }}
+              {{ t('status.' + prop.status) }}
             </span>
             <span
               class="absolute top-3 right-3 bg-white/90 dark:bg-gray-900/80 text-gray-700 dark:text-gray-200 text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm"
             >
-              {{ prop.type }}
+              {{ t('propertyTypes.' + prop.type) }}
             </span>
 
             <button
@@ -289,12 +255,12 @@
               📍 {{ prop.address }}
             </p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              Zona: {{ prop.zone }}
+              {{ t('clientProperties.zoneLabel') }} {{ prop.zone }}
             </p>
 
             <div class="flex items-center justify-between mt-3">
               <span class="text-lg font-bold text-blue-700 dark:text-blue-400">
-                ${{ prop.price.toLocaleString('es-BO') }}
+                ${{ prop.price.toLocaleString(getLocaleString()) }}
               </span>
             </div>
             <button
@@ -302,40 +268,29 @@
               @click.stop="openRequestModal(prop)"
               class="px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
             >
-              Agendar visita
+              {{ t('clientProperties.scheduleVisit') }}
             </button>
             <button
               v-else
               disabled
               class="px-3 py-1.5 text-xs font-semibold text-gray-400 bg-gray-200 dark:bg-gray-700 rounded-lg cursor-not-allowed"
             >
-              {{
-                prop.status === 'VENDIDO'
-                  ? 'Vendida'
-                  : prop.status === 'RESERVADO'
-                    ? 'Reservada'
-                    : prop.status === 'EN_NEGOCIACION'
-                      ? 'En Negociación'
-                      : 'No disponible'
-              }}
+              {{ t('status.' + prop.status) || t('clientProperties.notAvailable') }}
             </button>
             <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Agente: {{ prop.agentName }}
+              {{ t('common.agent') }} {{ prop.agentName }}
             </p>
           </div>
         </div>
       </div>
 
-      <div
-        v-if="totalPages > 1"
-        class="flex justify-center items-center space-x-2 mt-6 pb-10"
-      >
+      <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-6 pb-10">
         <button
           @click="goToPage(filters.page - 1)"
           :disabled="filters.page === 0"
           class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
         >
-          Anterior
+          {{ t('clientProperties.previous') }}
         </button>
 
         <template v-for="page in totalPages" :key="page">
@@ -357,7 +312,7 @@
           :disabled="filters.page >= totalPages - 1"
           class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
         >
-          Siguiente
+          {{ t('clientProperties.next') }}
         </button>
       </div>
     </div>
@@ -382,7 +337,7 @@
           <div class="flex items-start justify-between mb-4">
             <div>
               <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                Solicitar visita
+                {{ t('clientProperties.visitRequestTitle') }}
               </h2>
               <p class="text-sm text-gray-500 dark:text-gray-400">
                 {{ requestTarget.name }}
@@ -398,113 +353,96 @@
 
           <form @submit.prevent="submitVisitRequest" class="space-y-4">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-              El * indica que el campo es obligatorio.
+              {{ t('clientProperties.requiredNote') }}
             </p>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label
-                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                  >Tu nombre <strong class="text-red-500">*</strong></label
-                >
+                <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                  {{ t('clientProperties.form.name') }}
+                  <strong class="text-red-500">*</strong>
+                </label>
                 <input
-                  v-model="requestForm.clientName"
-                  placeholder="Nombre completo"
+                  v-model="clientName"
+                  :placeholder="t('clientProperties.placeholder.name')"
                   class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   :class="{
-                    'border-red-400 dark:border-red-500': reqErrors.clientName,
+                    'border-red-400 dark:border-red-500': fieldErrors.clientName,
                   }"
-                  required
                 />
-                <p
-                  v-if="reqErrors.clientName"
-                  class="text-xs text-red-500 mt-0.5"
-                >
-                  {{ reqErrors.clientName }}
+                <p v-if="fieldErrors.clientName" class="text-xs text-red-500 mt-0.5">
+                  {{ fieldErrors.clientName }}
                 </p>
               </div>
               <div>
-                <label
-                  class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                  >Email <strong class="text-red-500">*</strong></label
-                >
+                <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                  {{ t('clientProperties.form.email') }}
+                  <strong class="text-red-500">*</strong>
+                </label>
                 <input
-                  v-model="requestForm.clientEmail"
+                  v-model="clientEmail"
                   type="email"
-                  placeholder="tu@email.com"
+                  :placeholder="t('clientProperties.placeholder.email')"
                   class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   :class="{
-                    'border-red-400 dark:border-red-500': reqErrors.clientEmail,
+                    'border-red-400 dark:border-red-500': fieldErrors.clientEmail,
                   }"
-                  required
                 />
-                <p
-                  v-if="reqErrors.clientEmail"
-                  class="text-xs text-red-500 mt-0.5"
-                >
-                  {{ reqErrors.clientEmail }}
+                <p v-if="fieldErrors.clientEmail" class="text-xs text-red-500 mt-0.5">
+                  {{ fieldErrors.clientEmail }}
                 </p>
               </div>
             </div>
 
             <div>
-              <label
-                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                >Teléfono (opcional)</label
-              >
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                {{ t('clientProperties.form.phone') }}
+              </label>
               <input
-                v-model="requestForm.clientPhone"
-                placeholder="+591 7XXXXXXX"
+                v-model="clientPhone"
+                :placeholder="t('clientProperties.placeholder.phone')"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               />
             </div>
 
             <div>
-              <label
-                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                >Horario preferido
-                <strong class="text-red-500">*</strong></label
-              >
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                {{ t('clientProperties.form.preferredSchedule') }}
+                <strong class="text-red-500">*</strong>
+              </label>
               <input
-                v-model="requestForm.preferredDateTime"
+                v-model="preferredDateTime"
                 type="datetime-local"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors dark:[color-scheme:dark]"
                 :class="{
-                  'border-red-400 dark:border-red-500':
-                    reqErrors.preferredDateTime,
+                  'border-red-400 dark:border-red-500': fieldErrors.preferredDateTime,
                 }"
                 :min="minDatetime"
-                required
               />
-              <p
-                v-if="reqErrors.preferredDateTime"
-                class="text-xs text-red-500 mt-0.5"
-              >
-                {{ reqErrors.preferredDateTime }}
+              <p v-if="fieldErrors.preferredDateTime" class="text-xs text-red-500 mt-0.5">
+                {{ fieldErrors.preferredDateTime }}
               </p>
             </div>
 
             <div>
-              <label
-                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                >Horario alternativo (opcional)</label
-              >
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                {{ t('clientProperties.form.alternativeSchedule') }}
+              </label>
               <input
-                v-model="requestForm.alternativeDateTime"
+                v-model="alternativeDateTime"
                 type="datetime-local"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors dark:[color-scheme:dark]"
-                :min="requestForm.preferredDateTime || minDatetime"
+                :min="preferredDateTime || minDatetime"
               />
             </div>
 
             <div>
-              <label
-                class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1"
-                >Mensaje para el agente</label
-              >
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+                {{ t('clientProperties.form.message') }}
+              </label>
               <textarea
-                v-model="requestForm.message"
+                v-model="message"
                 rows="3"
-                placeholder="Preguntas, observaciones o requisitos especiales..."
+                :placeholder="t('clientProperties.placeholder.message')"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors"
               />
             </div>
@@ -512,11 +450,7 @@
             <p
               class="text-xs text-gray-500 dark:text-gray-300 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2"
             >
-              📨 Al enviar esta solicitud,
-              <strong class="dark:text-amber-200">{{
-                requestTarget.agentName
-              }}</strong>
-              recibirá una notificación y se pondrá en contacto contigo.
+              {{ t('clientProperties.submitNote', { agent: requestTarget.agentName }) }}
             </p>
 
             <div class="flex gap-3 pt-1">
@@ -525,208 +459,107 @@
                 @click="closeRequestModal"
                 class="flex-1 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                Cancelar
+                {{ t('common.cancel') }}
               </button>
               <button
                 type="submit"
                 :disabled="requestSubmitting"
                 class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 transition-colors"
               >
-                {{ requestSubmitting ? 'Enviando...' : 'Enviar solicitud' }}
+                {{
+                  requestSubmitting
+                    ? t('clientProperties.sending')
+                    : t('clientProperties.submitRequest')
+                }}
               </button>
             </div>
           </form>
         </div>
       </div>
     </Transition>
+
+    <Transition name="fade">
+      <div v-if="showSuccessAlert" class="fixed top-4 right-4 z-[60] w-full max-w-sm">
+        <FwbAlert type="success">
+          <template #default>
+            {{ successMessage }}
+          </template>
+        </FwbAlert>
+      </div>
+    </Transition>
+
+    <Transition name="fade">
+      <div v-if="showErrorAlert" class="fixed top-4 right-4 z-[60] w-full max-w-sm">
+        <FwbAlert type="danger">
+          <template #default>
+            <div class="flex items-center justify-between gap-2">
+              <span>{{ errorMessage }}</span>
+              <button
+                @click="showErrorAlert = false"
+                class="text-red-500 hover:text-red-700 font-bold text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+          </template>
+        </FwbAlert>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import IconLucideArrowLeft from '~icons/lucide/arrow-left';
-import IconLucideCircleCheck from '~icons/lucide/circle-check';
-import IconLucideHome from '~icons/lucide/home';
-import IconLucideHeart from '~icons/lucide/heart';
-import IconLucideX from '~icons/lucide/x';
-import Swal from 'sweetalert2';
-import { ref, computed, onMounted } from 'vue';
-import {
-  getAvailableProperties,
-  createVisitRequest,
-} from '@/services/visitRequestService';
-import type { Property, ClientVisitRequestDTO } from '@/types/visitCalendar';
-import type { Property as PropertyType } from '@/types/property';
-import ClientPropertyDetailsModal from '@/components/properties/ClientPropertyDetailsModal.vue';
+  import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+  import IconLucideCircleCheck from '~icons/lucide/circle-check';
+  import IconLucideHome from '~icons/lucide/home';
+  import IconLucideHeart from '~icons/lucide/heart';
+  import IconLucideX from '~icons/lucide/x';
+  import { ref, computed, onMounted } from 'vue';
+  import { FwbAlert } from 'flowbite-vue';
+  import { useForm } from 'vee-validate';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { visitRequestSchema } from '@/modules/properties/schemas/visitSchema';
+  import type { VisitRequestFormValues } from '@/modules/properties/schemas/visitSchema';
+  import { getAvailableProperties, createVisitRequest } from '@/services/visitRequestService';
+  import type { Property, ClientVisitRequestDTO } from '@/types/visitCalendar';
+  import type { Property as PropertyType } from '@/types/property';
+  import ClientPropertyDetailsModal from '@/components/properties/ClientPropertyDetailsModal.vue';
 
-import { useAuth } from '@/composables/useAuth';
-const { user } = useAuth();
-const myClientId = computed(() => (user.value?.sub || '') as string);
-const myClientEmail = computed(() => (user.value?.email || '') as string);
-const myClientName = computed(() => {
-  if (user.value?.name) return user.value.name;
-  if (user.value?.email)
-    return ((user.value?.email as string) || '').split('@')[0];
-  return '';
-});
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
+  const { t } = useI18n();
 
-import { useRouter } from 'vue-router';
-import { favoriteService } from '@/services/favoriteService';
-const router = useRouter();
-
-const totalElements = ref(0);
-const totalPages = ref(0);
-const PAGE_SIZE_OPTIONS = [9, 18, 27, 45];
-
-const properties = ref<Property[]>([]);
-const loading = ref(false);
-const error = ref('');
-
-const filters = ref({
-  title: '',
-  type: '',
-  operationType: '',
-  minPrice: undefined as number | undefined,
-  maxPrice: undefined as number | undefined,
-  sortBy: 'price',
-  sortOrder: 'ASC',
-  page: 0,
-  pageSize: 9,
-});
-
-const selectedProperty = ref<Property | null>(null);
-const showRequestModal = ref(false);
-const requestTarget = ref<Property | null>(null);
-const requestSuccess = ref(false);
-const requestSubmitting = ref(false);
-
-const requestForm = ref({
-  clientName: myClientName.value as string,
-  clientEmail: myClientEmail.value as string,
-  clientPhone: '',
-  preferredDateTime: '',
-  alternativeDateTime: '',
-  message: '',
-});
-const reqErrors = ref<Record<string, string>>({});
-
-const minDatetime = computed(() => {
-  const d = new Date();
-  d.setHours(d.getHours() + 1);
-  return d.toISOString().slice(0, 16);
-});
-
-const agentNames = ref<Record<string, string>>({});
-
-function loadAgentNames(propList: Property[]) {
-  propList.forEach((p: Property) => {
-    if (p.assignedAgentId && p.agentName) {
-      agentNames.value[p.assignedAgentId] = p.agentName;
-    }
+  const authStore = useAuthStore();
+  const myClientId = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    return (u?.sub || '') as string;
   });
-}
+  const myClientEmail = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    return (u?.email || '') as string;
+  });
+  const myClientName = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    if (u?.name) return u.name;
+    if (u?.email) return ((u?.email as string) || '').split('@')[0];
+    return '';
+  });
 
-const favorites = ref<Set<string>>(new Set());
+  import { useRouter, useRoute } from 'vue-router';
+  import { favoriteService } from '@/services/favoriteService';
+  const router = useRouter();
+  const route = useRoute();
 
-const toggleFavorite = async (propertyId: string) => {
-  try {
-    if (favorites.value.has(propertyId)) {
-      favorites.value.delete(propertyId);
-      await favoriteService.removeFavorite(propertyId);
-    } else {
-      favorites.value.add(propertyId);
-      await favoriteService.addFavorite(propertyId);
-    }
-  } catch (error: unknown) {
-    if (favorites.value.has(propertyId)) {
-      favorites.value.delete(propertyId);
-    } else {
-      favorites.value.add(propertyId);
-    }
-    const err = error as {
-      response?: { data?: { message?: string; detail?: string } };
-    };
-    const msg =
-      err.response?.data?.message ||
-      err.response?.data?.detail ||
-      'Error al actualizar favorito';
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: msg,
-      confirmButtonColor: '#dc2626',
-    });
-  }
-};
+  const totalElements = ref(0);
+  const totalPages = ref(0);
+  const PAGE_SIZE_OPTIONS = [9, 18, 27, 45];
 
-const loadFavorites = async () => {
-  try {
-    const ids = await favoriteService.getFavorites();
-    favorites.value = new Set(ids);
-  } catch (e) {
-    console.error('Error loading favorites:', e);
-    favorites.value = new Set();
-  }
-};
+  const properties = ref<Property[]>([]);
+  const loading = ref(false);
+  const error = ref('');
 
-const isFavorite = (id: string) => favorites.value.has(id);
-
-async function loadProperties() {
-  loading.value = true;
-  error.value = '';
-  try {
-    const result = await getAvailableProperties({
-      title: filters.value.title || undefined,
-      type: filters.value.type || undefined,
-      operationType: filters.value.operationType || undefined,
-      minPrice: filters.value.minPrice,
-      maxPrice: filters.value.maxPrice,
-      sortBy: filters.value.sortBy,
-      sortOrder: filters.value.sortOrder,
-      page: filters.value.page,
-      pageSize: filters.value.pageSize,
-    });
-
-    properties.value = result.data;
-    totalElements.value = result.totalElements;
-    totalPages.value = result.totalPages;
-
-    loadAgentNames(properties.value);
-
-    router.replace({
-      query: {
-        status: 'DISPONIBLE',
-        ...(filters.value.title && { title: filters.value.title }),
-        ...(filters.value.type && { type: filters.value.type }),
-        ...(filters.value.operationType && {
-          operationType: filters.value.operationType,
-        }),
-        ...(filters.value.minPrice !== undefined && {
-          minPrice: String(filters.value.minPrice),
-        }),
-        ...(filters.value.maxPrice !== undefined && {
-          maxPrice: String(filters.value.maxPrice),
-        }),
-        sortBy: filters.value.sortBy,
-        sortOrder: filters.value.sortOrder,
-        page: String(filters.value.page),
-        pageSize: String(filters.value.pageSize),
-      },
-    });
-  } catch (e: unknown) {
-    const err = e as { message?: string };
-    error.value = err.message || 'No se pudieron cargar las propiedades';
-  } finally {
-    loading.value = false;
-  }
-}
-
-function applyFilters() {
-  filters.value.page = 0;
-  loadProperties();
-}
-
-function clearFilters() {
-  filters.value = {
+  const filters = ref({
     title: '',
     type: '',
     operationType: '',
@@ -736,110 +569,257 @@ function clearFilters() {
     sortOrder: 'ASC',
     page: 0,
     pageSize: 9,
-  };
-  loadProperties();
-}
+  });
 
-function goToPage(p: number) {
-  filters.value.page = p;
-  loadProperties();
-}
+  const selectedProperty = ref<Property | null>(null);
+  const showRequestModal = ref(false);
+  const requestTarget = ref<Property | null>(null);
+  const requestSuccess = ref(false);
+  const requestSubmitting = ref(false);
+  const showSuccessAlert = ref(false);
+  const showErrorAlert = ref(false);
+  const successMessage = ref('');
+  const errorMessage = ref('');
+  let successTimer: ReturnType<typeof setTimeout> | null = null;
 
-function openPropertyModal(prop: Property) {
-  selectedProperty.value = prop;
-  showRequestModal.value = false;
-}
+  const {
+    defineField,
+    handleSubmit: onRequestSubmit,
+    resetForm,
+    errors: fieldErrors,
+  } = useForm({
+    validationSchema: toTypedSchema(visitRequestSchema),
+  });
 
-function handleScheduleVisit(_propertyId: string | undefined) {
-  if (selectedProperty.value) {
-    openRequestModal(selectedProperty.value);
-  }
-}
+  const [clientName] = defineField('clientName');
+  const [clientEmail] = defineField('clientEmail');
+  const [clientPhone] = defineField('clientPhone');
+  const [preferredDateTime] = defineField('preferredDateTime');
+  const [alternativeDateTime] = defineField('alternativeDateTime');
+  const [message] = defineField('message');
 
-function openRequestModal(prop: Property) {
-  const agentId = prop.assignedAgentId || prop.agentId || '';
-  requestTarget.value = {
-    ...prop,
-    id: prop.id,
-    name: prop.title || prop.name || '',
-    agentId: agentId,
-    agentName:
-      (agentId ? agentNames.value[agentId] : undefined) ||
-      prop.agentName ||
-      'Agente',
-  };
-  showRequestModal.value = true;
-  selectedProperty.value = null;
-  requestSuccess.value = false;
-  requestForm.value = {
-    clientName: myClientName.value as string,
-    clientEmail: myClientEmail.value as string,
-    clientPhone: '',
-    preferredDateTime: '',
-    alternativeDateTime: '',
-    message: '',
-  };
-  reqErrors.value = {};
-}
+  const minDatetime = computed(() => {
+    const d = new Date();
+    d.setHours(d.getHours() + 1);
+    return d.toISOString().slice(0, 16);
+  });
 
-function closeRequestModal() {
-  showRequestModal.value = false;
-  requestTarget.value = null;
-}
+  const agentNames = ref<Record<string, string>>({});
 
-function validateRequest(): boolean {
-  reqErrors.value = {};
-  if (!String(requestForm.value.clientName).trim())
-    reqErrors.value.clientName = 'Tu nombre es obligatorio';
-  if (!String(requestForm.value.clientEmail).trim())
-    reqErrors.value.clientEmail = 'El email es obligatorio';
-  if (!requestForm.value.preferredDateTime)
-    reqErrors.value.preferredDateTime = 'El horario preferido es obligatorio';
-  return Object.keys(reqErrors.value).length === 0;
-}
-
-async function submitVisitRequest() {
-  if (!validateRequest() || !requestTarget.value) return;
-  requestSubmitting.value = true;
-  try {
-    const dto: ClientVisitRequestDTO = {
-      propertyId: requestTarget.value.id || '',
-      propertyName: requestTarget.value.name || '',
-      agentId: requestTarget.value.agentId || '',
-      agentName: requestTarget.value.agentName || '',
-      clientId: myClientId.value as string,
-      clientName: String(requestForm.value.clientName),
-      clientEmail: requestForm.value.clientEmail as string,
-      clientPhone: requestForm.value.clientPhone || undefined,
-      preferredDateTime: new Date(
-        requestForm.value.preferredDateTime
-      ).toISOString(),
-      alternativeDateTime: requestForm.value.alternativeDateTime
-        ? new Date(requestForm.value.alternativeDateTime).toISOString()
-        : undefined,
-      message: requestForm.value.message || undefined,
-    };
-    await createVisitRequest(dto);
-    closeRequestModal();
-    await Swal.fire({
-      icon: 'success',
-      title: '¡Solicitud enviada!',
-      text: `El agente ${requestTarget.value?.agentName} ha sido notificado.`,
-      confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#2563eb',
+  function loadAgentNames(propList: Property[]) {
+    propList.forEach((p: Property) => {
+      if (p.assignedAgentId && p.agentName) {
+        agentNames.value[p.assignedAgentId] = p.agentName;
+      }
     });
-  } catch (e: unknown) {
-    const err = e as { message?: string };
-    alert(
-      'Error al enviar la solicitud: ' + (err.message || 'Error desconocido')
-    );
-  } finally {
-    requestSubmitting.value = false;
   }
-}
 
-onMounted(() => {
-  loadProperties();
-  loadFavorites();
-});
+  const favorites = ref<Set<string>>(new Set());
+
+  const toggleFavorite = async (propertyId: string) => {
+    try {
+      if (favorites.value.has(propertyId)) {
+        favorites.value.delete(propertyId);
+        await favoriteService.removeFavorite(propertyId);
+      } else {
+        favorites.value.add(propertyId);
+        await favoriteService.addFavorite(propertyId);
+      }
+    } catch (error: unknown) {
+      if (favorites.value.has(propertyId)) {
+        favorites.value.delete(propertyId);
+      } else {
+        favorites.value.add(propertyId);
+      }
+      const err = error as {
+        response?: { data?: { message?: string; detail?: string } };
+      };
+      const msg = err.response?.data?.message || err.response?.data?.detail || t('common.error');
+      errorMessage.value = msg;
+      showErrorAlert.value = true;
+    }
+  };
+
+  const loadFavorites = async () => {
+    try {
+      const ids = await favoriteService.getFavorites();
+      favorites.value = new Set(ids);
+    } catch (e) {
+      console.error('Error loading favorites:', e);
+      favorites.value = new Set();
+    }
+  };
+
+  const isFavorite = (id: string) => favorites.value.has(id);
+
+  async function loadProperties() {
+    loading.value = true;
+    error.value = '';
+    try {
+      const result = await getAvailableProperties({
+        title: filters.value.title || undefined,
+        type: filters.value.type || undefined,
+        operationType: filters.value.operationType || undefined,
+        minPrice: filters.value.minPrice,
+        maxPrice: filters.value.maxPrice,
+        sortBy: filters.value.sortBy,
+        sortOrder: filters.value.sortOrder,
+        page: filters.value.page,
+        pageSize: filters.value.pageSize,
+      });
+
+      properties.value = result.data;
+      totalElements.value = result.totalElements;
+      totalPages.value = result.totalPages;
+
+      loadAgentNames(properties.value);
+
+      router.replace({
+        query: {
+          status: 'DISPONIBLE',
+          ...(filters.value.title && { title: filters.value.title }),
+          ...(filters.value.type && { type: filters.value.type }),
+          ...(filters.value.operationType && {
+            operationType: filters.value.operationType,
+          }),
+          ...(filters.value.minPrice !== undefined && {
+            minPrice: String(filters.value.minPrice),
+          }),
+          ...(filters.value.maxPrice !== undefined && {
+            maxPrice: String(filters.value.maxPrice),
+          }),
+          sortBy: filters.value.sortBy,
+          sortOrder: filters.value.sortOrder,
+          page: String(filters.value.page),
+          pageSize: String(filters.value.pageSize),
+        },
+      });
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      error.value = err.message || t('clientProperties.emptyText');
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function applyFilters() {
+    filters.value.page = 0;
+    loadProperties();
+  }
+
+  function clearFilters() {
+    filters.value = {
+      title: '',
+      type: '',
+      operationType: '',
+      minPrice: undefined as number | undefined,
+      maxPrice: undefined as number | undefined,
+      sortBy: 'price',
+      sortOrder: 'ASC',
+      page: 0,
+      pageSize: 9,
+    };
+    loadProperties();
+  }
+
+  function goToPage(p: number) {
+    filters.value.page = p;
+    loadProperties();
+  }
+
+  function openPropertyModal(prop: Property) {
+    selectedProperty.value = prop;
+    showRequestModal.value = false;
+  }
+
+  function handleScheduleVisit(_propertyId: string | undefined) {
+    if (selectedProperty.value) {
+      openRequestModal(selectedProperty.value);
+    }
+  }
+
+  function openRequestModal(prop: Property) {
+    const agentId = prop.assignedAgentId || prop.agentId || '';
+    requestTarget.value = {
+      ...prop,
+      id: prop.id,
+      name: prop.title || prop.name || '',
+      agentId: agentId,
+      agentName:
+        (agentId ? agentNames.value[agentId] : undefined) ||
+        prop.agentName ||
+        t('common.agent').replace(':', ''),
+    };
+    showRequestModal.value = true;
+    selectedProperty.value = null;
+    requestSuccess.value = false;
+
+    resetForm({
+      values: {
+        clientName: myClientName.value as string,
+        clientEmail: myClientEmail.value as string,
+        clientPhone: '',
+        preferredDateTime: '',
+        alternativeDateTime: '',
+        message: '',
+      },
+    });
+  }
+
+  function closeRequestModal() {
+    showRequestModal.value = false;
+    requestTarget.value = null;
+  }
+
+  const submitVisitRequest = onRequestSubmit(async (values: VisitRequestFormValues) => {
+    if (!requestTarget.value) return;
+    requestSubmitting.value = true;
+    try {
+      const dto: ClientVisitRequestDTO = {
+        propertyId: requestTarget.value.id || '',
+        propertyName: requestTarget.value.name || '',
+        agentId: requestTarget.value.agentId || '',
+        agentName: requestTarget.value.agentName || '',
+        clientId: myClientId.value as string,
+        clientName: values.clientName,
+        clientEmail: values.clientEmail,
+        clientPhone: values.clientPhone || undefined,
+        preferredDateTime: new Date(values.preferredDateTime).toISOString(),
+        alternativeDateTime: values.alternativeDateTime
+          ? new Date(values.alternativeDateTime).toISOString()
+          : undefined,
+        message: values.message || undefined,
+      };
+      await createVisitRequest(dto);
+      closeRequestModal();
+      successMessage.value = t('clientProperties.submitNote', {
+        agent: requestTarget.value?.agentName || '',
+      });
+      showSuccessAlert.value = true;
+      if (successTimer) clearTimeout(successTimer);
+      successTimer = setTimeout(() => {
+        showSuccessAlert.value = false;
+        successMessage.value = '';
+      }, 3000);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      errorMessage.value = t('common.error') + ': ' + (err.message || t('common.error'));
+      showErrorAlert.value = true;
+    } finally {
+      requestSubmitting.value = false;
+    }
+  });
+
+  onMounted(async () => {
+    await loadProperties();
+    loadFavorites();
+
+    const openVisitId = route.query.openVisitPropertyId as string | undefined;
+    if (openVisitId) {
+      const prop = properties.value.find((p) => p.id === openVisitId);
+      if (prop) {
+        setTimeout(() => openRequestModal(prop), 500);
+      }
+    }
+  });
 </script>

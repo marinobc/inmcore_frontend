@@ -35,7 +35,7 @@ export function useUsers() {
       users.value = enrichedUsers;
       roles.value = await userService.getRoles();
     } catch {
-      console.error('Error cargando usuarios:');
+      console.error('Error loading users:');
     }
   };
 
@@ -69,7 +69,7 @@ export function useUsers() {
         users.value[idx] = { ...users.value[idx], status: 'INACTIVE' };
       }
     } catch (error) {
-      console.error('Error desactivando usuario:', error);
+      console.error('Error deactivating user:', error);
       throw error;
     }
   };
@@ -79,7 +79,7 @@ export function useUsers() {
       await userService.reactivateUser(id);
       await load();
     } catch (error) {
-      console.error('Error reactivando usuario:', error);
+      console.error('Error reactivating user:', error);
       throw error;
     }
   };
@@ -98,7 +98,7 @@ export function useUsers() {
       await userService.deleteUser(id);
       users.value = users.value.filter((u) => u.id !== id);
     } catch (error) {
-      console.error('Error eliminando:', error);
+      console.error('Error deleting:', error);
       throw error;
     }
   };

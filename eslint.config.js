@@ -41,7 +41,19 @@ export default [
         { argsIgnorePattern: '^_' },
       ],
 
-      'prettier/prettier': 'error',
+      'prettier/prettier': [
+        'error',
+        {
+          singleQuote: true,
+          semi: true,
+          trailingComma: 'es5',
+          endOfLine: 'auto',
+          printWidth: 100,
+          tabWidth: 2,
+          htmlWhitespaceSensitivity: 'ignore',
+          vueIndentScriptAndStyle: true 
+        },
+      ],
     },
   },
 ];

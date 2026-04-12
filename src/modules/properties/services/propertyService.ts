@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 import type {
   Property,
   PropertyFormPayload,
@@ -76,19 +76,11 @@ export const propertyService = {
     try {
       const response = await api.get('/properties', { params: filters });
 
-      if (
-        response.data &&
-        response.data.data &&
-        Array.isArray(response.data.data)
-      ) {
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
         return response.data.data;
       } else if (Array.isArray(response.data)) {
         return response.data;
-      } else if (
-        response.data &&
-        response.data.content &&
-        Array.isArray(response.data.content)
-      ) {
+      } else if (response.data && response.data.content && Array.isArray(response.data.content)) {
         return response.data.content;
       } else {
         console.warn('Formato de respuesta no reconocido:', response.data);
@@ -121,34 +113,24 @@ export const propertyService = {
   },
 
   async updatePrice(propertyId: string, newPrice: number) {
-    const response = await api.patch<Property>(
-      `/properties/${propertyId}/price`,
-      { newPrice }
-    );
+    const response = await api.patch<Property>(`/properties/${propertyId}/price`, { newPrice });
     return response.data;
   },
 
   async assignAgent(propertyId: string, payload: AssignAgentPayload) {
-    const response = await api.patch<Property>(
-      `/properties/${propertyId}/assign-agent`,
-      payload
-    );
+    const response = await api.patch<Property>(`/properties/${propertyId}/assign-agent`, payload);
     return response.data;
   },
 
   async assignOwner(propertyId: string, payload: { ownerId: string }) {
-    const response = await api.patch<Property>(
-      `/properties/${propertyId}/assign-owner`,
-      payload
-    );
+    const response = await api.patch<Property>(`/properties/${propertyId}/assign-owner`, payload);
     return response.data;
   },
 
   async updateOperationType(propertyId: string, operationType: OperationType) {
-    const response = await api.patch<Property>(
-      `/properties/${propertyId}/operation-type`,
-      { operationType }
-    );
+    const response = await api.patch<Property>(`/properties/${propertyId}/operation-type`, {
+      operationType,
+    });
     return response.data;
   },
 
@@ -160,14 +142,11 @@ export const propertyService = {
     propertyId: string,
     file: File
   ): Promise<{ uploadUrl: string; publicUrl: string; objectKey: string }> {
-    const response = await api.post(
-      `/properties/${propertyId}/images/upload-url`,
-      {
-        fileName: file.name,
-        fileSize: file.size,
-        mimeType: file.type,
-      }
-    );
+    const response = await api.post(`/properties/${propertyId}/images/upload-url`, {
+      fileName: file.name,
+      fileSize: file.size,
+      mimeType: file.type,
+    });
     return response.data;
   },
 
@@ -175,10 +154,7 @@ export const propertyService = {
     propertyId: string,
     payload: ConfirmImageUploadRequest
   ): Promise<Property> {
-    const response = await api.post(
-      `/properties/${propertyId}/images/confirm`,
-      payload
-    );
+    const response = await api.post(`/properties/${propertyId}/images/confirm`, payload);
     return response.data;
   },
 
@@ -191,14 +167,8 @@ export const propertyService = {
     await api.delete(`/properties/${propertyId}/images/${imageId}`);
   },
 
-  async reorderImages(
-    propertyId: string,
-    orderedImageIds: string[]
-  ): Promise<ImageResponse[]> {
-    const response = await api.post(
-      `/properties/${propertyId}/images/reorder`,
-      orderedImageIds
-    );
+  async reorderImages(propertyId: string, orderedImageIds: string[]): Promise<ImageResponse[]> {
+    const response = await api.post(`/properties/${propertyId}/images/reorder`, orderedImageIds);
     return response.data;
   },
 
@@ -275,21 +245,12 @@ export const propertyService = {
     return response.data;
   },
 
-  async updatePropertyAsAgent(
-    propertyId: string,
-    payload: Record<string, unknown>
-  ) {
-    const response = await api.patch(
-      `/properties/${propertyId}/agent-update`,
-      payload
-    );
+  async updatePropertyAsAgent(propertyId: string, payload: Record<string, unknown>) {
+    const response = await api.patch(`/properties/${propertyId}/agent-update`, payload);
     return response.data;
   },
 
-  async uploadExclusivityContract(
-    propertyId: string,
-    file: File
-  ): Promise<DocumentResponse> {
+  async uploadExclusivityContract(propertyId: string, file: File): Promise<DocumentResponse> {
     const { uploadUrl, objectKey } = await this.generateDocumentUploadUrl({
       propertyId,
       documentType: 'EXCLUSIVITY_CONTRACT',
@@ -305,9 +266,7 @@ export const propertyService = {
     });
 
     if (!uploadResponse.ok) {
-      throw new Error(
-        `Error al subir el archivo: ${uploadResponse.statusText}`
-      );
+      throw new Error(`Error al subir el archivo: ${uploadResponse.statusText}`);
     }
 
     return await this.confirmDocumentUpload(
@@ -320,3 +279,5 @@ export const propertyService = {
     );
   },
 };
+
+export { propertyService as default };

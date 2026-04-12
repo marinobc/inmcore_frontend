@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300"
-  >
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
     <div
       class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 transition-colors"
     >
@@ -14,10 +12,10 @@
         </router-link>
         <div>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-            Programar visita
+            {{ t('scheduleVisit.title') }}
           </h1>
           <p class="text-sm text-gray-500 dark:text-gray-400">
-            Selecciona un inmueble disponible de la lista
+            {{ t('scheduleVisit.subtitle') }}
           </p>
         </div>
       </div>
@@ -29,24 +27,15 @@
       >
         <form @submit.prevent="handleSubmit" novalidate class="space-y-5">
           <div class="relative" id="property-select-container">
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Inmueble <span class="text-red-500">*</span>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ t('scheduleVisit.property') }}
+              <span class="text-red-500">*</span>
             </label>
 
             <div class="relative">
-              <div
-                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-              >
-                <IconLucideLoader
-                  v-if="loadingList"
-                  class="animate-spin h-4 w-4 text-blue-500"
-                />
-                <IconLucideSearch
-                  v-else
-                  class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                />
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <IconLucideLoader v-if="loadingList" class="animate-spin h-4 w-4 text-blue-500" />
+                <IconLucideSearch v-else class="w-4 h-4 text-gray-500 dark:text-gray-400" />
               </div>
               <input
                 type="text"
@@ -54,13 +43,13 @@
                 @focus="showDropdown = true"
                 :placeholder="
                   loadingList
-                    ? 'Cargando inmuebles...'
-                    : 'Filtrar por nombre o dirección...'
+                    ? t('scheduleVisit.loadingProperties')
+                    : t('scheduleVisit.searchProperty')
                 "
                 :disabled="loadingList"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
                 :class="{
-                  'border-red-400 dark:border-red-500': errors.propertyId,
+                  'border-red-400 dark:border-red-500': fieldErrors.propertyId,
                 }"
                 autocomplete="off"
               />
@@ -82,7 +71,7 @@
                   v-if="filteredProperties.length === 0"
                   class="px-4 py-3 text-gray-500 italic text-center"
                 >
-                  No se encontraron inmuebles.
+                  {{ t('scheduleVisit.noPropertiesFound') }}
                 </li>
                 <li
                   v-for="p in filteredProperties"
@@ -94,9 +83,7 @@
                     <p class="font-bold text-gray-900 dark:text-white truncate">
                       {{ p.title }}
                     </p>
-                    <p
-                      class="text-xs text-gray-500 dark:text-gray-400 truncate"
-                    >
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {{ p.address }}
                     </p>
                   </div>
@@ -104,24 +91,20 @@
                     <span
                       class="text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded font-medium uppercase whitespace-nowrap"
                     >
-                      {{ p.type }}
+                      {{ t('propertyTypes.' + p.type) }}
                     </span>
                     <span
-                      :class="
-                        p.status === 'DISPONIBLE'
-                          ? 'text-green-500'
-                          : 'text-red-400'
-                      "
+                      :class="p.status === 'DISPONIBLE' ? 'text-green-500' : 'text-red-400'"
                       class="text-[9px] font-bold uppercase tracking-wider"
                     >
-                      {{ p.status }}
+                      {{ t('status.' + p.status.toLowerCase()) }}
                     </span>
                   </div>
                 </li>
               </ul>
             </div>
-            <p v-if="errors.propertyId" class="text-xs text-red-500 mt-1">
-              {{ errors.propertyId }}
+            <p v-if="fieldErrors.propertyId" class="text-xs text-red-500 mt-1">
+              {{ fieldErrors.propertyId }}
             </p>
           </div>
 
@@ -137,35 +120,31 @@
                 <span
                   class="bg-green-100 text-green-800 text-[10px] font-black px-2 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
                 >
-                  {{ propertyInfo.status }}
+                  {{ t('status.' + propertyInfo.status.toLowerCase()) }}
                 </span>
               </div>
-              <p
-                class="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1"
-              >
+              <p class="text-xs text-blue-700 dark:text-blue-300 flex items-center gap-1">
                 <IconLucideMapPin class="w-3 h-3" />
                 {{ propertyInfo.address }}
               </p>
-              <div
-                class="flex gap-4 pt-1 border-t border-blue-100 dark:border-blue-800/30 mt-2"
-              >
+              <div class="flex gap-4 pt-1 border-t border-blue-100 dark:border-blue-800/30 mt-2">
                 <div
                   class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter"
                 >
-                  M2: <span class="font-bold">{{ propertyInfo.m2 }}</span>
+                  {{ t('scheduleVisit.areaLabel') }}
+                  <span class="font-bold">{{ propertyInfo.m2 }}</span>
                 </div>
                 <div
                   class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter"
                 >
-                  Hab: <span class="font-bold">{{ propertyInfo.rooms }}</span>
+                  {{ t('scheduleVisit.roomsLabel') }}
+                  <span class="font-bold">{{ propertyInfo.rooms }}</span>
                 </div>
                 <div
                   class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-tighter"
                 >
-                  Precio:
-                  <span class="font-bold"
-                    >${{ propertyInfo.price.toLocaleString() }}</span
-                  >
+                  {{ t('scheduleVisit.priceLabel') }}
+                  <span class="font-bold">${{ propertyInfo.price.toLocaleString() }}</span>
                 </div>
               </div>
             </div>
@@ -173,40 +152,40 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Fecha y Hora de Inicio
-                <span class="text-red-500">*</span></label
-              >
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('scheduleVisit.startTime') }}
+                <span class="text-red-500">*</span>
+              </label>
               <input
-                v-model="form.startTimeLocal"
+                v-model="startTimeLocal"
                 @change="onTimeChange"
                 type="datetime-local"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none dark:scheme-dark"
                 :min="minDatetime"
-                required
+                :class="{
+                  'border-red-400 dark:border-red-500': fieldErrors.startTime,
+                }"
               />
             </div>
             <div class="space-y-1">
-              <label
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >Fecha y Hora de Fin <span class="text-red-500">*</span></label
-              >
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('scheduleVisit.endTime') }}
+                <span class="text-red-500">*</span>
+              </label>
               <input
-                v-model="form.endTimeLocal"
+                v-model="endTimeLocal"
                 @change="onTimeChange"
                 type="datetime-local"
                 class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none dark:scheme-dark"
-                :min="form.startTimeLocal || minDatetime"
-                required
+                :min="startTimeLocal || minDatetime"
+                :class="{
+                  'border-red-400 dark:border-red-500': fieldErrors.endTime,
+                }"
               />
             </div>
           </div>
-          <p
-            v-if="errors.startTime || errors.endTime"
-            class="text-xs text-red-500"
-          >
-            {{ errors.startTime || errors.endTime }}
+          <p v-if="fieldErrors.startTime || fieldErrors.endTime" class="text-xs text-red-500">
+            {{ fieldErrors.startTime || fieldErrors.endTime }}
           </p>
 
           <ConflictAlert
@@ -216,14 +195,11 @@
             @use-suggestion="applySuggestion"
           />
 
-          <div
-            v-if="checkingConflict"
-            class="flex items-center gap-2 text-sm text-gray-500"
-          >
+          <div v-if="checkingConflict" class="flex items-center gap-2 text-sm text-gray-500">
             <div
               class="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"
             ></div>
-            Verificando disponibilidad del horario...
+            {{ t('scheduleVisit.checkingAvailability') }}
           </div>
 
           <div
@@ -231,18 +207,17 @@
             class="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2"
           >
             <IconLucideCircleCheck class="h-4 w-4" />
-            El horario está disponible. Puedes confirmar la visita.
+            {{ t('scheduleVisit.available') }}
           </div>
 
           <div class="space-y-1">
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >Notas adicionales</label
-            >
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('scheduleVisit.notes') }}
+            </label>
             <textarea
-              v-model="form.notes"
+              v-model="notes"
               rows="2"
-              placeholder="Ej: El cliente llega tarde, llaves en recepción..."
+              :placeholder="t('scheduleVisit.notesPlaceholder')"
               class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
@@ -252,18 +227,14 @@
               to="/calendar"
               class="flex-1 text-center py-2.5 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
-              Volver
+              {{ t('common.cancel') }}
             </router-link>
             <button
               type="submit"
-              :disabled="
-                submitting ||
-                (conflictResult?.hasConflict ?? false) ||
-                !form.propertyId
-              "
+              :disabled="submitting || (conflictResult?.hasConflict ?? false) || !propertyId"
               class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 dark:bg-blue-500 rounded-xl hover:bg-blue-700 dark:hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-50 disabled:shadow-none"
             >
-              {{ submitting ? 'Guardando...' : 'Programar Visita' }}
+              {{ submitting ? t('common.saving') : t('scheduleVisit.submit') }}
             </button>
           </div>
         </form>
@@ -277,7 +248,7 @@
           class="text-sm font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2"
         >
           <IconLucideCalendar class="w-4 h-4" />
-          Agenda del día
+          {{ t('scheduleVisit.dayAgenda') }}
         </h2>
         <div class="space-y-3">
           <div
@@ -293,277 +264,325 @@
               <p class="text-xs font-bold text-gray-900 dark:text-white">
                 {{ shortTime(ev.startTime) }}
               </p>
-              <p class="text-[9px] text-gray-400 uppercase">Inicio</p>
+              <p class="text-[9px] text-gray-400 uppercase">{{ t('scheduleVisit.start') }}</p>
             </div>
             <div class="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
             <div class="flex-1 min-w-0">
-              <p
-                class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate"
-              >
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
                 {{ ev.propertyName }}
               </p>
               <p class="text-[10px] text-gray-500 truncate">
-                {{ ev.ownEvent ? 'Tú eres el responsable' : ev.agentName }}
+                {{ ev.ownEvent ? t('scheduleVisit.youAreResponsible') : ev.agentName }}
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <FwbModal v-if="showSuccessModal" @close="showSuccessModal = false">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <IconLucideCircleCheck class="w-5 h-5 text-green-600" />
+          <span>{{ t('common.success') }}</span>
+        </div>
+      </template>
+      <template #body>
+        <FwbAlert type="success" :dismissible="false">
+          {{ successMessage }}
+        </FwbAlert>
+      </template>
+      <template #footer>
+        <div class="flex justify-end w-full">
+          <FwbButton @click="showSuccessModal = false">{{ t('common.accept') }}</FwbButton>
+        </div>
+      </template>
+    </FwbModal>
+
+    <FwbModal v-if="showErrorModal" @close="showErrorModal = false">
+      <template #header>
+        <div class="flex items-center gap-2">
+          <IconLucideAlertCircle class="w-5 h-5 text-red-600" />
+          <span>{{ t('common.error') }}</span>
+        </div>
+      </template>
+      <template #body>
+        <FwbAlert type="danger" :dismissible="false">
+          {{ errorMessage }}
+        </FwbAlert>
+      </template>
+      <template #footer>
+        <div class="flex justify-end w-full">
+          <FwbButton @click="showErrorModal = false" color="alternative">
+            {{ t('common.accept') }}
+          </FwbButton>
+        </div>
+      </template>
+    </FwbModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useAuth } from '@/composables/useAuth';
-import { propertyService } from '@/services/propertyService';
-import {
-  checkConflict,
-  createVisit,
-  getDayAgenda,
-} from '@/services/calendarService';
-import ConflictAlert from '@/components/visits/ConflictAlert.vue';
-import type {
-  ConflictResponse,
-  CalendarEventResponse,
-  Property as VisitProperty,
-} from '@/types/visitCalendar';
-import type { Property } from '@/types/property';
-import Swal from 'sweetalert2';
-import IconLucideArrowLeft from '~icons/lucide/arrow-left';
-import IconLucideSearch from '~icons/lucide/search';
-import IconLucideChevronDown from '~icons/lucide/chevron-down';
-import IconLucideMapPin from '~icons/lucide/map-pin';
-import IconLucideCircleCheck from '~icons/lucide/circle-check';
-import IconLucideCalendar from '~icons/lucide/calendar';
-import IconLucideLoader from '~icons/lucide/loader';
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+  import { useForm } from 'vee-validate';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { visitSchema } from '@/modules/properties/schemas/visitSchema';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import { propertyService } from '@/modules/properties';
+  import { checkConflict, createVisit, getDayAgenda } from '@/services/calendarService';
+  import ConflictAlert from '@/components/visits/ConflictAlert.vue';
+  import type {
+    ConflictResponse,
+    CalendarEventResponse,
+    Property as VisitProperty,
+  } from '@/types/visitCalendar';
+  import type { Property } from '@/types/property';
+  import type { VisitFormValues } from '@/modules/properties/schemas/visitSchema';
+  import { FwbAlert, FwbModal, FwbButton } from 'flowbite-vue';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
+  import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+  import IconLucideSearch from '~icons/lucide/search';
+  import IconLucideChevronDown from '~icons/lucide/chevron-down';
+  import IconLucideMapPin from '~icons/lucide/map-pin';
+  import IconLucideCircleCheck from '~icons/lucide/circle-check';
+  import IconLucideCalendar from '~icons/lucide/calendar';
+  import IconLucideLoader from '~icons/lucide/loader';
+  import IconLucideAlertCircle from '~icons/lucide/alert-circle';
+  const { t } = useI18n();
 
-const { user } = useAuth();
+  const showSuccessModal = ref(false);
+  const showErrorModal = ref(false);
+  const successMessage = ref('');
+  const errorMessage = ref('');
 
-const myAgentId = computed(
-  () => (user.value?.sub || user.value?.userId || '') as string
-);
-const myAgentName = computed(() => {
-  if (user.value?.fullName) return user.value.fullName;
-  if (user.value?.name) return user.value.name;
-  return (user.value?.email as string)?.split('@')[0] || 'Agente';
-});
+  let successTimer: ReturnType<typeof setTimeout> | null = null;
 
-const form = ref({
-  propertyId: '',
-  propertyName: '',
-  propertyAddress: '',
-  startTimeLocal: '',
-  endTimeLocal: '',
-  notes: '',
-});
+  const authStore = useAuthStore();
 
-const loadingList = ref(false);
-const allProperties = ref<VisitProperty[]>([]);
-const searchTerm = ref('');
-const showDropdown = ref(false);
-const propertyInfo = ref<Property | null>(null);
-
-const errors = ref<Record<string, string>>({});
-const conflictResult = ref<ConflictResponse | null>(null);
-const checkingConflict = ref(false);
-const submitting = ref(false);
-const dayAgenda = ref<CalendarEventResponse[]>([]);
-
-const loadInitialData = async () => {
-  loadingList.value = true;
-  try {
-    const data = await propertyService.getProperties();
-    allProperties.value = data.filter(
-      (p: VisitProperty) => p.status === 'DISPONIBLE'
-    ) as VisitProperty[];
-  } catch {
-    console.error('Error cargando inmuebles');
-  } finally {
-    loadingList.value = false;
-  }
-};
-
-const filteredProperties = computed(() => {
-  if (!searchTerm.value) return allProperties.value;
-  const s = searchTerm.value.toLowerCase();
-  return allProperties.value
-    .filter(
-      (p) =>
-        String(p.title).toLowerCase().includes(s) ||
-        String(p.address).toLowerCase().includes(s)
-    )
-    .slice(0, 20);
-});
-
-const handleSelect = async (id: string) => {
-  showDropdown.value = false;
-  searchTerm.value = 'Cargando detalle...';
-
-  try {
-    const detail = await propertyService.getPropertyById(id);
-
-    form.value.propertyId = detail.id;
-    form.value.propertyName = detail.title;
-    form.value.propertyAddress = detail.address;
-    propertyInfo.value = detail;
-    searchTerm.value = detail.title;
-
-    if (form.value.startTimeLocal) onTimeChange();
-  } catch {
-    alert('No se pudo obtener el detalle del inmueble.');
-    searchTerm.value = '';
-  }
-};
-
-let conflictTimer: ReturnType<typeof setTimeout> | null = null;
-const onTimeChange = () => {
-  conflictResult.value = null;
-  if (
-    !form.value.propertyId ||
-    !form.value.startTimeLocal ||
-    !form.value.endTimeLocal
-  )
-    return;
-
-  if (conflictTimer) clearTimeout(conflictTimer);
-  conflictTimer = setTimeout(async () => {
-    checkingConflict.value = true;
-    try {
-      conflictResult.value = await checkConflict(
-        form.value.propertyId,
-        new Date(form.value.startTimeLocal).toISOString(),
-        new Date(form.value.endTimeLocal).toISOString()
-      );
-    } finally {
-      checkingConflict.value = false;
-    }
-  }, 500);
-};
-
-const handleSubmit = async () => {
-  errors.value = {};
-
-  if (!form.value.propertyId) {
-    errors.value.propertyId = 'Selecciona un inmueble';
-    return;
-  }
-  if (!myAgentId.value) {
-    await Swal.fire({
-      title: 'Error',
-      text: 'Error: No se pudo identificar tu ID de agente. Reintenta loguear.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#dc2626',
-    });
-    return;
-  }
-
-  submitting.value = true;
-  try {
-    await createVisit(
-      {
-        propertyId: form.value.propertyId,
-        propertyName: form.value.propertyName,
-        propertyAddress: form.value.propertyAddress,
-        agentId: myAgentId.value as string,
-        agentName: myAgentName.value as string,
-        startTime: new Date(form.value.startTimeLocal).toISOString(),
-        endTime: new Date(form.value.endTimeLocal).toISOString(),
-        notes: form.value.notes,
-      },
-      myAgentId.value as string
-    );
-
-    dayAgenda.value = await getDayAgenda(
-      myAgentId.value as string,
-      new Date(form.value.startTimeLocal).toISOString()
-    );
-
-    form.value.notes = '';
-    await Swal.fire({
-      title: '¡Visita programada exitosamente!',
-      icon: 'success',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#2563eb',
-    });
-  } catch (e: unknown) {
-    const err = e as { response?: { data?: { message?: string } } };
-    const msg = err.response?.data?.message || 'Error al programar visita';
-    await Swal.fire({
-      title: 'Error',
-      text: msg,
-      icon: 'error',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#dc2626',
-    });
-  } finally {
-    submitting.value = false;
-  }
-};
-
-const applySuggestion = (start?: string, end?: string) => {
-  if (start)
-    form.value.startTimeLocal = new Date(start).toISOString().slice(0, 16);
-  if (end) form.value.endTimeLocal = new Date(end).toISOString().slice(0, 16);
-  onTimeChange();
-};
-
-const shortTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString('es-BO', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const myAgentId = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    return (u?.sub || u?.userId || '') as string;
+  });
+  const myAgentName = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    if (u?.fullName) return u.fullName;
+    if (u?.name) return u.name;
+    return (u?.email as string)?.split('@')[0] || t('scheduleVisit.agentFallback');
   });
 
-const minDatetime = computed(() => {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + 15);
-  return now.toISOString().slice(0, 16);
-});
+  const {
+    defineField,
+    handleSubmit: onSubmit,
+    errors: fieldErrors,
+    setValues,
+  } = useForm({
+    validationSchema: toTypedSchema(visitSchema),
+  });
 
-const closeClickOutside = (e: Event) => {
-  if (
-    !(e.target instanceof HTMLElement) ||
-    !e.target.closest('#property-select-container')
-  )
+  const [propertyId] = defineField('propertyId');
+  const [startTime] = defineField('startTime');
+  const [endTime] = defineField('endTime');
+  const [notes] = defineField('notes');
+
+  const loadingList = ref(false);
+  const allProperties = ref<VisitProperty[]>([]);
+  const searchTerm = ref('');
+  const showDropdown = ref(false);
+  const propertyInfo = ref<Property | null>(null);
+
+  const conflictResult = ref<ConflictResponse | null>(null);
+  const checkingConflict = ref(false);
+  const submitting = ref(false);
+  const dayAgenda = ref<CalendarEventResponse[]>([]);
+
+  const startTimeLocal = ref('');
+  const endTimeLocal = ref('');
+
+  watch(startTimeLocal, (val) => {
+    if (val) {
+      startTime.value = new Date(val).toISOString();
+    } else {
+      startTime.value = '';
+    }
+  });
+
+  watch(endTimeLocal, (val) => {
+    if (val) {
+      endTime.value = new Date(val).toISOString();
+    } else {
+      endTime.value = '';
+    }
+  });
+
+  const loadInitialData = async () => {
+    loadingList.value = true;
+    try {
+      const data = await propertyService.getProperties();
+      allProperties.value = data.filter(
+        (p: VisitProperty) => p.status === 'DISPONIBLE'
+      ) as VisitProperty[];
+    } catch {
+      console.error(t('scheduleVisit.propertyLoadError'));
+    } finally {
+      loadingList.value = false;
+    }
+  };
+
+  const filteredProperties = computed(() => {
+    if (!searchTerm.value) return allProperties.value;
+    const s = searchTerm.value.toLowerCase();
+    return allProperties.value
+      .filter(
+        (p) =>
+          String(p.title).toLowerCase().includes(s) || String(p.address).toLowerCase().includes(s)
+      )
+      .slice(0, 20);
+  });
+
+  const handleSelect = async (id: string) => {
     showDropdown.value = false;
-};
+    searchTerm.value = t('scheduleVisit.loadingDetail');
 
-onMounted(() => {
-  loadInitialData();
-  window.addEventListener('click', closeClickOutside);
-});
+    try {
+      const detail = await propertyService.getPropertyById(id);
 
-onUnmounted(() => {
-  window.removeEventListener('click', closeClickOutside);
-});
+      propertyId.value = detail.id;
+      propertyInfo.value = detail;
+      searchTerm.value = detail.title;
+
+      if (startTimeLocal.value) onTimeChange();
+    } catch {
+      alert(t('scheduleVisit.propertyDetailError'));
+      searchTerm.value = '';
+    }
+  };
+
+  let conflictTimer: ReturnType<typeof setTimeout> | null = null;
+  const onTimeChange = () => {
+    conflictResult.value = null;
+    const pid = propertyId.value;
+    const start = startTimeLocal.value;
+    const end = endTimeLocal.value;
+    if (!pid || !start || !end) return;
+
+    if (conflictTimer) clearTimeout(conflictTimer);
+    conflictTimer = setTimeout(async () => {
+      checkingConflict.value = true;
+      try {
+        conflictResult.value = await checkConflict(
+          pid,
+          new Date(start).toISOString(),
+          new Date(end).toISOString()
+        );
+      } finally {
+        checkingConflict.value = false;
+      }
+    }, 500);
+  };
+
+  const handleSubmit = onSubmit(async (values: VisitFormValues) => {
+    if (!myAgentId.value) {
+      errorMessage.value = t('scheduleVisit.agentIdError');
+      showErrorModal.value = true;
+      return;
+    }
+
+    submitting.value = true;
+    try {
+      await createVisit(
+        {
+          propertyId: values.propertyId,
+          propertyName: propertyInfo.value?.title || '',
+          propertyAddress: propertyInfo.value?.address || '',
+          agentId: myAgentId.value as string,
+          agentName: myAgentName.value as string,
+          startTime: values.startTime,
+          endTime: values.endTime,
+          notes: values.notes,
+        },
+        myAgentId.value as string
+      );
+
+      dayAgenda.value = await getDayAgenda(myAgentId.value as string, values.startTime);
+
+      setValues({
+        propertyId: '',
+        startTime: '',
+        endTime: '',
+        notes: '',
+      });
+      startTimeLocal.value = '';
+      endTimeLocal.value = '';
+      propertyInfo.value = null;
+      searchTerm.value = '';
+      conflictResult.value = null;
+
+      successMessage.value = t('scheduleVisit.successMessage');
+      showSuccessModal.value = true;
+
+      if (successTimer) clearTimeout(successTimer);
+      successTimer = setTimeout(() => {
+        showSuccessModal.value = false;
+      }, 3000);
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } };
+      errorMessage.value = err.response?.data?.message || t('scheduleVisit.errorMessage');
+      showErrorModal.value = true;
+    } finally {
+      submitting.value = false;
+    }
+  });
+
+  const applySuggestion = (start?: string, end?: string) => {
+    if (start) {
+      startTimeLocal.value = new Date(start).toISOString().slice(0, 16);
+      startTime.value = start;
+    }
+    if (end) {
+      endTimeLocal.value = new Date(end).toISOString().slice(0, 16);
+      endTime.value = end;
+    }
+    onTimeChange();
+  };
+
+  const shortTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString(getLocaleString(), {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+  const minDatetime = computed(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 15);
+    return now.toISOString().slice(0, 16);
+  });
+
+  const closeClickOutside = (e: Event) => {
+    if (!(e.target instanceof HTMLElement) || !e.target.closest('#property-select-container'))
+      showDropdown.value = false;
+  };
+
+  onMounted(() => {
+    loadInitialData();
+    window.addEventListener('click', closeClickOutside);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('click', closeClickOutside);
+  });
 </script>
 
 <style scoped>
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-
-/* Custom scrollbar para el dropdown */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-.dark .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #475569;
-}
+  .slide-fade-enter-active {
+    transition: all 0.3s ease-out;
+  }
+  .slide-fade-leave-active {
+    transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+  }
+  .slide-fade-enter-from,
+  .slide-fade-leave-to {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
 </style>

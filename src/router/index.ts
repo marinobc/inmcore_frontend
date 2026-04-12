@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuth } from '@/composables/useAuth';
+import { useAuthStore } from '@/modules/auth';
 import MainLayout from '@/layouts/MainLayout.vue';
 import LoginView from '@/views/LoginView.vue';
 import DashboardView from '@/views/DashboardView.vue';
@@ -151,14 +151,14 @@ export const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
-  const { isAuthenticated, user } = useAuth();
-  if (!isAuthenticated.value && to.name !== 'Login') {
+  const authStore = useAuthStore();
+  if (!authStore.isAuthenticated && to.name !== 'Login') {
     next({ name: 'Login' });
-  } else if (to.meta.requiresGuest && isAuthenticated.value) {
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
     next({ name: 'Dashboard' });
   } else if (to.meta.role) {
-    const roles = (user.value?.roles as string[]) || [];
-    const userType = user.value?.userType;
+    const roles = (authStore.user?.roles as string[]) || [];
+    const userType = authStore.user?.userType;
     const hasRole =
       roles.includes(to.meta.role as string) ||
       userType === 'ADMIN' ||

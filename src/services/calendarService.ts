@@ -1,4 +1,6 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
+
+import { getLocaleString } from '@/locales/i18n';
 
 import type {
   CalendarResponse,
@@ -44,10 +46,7 @@ export async function createVisit(
   return response.data.data;
 }
 
-export async function getDayAgenda(
-  agentId: string,
-  day: string
-): Promise<CalendarEventResponse[]> {
+export async function getDayAgenda(agentId: string, day: string): Promise<CalendarEventResponse[]> {
   const params = new URLSearchParams({ agentId, day });
   const response = await api.get(`/api/visits/agenda?${params}`, {
     headers: { 'X-Agent-Id': agentId },
@@ -87,7 +86,7 @@ export function getWeekRange(date: Date): { from: string; to: string } {
 }
 
 export function formatEventTime(iso: string): string {
-  return new Date(iso).toLocaleString('es-BO', {
+  return new Date(iso).toLocaleString(getLocaleString(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',

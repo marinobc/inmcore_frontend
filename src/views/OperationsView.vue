@@ -3,160 +3,142 @@
     <div class="max-w-6xl mx-auto space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900">Operaciones</h1>
+          <h1 class="text-2xl font-bold text-gray-900">{{ t('operations.title') }}</h1>
           <p class="text-gray-500 text-sm mt-1">
-            Gestión de operaciones inmobiliarias y comprobantes de pago
+            {{ t('operations.subtitle') }}
           </p>
         </div>
       </div>
 
       <div v-if="loading" class="text-center py-20">
-        <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
-        ></div>
-        <p class="mt-2 text-gray-500">Cargando operaciones...</p>
+        <FwbSpinner size="6" />
+        <p class="mt-2 text-gray-500">{{ t('operations.loading') }}</p>
       </div>
 
-      <div
-        v-else-if="error"
-        class="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-700 text-sm"
-      >
+      <FwbAlert v-else-if="error" type="danger">
         {{ error }}
-        <button @click="loadOperations" class="ml-2 underline">
-          Reintentar
-        </button>
-      </div>
+        <FwbButton @click="loadOperations" :link="true" class="ml-2">
+          {{ t('common.retry') }}
+        </FwbButton>
+      </FwbAlert>
 
-      <div
-        v-else-if="operations.length === 0"
-        class="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100"
-      >
+      <FwbCard v-else-if="operations.length === 0" class="p-12 text-center">
         <IconLucideClipboardList class="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <h3 class="text-lg font-semibold text-gray-700 mb-1">
-          No hay operaciones
-        </h3>
-        <p class="text-gray-500 text-sm">
-          No se encontraron operaciones registradas.
-        </p>
-      </div>
+        <h3 class="text-lg font-semibold text-gray-700 mb-1">{{ t('operations.emptyTitle') }}</h3>
+        <p class="text-gray-500 text-sm">{{ t('operations.emptyText') }}</p>
+      </FwbCard>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <RouterLink
+        <FwbCard
           v-for="op in operations"
           :key="op.id"
-          :to="`/operations/${op.id}`"
-          class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all group cursor-pointer"
+          class="overflow-hidden hover:shadow-lg transition-all group cursor-pointer"
+          @click="$router.push(`/operations/${op.id}`)"
         >
           <div class="p-5 pb-3 border-b border-gray-50">
             <div class="flex items-center justify-between">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-              >
-                {{ op.operationType || 'Standard' }}
-              </span>
-              <span class="text-xs text-gray-400"
-                >ID: {{ op.id.slice(0, 8) }}</span
-              >
+              <FwbBadge type="default" size="sm">
+                {{ op.operationType || t('operations.standardBadge') }}
+              </FwbBadge>
+              <span class="text-xs text-gray-400">ID: {{ op.id.slice(0, 8) }}</span>
             </div>
             <h3
               class="text-lg font-bold text-gray-900 mt-2 group-hover:text-blue-600 transition-colors"
             >
-              {{ op.propertyName || 'Sin nombre' }}
+              {{ op.propertyName || t('operations.noName') }}
             </h3>
             <p class="text-sm text-gray-500 mt-0.5">
-              {{ op.clientName || 'Cliente no especificado' }}
+              {{ op.clientName || t('operations.noClient') }}
             </p>
           </div>
 
           <div class="p-5 space-y-3">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-500">Agente:</span>
-              <span class="font-medium text-gray-700">{{
-                op.agentName || '—'
-              }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-500">Fecha:</span>
-              <span class="font-medium text-gray-700">{{
-                formatDate(op.createdAt)
-              }}</span>
-            </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-500">Estado:</span>
-              <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                :class="statusClass(op.status)"
-              >
-                {{ op.status || 'PENDING' }}
+              <span class="text-gray-500">{{ t('operations.agent') }}</span>
+              <span class="font-medium text-gray-700">
+                {{ op.agentName || t('common.notSpecified') }}
               </span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">{{ t('operations.date') }}</span>
+              <span class="font-medium text-gray-700">{{ formatDate(op.createdAt) }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">{{ t('common.status') }}</span>
+              <FwbBadge :type="badgeType(op.status)" size="sm">
+                {{ op.status || t('status.pending') }}
+              </FwbBadge>
             </div>
           </div>
 
           <div class="px-5 py-3 bg-gray-50 border-t border-gray-100">
-            <span
-              class="text-xs text-blue-600 font-medium flex items-center gap-1"
-            >
-              Ver detalles
+            <span class="text-xs text-blue-600 font-medium flex items-center gap-1">
+              {{ t('common.viewDetails') }}
               <IconLucideChevronRight class="w-3 h-3" />
             </span>
           </div>
-        </RouterLink>
+        </FwbCard>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import IconLucideClipboardList from '~icons/lucide/clipboard-list';
-import IconLucideChevronRight from '~icons/lucide/chevron-right';
-import { ref, onMounted } from 'vue';
-import { api } from '@/services/api';
+  import { FwbSpinner, FwbAlert, FwbCard, FwbButton, FwbBadge } from 'flowbite-vue';
+  import IconLucideClipboardList from '~icons/lucide/clipboard-list';
+  import IconLucideChevronRight from '~icons/lucide/chevron-right';
+  import { ref, onMounted } from 'vue';
+  import { apiClient as api } from '@/api';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
 
-interface Operation {
-  id: string;
-  operationType?: string;
-  propertyName?: string;
-  clientName?: string;
-  agentName?: string;
-  createdAt?: string;
-  status?: string;
-}
+  const { t } = useI18n();
 
-const operations = ref<Operation[]>([]);
-const loading = ref(false);
-const error = ref('');
-
-const loadOperations = async () => {
-  loading.value = true;
-  error.value = '';
-  try {
-    const response = await api.get('/api/operations');
-    operations.value = response.data || [];
-  } catch {
-    error.value = 'Error al cargar las operaciones';
-  } finally {
-    loading.value = false;
+  interface Operation {
+    id: string;
+    operationType?: string;
+    propertyName?: string;
+    clientName?: string;
+    agentName?: string;
+    createdAt?: string;
+    status?: string;
   }
-};
 
-const formatDate = (iso?: string) => {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-BO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
-};
+  const operations = ref<Operation[]>([]);
+  const loading = ref(false);
+  const error = ref('');
 
-const statusClass = (status?: string) => {
-  const map: Record<string, string> = {
-    ACTIVE: 'bg-green-100 text-green-800',
-    CLOSED: 'bg-gray-100 text-gray-700',
-    CANCELLED: 'bg-red-100 text-red-700',
-    PENDING: 'bg-yellow-100 text-yellow-800',
+  const loadOperations = async () => {
+    loading.value = true;
+    error.value = '';
+    try {
+      const response = await api.get('/api/operations');
+      operations.value = response.data || [];
+    } catch {
+      error.value = t('operations.loadError');
+    } finally {
+      loading.value = false;
+    }
   };
-  return map[status || ''] || 'bg-gray-100 text-gray-700';
-};
 
-onMounted(loadOperations);
+  const formatDate = (iso?: string) => {
+    if (!iso) return t('common.notSpecified');
+    return new Date(iso).toLocaleDateString(getLocaleString(), {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const badgeType = (status?: string) => {
+    const map: Record<string, 'green' | 'dark' | 'red' | 'yellow'> = {
+      ACTIVE: 'green',
+      CLOSED: 'dark',
+      CANCELLED: 'red',
+      PENDING: 'yellow',
+    };
+    return map[status || ''] || 'dark';
+  };
+
+  onMounted(loadOperations);
 </script>

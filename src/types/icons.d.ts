@@ -3,7 +3,7 @@ declare module '~icons/*' {
   const component: DefineComponent<
     Record<string, unknown>,
     Record<string, unknown>,
-    any
+    Record<string, never>
   >;
   export default component;
 }

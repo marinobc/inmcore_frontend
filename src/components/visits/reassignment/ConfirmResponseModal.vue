@@ -6,9 +6,7 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
         @click.self="$emit('update:modelValue', false)"
       >
-        <div
-          class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-        >
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
           <div
             class="px-6 py-5 flex items-center gap-4"
             :class="
@@ -24,49 +22,53 @@
             <div>
               <h3 class="text-white font-semibold text-lg">
                 {{
-                  isAccepting ? 'Accept reassignment' : 'Reject reassignment'
+                  isAccepting
+                    ? t('confirmResponseModal.acceptTitle')
+                    : t('confirmResponseModal.rejectTitle')
                 }}
               </h3>
               <p class="text-white/80 text-sm">
                 {{
                   isAccepting
-                    ? 'This visit will be added to your schedule.'
-                    : 'The visit will remain with the original agent.'
+                    ? t('confirmResponseModal.acceptSubtitle')
+                    : t('confirmResponseModal.rejectSubtitle')
                 }}
               </p>
             </div>
           </div>
 
           <div class="px-6 py-5 space-y-4">
-            <div
-              class="bg-gray-50 rounded-xl p-4 space-y-2 text-sm text-gray-700"
-            >
+            <div class="bg-gray-50 rounded-xl p-4 space-y-2 text-sm text-gray-700">
               <div class="flex gap-2">
-                <span class="text-gray-400 w-28 shrink-0">Visit:</span>
-                <span
-                  class="font-mono text-xs bg-white border border-gray-200 px-2 py-0.5 rounded"
-                >
+                <span class="text-gray-400 w-28 shrink-0">
+                  {{ t('confirmResponseModal.visitLabel') }}
+                </span>
+                <span class="font-mono text-xs bg-white border border-gray-200 px-2 py-0.5 rounded">
                   {{ request?.visitId }}
                 </span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-28 shrink-0">Reason:</span>
+                <span class="text-gray-400 w-28 shrink-0">
+                  {{ t('confirmResponseModal.reasonLabel') }}
+                </span>
                 <span class="text-gray-700">{{ request?.reason }}</span>
               </div>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                Comment
-                <span class="text-gray-400 font-normal">(optional)</span>
+                {{ t('confirmResponseModal.commentLabel') }}
+                <span class="text-gray-400 font-normal">
+                  {{ t('confirmResponseModal.optionalLabel') }}
+                </span>
               </label>
               <textarea
                 v-model="comment"
                 rows="2"
                 :placeholder="
                   isAccepting
-                    ? 'E.g.: Happy to help, I will be available.'
-                    : 'E.g.: Unfortunately I also have a commitment at that time.'
+                    ? t('confirmResponseModal.acceptPlaceholder')
+                    : t('confirmResponseModal.rejectPlaceholder')
                 "
                 class="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition"
               />
@@ -78,18 +80,20 @@
               @click="$emit('update:modelValue', false)"
               class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition"
             >
-              Cancel
+              {{ t('confirmResponseModal.cancel') }}
             </button>
             <button
               @click="confirm"
               class="px-5 py-2.5 rounded-xl text-white text-sm font-medium transition"
               :class="
-                isAccepting
-                  ? 'bg-green-600 hover:bg-green-700'
-                  : 'bg-red-600 hover:bg-red-700'
+                isAccepting ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
               "
             >
-              {{ isAccepting ? 'Confirm acceptance' : 'Confirm rejection' }}
+              {{
+                isAccepting
+                  ? t('confirmResponseModal.confirmAccept')
+                  : t('confirmResponseModal.confirmReject')
+              }}
             </button>
           </div>
         </div>
@@ -99,45 +103,49 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import IconLucideCheck from '~icons/lucide/check';
-import IconLucideX from '~icons/lucide/x';
-import type { ReassignmentSolicitation } from '@/types/reassignment';
+  import { ref, computed, watch } from 'vue';
+  import { useI18n } from 'vue-i18n';
 
-const props = defineProps<{
-  modelValue: boolean;
-  request: ReassignmentSolicitation | null;
-  decision: 'ACCEPTED' | 'REJECTED';
-}>();
+  import IconLucideCheck from '~icons/lucide/check';
+  import IconLucideX from '~icons/lucide/x';
+  import type { ReassignmentSolicitation } from '@/types/reassignment';
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', val: boolean): void;
-  (e: 'confirmed', payload: { comment?: string }): void;
-}>();
+  const { t } = useI18n();
 
-const comment = ref('');
-const isAccepting = computed(() => props.decision === 'ACCEPTED');
+  const props = defineProps<{
+    modelValue: boolean;
+    request: ReassignmentSolicitation | null;
+    decision: 'ACCEPTED' | 'REJECTED';
+  }>();
 
-watch(
-  () => props.modelValue,
-  (open) => {
-    if (open) comment.value = '';
+  const emit = defineEmits<{
+    (e: 'update:modelValue', val: boolean): void;
+    (e: 'confirmed', payload: { comment?: string }): void;
+  }>();
+
+  const comment = ref('');
+  const isAccepting = computed(() => props.decision === 'ACCEPTED');
+
+  watch(
+    () => props.modelValue,
+    (open) => {
+      if (open) comment.value = '';
+    }
+  );
+
+  function confirm() {
+    emit('confirmed', { comment: comment.value.trim() || undefined });
+    emit('update:modelValue', false);
   }
-);
-
-function confirm() {
-  emit('confirmed', { comment: comment.value.trim() || undefined });
-  emit('update:modelValue', false);
-}
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
 </style>

@@ -1,43 +1,39 @@
 <template>
-  <span
-    v-if="count > 0"
-    class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none ml-1.5 animate-pulse"
-    :title="`${count} solicitud${count !== 1 ? 'es' : ''} de visita pendiente${count !== 1 ? 's' : ''}`"
-  >
+  <FwbBadge v-if="count > 0" type="yellow" size="sm" class="ml-1.5 animate-pulse">
     {{ count > 99 ? '99+' : count }}
-  </span>
+  </FwbBadge>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useAuth } from '@/composables/useAuth';
-import { getPendingRequestsForAgent } from '@/services/visitRequestService';
+  import { ref, onMounted, onUnmounted } from 'vue';
+  import { FwbBadge } from 'flowbite-vue';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import { getPendingRequestsForAgent } from '@/services/visitRequestService';
 
-const { user } = useAuth();
-const count = ref(0);
-let intervalId: ReturnType<typeof setInterval> | null = null;
+  const authStore = useAuthStore();
+  const count = ref(0);
+  let intervalId: ReturnType<typeof setInterval> | null = null;
 
-async function fetchCount() {
-  const agentId = (user.value?.sub || user.value?.userId || '') as string;
-  if (!agentId) {
-    count.value = 0;
-    return;
+  async function fetchCount() {
+    const u = authStore.user as UserClaims | null;
+    const agentId = (u?.sub || u?.userId || '') as string;
+    if (!agentId) {
+      count.value = 0;
+      return;
+    }
+
+    try {
+      const requests = await getPendingRequestsForAgent(agentId);
+      count.value = requests.filter((request) => request.status === 'PENDING').length;
+    } catch {}
   }
 
-  try {
-    const requests = await getPendingRequestsForAgent(agentId);
-    count.value = requests.filter(
-      (request) => request.status === 'PENDING'
-    ).length;
-  } catch {}
-}
+  onMounted(() => {
+    fetchCount();
+    intervalId = setInterval(fetchCount, 30_000);
+  });
 
-onMounted(() => {
-  fetchCount();
-  intervalId = setInterval(fetchCount, 30_000);
-});
-
-onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
-});
+  onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId);
+  });
 </script>

@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 
 interface IdentityLog {
   id: string;
@@ -50,9 +50,7 @@ export const auditService = {
     };
 
     const rawIdentityLogs: IdentityLog[] =
-      identityResult.status === 'fulfilled'
-        ? identityResult.value.data || []
-        : [];
+      identityResult.status === 'fulfilled' ? identityResult.value.data || [] : [];
 
     const userLabelById = new Map<string, string>();
 
@@ -73,28 +71,23 @@ export const auditService = {
         }
       });
 
-    const identityLogs: AuditLog[] = rawIdentityLogs.map(
-      (log: IdentityLog) => ({
-        id: `identity-${log.id}`,
-        action: normalizeIdentityAction(log.action),
-        personId: log.userId,
-        personName:
-          log.userEmail ||
-          extractEmailFromDetails(log.details) ||
-          userLabelById.get((log.userId || '').toString()) ||
-          log.userId ||
-          'Usuario',
-        personType: 'USER',
-        changedBy:
-          log.performedByName ||
-          log.performedByEmail ||
-          log.performedBy ||
-          'Usuario no identificado',
-        timestamp: log.timestamp,
-        details: log.details,
-        changes: [],
-      })
-    );
+    const identityLogs: AuditLog[] = rawIdentityLogs.map((log: IdentityLog) => ({
+      id: `identity-${log.id}`,
+      action: normalizeIdentityAction(log.action),
+      personId: log.userId,
+      personName:
+        log.userEmail ||
+        extractEmailFromDetails(log.details) ||
+        userLabelById.get((log.userId || '').toString()) ||
+        log.userId ||
+        'Usuario',
+      personType: 'USER',
+      changedBy:
+        log.performedByName || log.performedByEmail || log.performedBy || 'Usuario no identificado',
+      timestamp: log.timestamp,
+      details: log.details,
+      changes: [],
+    }));
 
     const personLogs: AuditLog[] =
       personResult.status === 'fulfilled' ? personResult.value.data || [] : [];

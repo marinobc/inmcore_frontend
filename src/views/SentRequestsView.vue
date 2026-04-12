@@ -10,12 +10,10 @@
             >
               <IconLucideArrowLeft class="h-5 w-5" />
             </router-link>
-            <h1 class="text-2xl font-bold text-gray-900">
-              Mis Solicitudes de Reasignación
-            </h1>
+            <h1 class="text-2xl font-bold text-gray-900">{{ t('sentRequests.title') }}</h1>
           </div>
           <p class="text-gray-500 text-sm mt-1">
-            Estado de las solicitudes que has enviado a tus colegas
+            {{ t('sentRequests.subtitle') }}
           </p>
         </div>
         <button
@@ -23,45 +21,34 @@
           :disabled="loading"
           class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition shadow-sm disabled:opacity-50"
         >
-          <IconLucideRefreshCw
-            class="w-4 h-4"
-            :class="loading ? 'animate-spin' : ''"
-          />
-          Refrescar
+          <IconLucideRefreshCw class="w-4 h-4" :class="loading ? 'animate-spin' : ''" />
+          {{ t('common.refresh') }}
         </button>
       </div>
 
       <div class="grid grid-cols-3 gap-4">
-        <div
-          class="bg-white rounded-xl border border-gray-200 p-4 text-center shadow-sm"
-        >
+        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center shadow-sm">
           <p class="text-2xl font-bold text-gray-900">{{ stats.total }}</p>
           <p class="text-xs text-gray-500 uppercase font-medium">
-            Total enviadas
+            {{ t('sentRequests.totalSent') }}
           </p>
         </div>
-        <div
-          class="bg-yellow-50 rounded-xl border border-yellow-200 p-4 text-center shadow-sm"
-        >
+        <div class="bg-yellow-50 rounded-xl border border-yellow-200 p-4 text-center shadow-sm">
           <p class="text-2xl font-bold text-yellow-700">{{ stats.pending }}</p>
           <p class="text-xs text-yellow-600 uppercase font-medium">
-            Pendientes
+            {{ t('sentRequests.pending') }}
           </p>
         </div>
-        <div
-          class="bg-green-50 rounded-xl border border-green-200 p-4 text-center shadow-sm"
-        >
+        <div class="bg-green-50 rounded-xl border border-green-200 p-4 text-center shadow-sm">
           <p class="text-2xl font-bold text-green-700">{{ stats.accepted }}</p>
-          <p class="text-xs text-green-600 uppercase font-medium">Aceptadas</p>
+          <p class="text-xs text-green-600 uppercase font-medium">
+            {{ t('sentRequests.accepted') }}
+          </p>
         </div>
       </div>
 
       <div v-if="loading" class="space-y-3">
-        <div
-          v-for="i in 3"
-          :key="i"
-          class="bg-white rounded-2xl p-5 animate-pulse"
-        >
+        <div v-for="i in 3" :key="i" class="bg-white rounded-2xl p-5 animate-pulse">
           <div class="h-4 bg-gray-200 rounded w-1/3 mb-3"></div>
           <div class="h-3 bg-gray-200 rounded w-2/3 mb-2"></div>
           <div class="h-3 bg-gray-200 rounded w-1/2"></div>
@@ -85,17 +72,15 @@
         >
           <IconLucideArrowLeftRight class="w-8 h-8 text-blue-500" />
         </div>
-        <h3 class="text-lg font-semibold text-gray-700 mb-1">
-          No has enviado solicitudes
-        </h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-1">{{ t('sentRequests.emptyTitle') }}</h3>
         <p class="text-gray-500 text-sm">
-          Cuando solicites una reasignación desde el calendario, aparecerá aquí.
+          {{ t('sentRequests.emptyText') }}
         </p>
         <router-link
           to="/calendar"
           class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition"
         >
-          Ir al Calendario
+          {{ t('sentRequests.goToCalendar') }}
         </router-link>
       </div>
 
@@ -133,13 +118,11 @@
               </div>
               <div>
                 <p class="font-semibold text-gray-800 text-sm">
-                  Para:
-                  <span class="font-mono text-xs">{{
-                    r.destinationAgentId
-                  }}</span>
+                  {{ t('sentRequests.to') }}
+                  <span class="font-mono text-xs">{{ r.destinationAgentId }}</span>
                 </p>
                 <p class="text-xs text-gray-500">
-                  Enviada el {{ formatDate(r.requestedAt) }}
+                  {{ t('sentRequests.sentOn') }} {{ formatDate(r.requestedAt) }}
                 </p>
               </div>
             </div>
@@ -147,25 +130,17 @@
               :class="statusBadgeClass(r.status)"
               class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium shrink-0"
             >
-              <span
-                v-if="r.status === 'PENDING'"
-                class="flex items-center gap-1"
-              >
-                <span
-                  class="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-pulse"
-                ></span>
-                Pendiente
+              <span v-if="r.status === 'PENDING'" class="flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-yellow-600 rounded-full animate-pulse"></span>
+                {{ t('status.pending') }}
               </span>
-              <span
-                v-else-if="r.status === 'ACCEPTED'"
-                class="flex items-center gap-1"
-              >
+              <span v-else-if="r.status === 'ACCEPTED'" class="flex items-center gap-1">
                 <IconLucideCheck class="w-3 h-3" />
-                Aceptada
+                {{ t('status.accepted') }}
               </span>
               <span v-else class="flex items-center gap-1">
                 <IconLucideX class="w-3 h-3" />
-                Rechazada
+                {{ t('status.rejected') }}
               </span>
             </span>
           </div>
@@ -173,10 +148,8 @@
           <div class="px-5 py-4 space-y-3">
             <div class="flex items-center gap-2 text-sm text-gray-600">
               <IconLucideCalendar class="w-4 h-4 text-gray-400 shrink-0" />
-              <span class="text-gray-500">Cita ID:</span>
-              <span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{{
-                r.visitId
-              }}</span>
+              <span class="text-gray-500">{{ t('reassignment.visitIdLabel') }}:</span>
+              <span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{{ r.visitId }}</span>
             </div>
 
             <div
@@ -186,10 +159,8 @@
                 'bg-gray-50': r.status !== 'PENDING',
               }"
             >
-              <p
-                class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide"
-              >
-                Motivo de la solicitud
+              <p class="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">
+                {{ t('sentRequests.reasonTitle') }}
               </p>
               <p class="text-sm text-gray-700">{{ r.reason }}</p>
             </div>
@@ -200,15 +171,13 @@
             >
               <div class="flex items-center gap-2 mb-1">
                 <IconLucideMessageCircle class="w-3.5 h-3.5 text-blue-500" />
-                <p
-                  class="text-xs font-medium text-blue-600 uppercase tracking-wide"
-                >
-                  Respuesta de tu colega
+                <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">
+                  {{ t('sentRequests.colleagueReply') }}
                 </p>
               </div>
               <p class="text-sm text-gray-700">{{ r.commentReply }}</p>
               <p v-if="r.repliedAt" class="text-[10px] text-gray-400 mt-2">
-                Respondido el {{ formatDate(r.repliedAt) }}
+                {{ t('sentRequests.repliedOn') }} {{ formatDate(r.repliedAt) }}
               </p>
             </div>
 
@@ -217,7 +186,7 @@
               class="flex items-center gap-2 text-xs text-yellow-600 bg-yellow-50 rounded-lg px-3 py-2"
             >
               <IconLucideClock class="w-4 h-4 animate-pulse" />
-              Esperando respuesta de tu colega...
+              {{ t('sentRequests.waitingReply') }}
             </div>
 
             <div
@@ -225,8 +194,7 @@
               class="flex items-center gap-2 text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2"
             >
               <IconLucideCircleCheck class="w-4 h-4" />
-              ¡Tu colega ha aceptado la reasignación! La cita ahora está en su
-              agenda.
+              {{ t('sentRequests.acceptedInfo') }}
             </div>
 
             <div
@@ -234,7 +202,7 @@
               class="flex items-center gap-2 text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2"
             >
               <IconLucideAlertCircle class="w-4 h-4" />
-              Tu colega ha rechazado la solicitud. La cita sigue siendo tuya.
+              {{ t('sentRequests.rejectedInfo') }}
             </div>
           </div>
 
@@ -245,11 +213,8 @@
                 :disabled="cancellingId === r.id"
                 class="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 disabled:opacity-50 transition"
               >
-                <IconLucideLoader
-                  v-if="cancellingId === r.id"
-                  class="w-4 h-4 animate-spin"
-                />
-                <span v-else>Cancelar solicitud</span>
+                <IconLucideLoader v-if="cancellingId === r.id" class="w-4 h-4 animate-spin" />
+                <span v-else>{{ t('sentRequests.cancelRequest') }}</span>
               </button>
             </div>
           </div>
@@ -257,146 +222,164 @@
       </TransitionGroup>
 
       <div v-if="sentRequests.length > 0 && !loading" class="text-center">
-        <p class="text-[10px] text-gray-400">
-          Actualizando automáticamente cada 30 segundos
-        </p>
+        <p class="text-[10px] text-gray-400">{{ t('sentRequests.autoRefreshNote') }}</p>
       </div>
+
+      <FwbAlert v-if="successMessage" type="success" class="mt-4">
+        {{ successMessage }}
+      </FwbAlert>
+      <FwbAlert v-if="errorMessage" type="danger" class="mt-4">
+        {{ errorMessage }}
+      </FwbAlert>
+
+      <FwbModal v-if="showCancelModal" @close="dismissCancel">
+        <template #header>
+          <span class="text-red-600">{{ t('sentRequests.cancelModalTitle') }}</span>
+        </template>
+        <template #body>
+          <p class="text-gray-600">
+            {{ t('sentRequests.cancelModalText') }}
+          </p>
+        </template>
+        <template #footer>
+          <div class="flex gap-2 justify-end">
+            <FwbButton @click="dismissCancel" color="alternative">
+              {{ t('calendar.noKeep') }}
+            </FwbButton>
+            <FwbButton @click="confirmCancel" color="red">
+              {{ t('common.yes') }}, {{ t('sentRequests.cancelRequest').toLowerCase() }}
+            </FwbButton>
+          </div>
+        </template>
+      </FwbModal>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { api } from '@/services/api';
-import type { ReassignmentSolicitation } from '@/types/reassignment';
-import Swal from 'sweetalert2';
-import IconLucideArrowLeft from '~icons/lucide/arrow-left';
-import IconLucideRefreshCw from '~icons/lucide/refresh-cw';
-import IconLucideAlertCircle from '~icons/lucide/alert-circle';
-import IconLucideArrowLeftRight from '~icons/lucide/arrow-left-right';
-import IconLucideUser from '~icons/lucide/user';
-import IconLucideCheck from '~icons/lucide/check';
-import IconLucideX from '~icons/lucide/x';
-import IconLucideCalendar from '~icons/lucide/calendar';
-import IconLucideMessageCircle from '~icons/lucide/message-circle';
-import IconLucideClock from '~icons/lucide/clock';
-import IconLucideCircleCheck from '~icons/lucide/circle-check';
-import IconLucideLoader from '~icons/lucide/loader';
+  import { ref, computed, onMounted, onUnmounted } from 'vue';
+  import { FwbAlert, FwbButton, FwbModal } from 'flowbite-vue';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
 
-const sentRequests = ref<ReassignmentSolicitation[]>([]);
-const loading = ref(false);
-const error = ref('');
-const cancellingId = ref<string | null>(null);
-let intervalId: ReturnType<typeof setInterval> | null = null;
+  const { t } = useI18n();
 
-const stats = computed(() => {
-  const total = sentRequests.value.length;
-  const pending = sentRequests.value.filter(
-    (r) => r.status === 'PENDING'
-  ).length;
-  const accepted = sentRequests.value.filter(
-    (r) => r.status === 'ACCEPTED'
-  ).length;
-  const rejected = sentRequests.value.filter(
-    (r) => r.status === 'REJECTED'
-  ).length;
-  return { total, pending, accepted, rejected };
-});
+  import { apiClient as api } from '@/api';
+  import type { ReassignmentSolicitation } from '@/types/reassignment';
+  import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+  import IconLucideRefreshCw from '~icons/lucide/refresh-cw';
+  import IconLucideAlertCircle from '~icons/lucide/alert-circle';
+  import IconLucideArrowLeftRight from '~icons/lucide/arrow-left-right';
+  import IconLucideUser from '~icons/lucide/user';
+  import IconLucideCheck from '~icons/lucide/check';
+  import IconLucideX from '~icons/lucide/x';
+  import IconLucideCalendar from '~icons/lucide/calendar';
+  import IconLucideMessageCircle from '~icons/lucide/message-circle';
+  import IconLucideClock from '~icons/lucide/clock';
+  import IconLucideCircleCheck from '~icons/lucide/circle-check';
+  import IconLucideLoader from '~icons/lucide/loader';
 
-async function load() {
-  loading.value = true;
-  error.value = '';
-  try {
-    const { data } = await api.get<ReassignmentSolicitation[]>(
-      '/api/reassignments/sent'
-    );
-    sentRequests.value = data;
-  } catch {
-    error.value = 'Error al cargar tus solicitudes';
-  } finally {
-    loading.value = false;
-  }
-}
+  const sentRequests = ref<ReassignmentSolicitation[]>([]);
+  const loading = ref(false);
+  const error = ref('');
+  const cancellingId = ref<string | null>(null);
+  const showCancelModal = ref(false);
+  const pendingCancelId = ref<string | null>(null);
+  const successMessage = ref('');
+  const errorMessage = ref('');
+  let intervalId: ReturnType<typeof setInterval> | null = null;
 
-async function cancelRequest(requestId: string) {
-  const result = await Swal.fire({
-    title: '¿Cancelar solicitud?',
-    text: '¿Estás seguro de que deseas cancelar esta solicitud de reasignación?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Sí, cancelar',
-    cancelButtonText: 'No, mantener',
+  const stats = computed(() => {
+    const total = sentRequests.value.length;
+    const pending = sentRequests.value.filter((r) => r.status === 'PENDING').length;
+    const accepted = sentRequests.value.filter((r) => r.status === 'ACCEPTED').length;
+    const rejected = sentRequests.value.filter((r) => r.status === 'REJECTED').length;
+    return { total, pending, accepted, rejected };
   });
 
-  if (!result.isConfirmed) return;
-
-  cancellingId.value = requestId;
-  try {
-    await api.delete(`/api/reassignments/${requestId}`);
-    await load();
-    Swal.fire({
-      title: 'Cancelada',
-      text: 'La solicitud ha sido cancelada',
-      icon: 'success',
-      timer: 2000,
-      showConfirmButton: false,
-    });
-  } catch {
-    Swal.fire({
-      title: 'Error',
-      text: 'No se pudo cancelar la solicitud',
-      icon: 'error',
-      confirmButtonColor: '#dc2626',
-    });
-  } finally {
-    cancellingId.value = null;
+  async function load() {
+    loading.value = true;
+    error.value = '';
+    try {
+      const { data } = await api.get<ReassignmentSolicitation[]>('/api/reassignments/sent');
+      sentRequests.value = data;
+    } catch {
+      error.value = t('sentRequests.loadError');
+    } finally {
+      loading.value = false;
+    }
   }
-}
 
-function statusBadgeClass(status: string): string {
-  switch (status) {
-    case 'PENDING':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'ACCEPTED':
-      return 'bg-green-100 text-green-800';
-    case 'REJECTED':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
+  async function cancelRequest(requestId: string) {
+    pendingCancelId.value = requestId;
+    showCancelModal.value = true;
   }
-}
 
-function formatDate(iso: string): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('es-BO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  async function confirmCancel() {
+    if (!pendingCancelId.value) return;
+    showCancelModal.value = false;
+    cancellingId.value = pendingCancelId.value;
+    successMessage.value = '';
+    errorMessage.value = '';
+    try {
+      await api.delete(`/api/reassignments/${pendingCancelId.value}`);
+      await load();
+      successMessage.value = t('sentRequests.cancelledSuccess');
+    } catch {
+      errorMessage.value = t('sentRequests.cancelledError');
+    } finally {
+      cancellingId.value = null;
+      pendingCancelId.value = null;
+    }
+  }
+
+  function dismissCancel() {
+    showCancelModal.value = false;
+    pendingCancelId.value = null;
+  }
+
+  function statusBadgeClass(status: string): string {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'ACCEPTED':
+        return 'bg-green-100 text-green-800';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  function formatDate(iso: string): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString(getLocaleString(), {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  onMounted(() => {
+    load();
+    intervalId = setInterval(load, 30000);
   });
-}
 
-onMounted(() => {
-  load();
-  intervalId = setInterval(load, 30000);
-});
-
-onUnmounted(() => {
-  if (intervalId) clearInterval(intervalId);
-});
+  onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId);
+  });
 </script>
 
 <style scoped>
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.3s ease;
-}
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
-}
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 0.3s ease;
+  }
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 </style>

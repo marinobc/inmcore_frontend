@@ -5,71 +5,61 @@
         <h3 class="text-2xl font-bold dark:text-white">
           {{ property?.title }}
         </h3>
-        <fwb-badge :color="getStatusColor(property?.status || '')">{{
-          property?.status
-        }}</fwb-badge>
+        <fwb-badge :color="getStatusColor(property?.status || '')">
+          {{ property?.status ? t('status.' + property.status) : '' }}
+        </fwb-badge>
       </div>
     </template>
 
     <template #body>
-      <div
-        class="grid grid-cols-1 gap-8"
-        :class="{ 'lg:grid-cols-2': !isClientView }"
-      >
+      <div class="grid grid-cols-1 gap-8" :class="{ 'lg:grid-cols-2': !isClientView }">
         <div class="space-y-4">
           <div
             class="p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"
           >
-            <h4
-              class="text-xs font-black text-blue-600 uppercase tracking-widest mb-3"
-            >
-              Ficha Técnica
+            <h4 class="text-xs font-black text-blue-600 uppercase tracking-widest mb-3">
+              {{ t('propertyDetails.technicalSheet') }}
             </h4>
             <div class="grid grid-cols-2 gap-y-3 text-sm">
-              <span class="text-gray-500 font-medium">Ubicación:</span>
-              <span class="dark:text-white text-right">{{
-                property?.address
-              }}</span>
+              <span class="text-gray-500 font-medium">{{ t('propertyDetails.location') }}</span>
+              <span class="dark:text-white text-right">{{ property?.address }}</span>
 
-              <span class="text-gray-500 font-medium">Área:</span>
-              <span class="dark:text-white text-right"
-                >{{ property?.m2 }} m²</span
-              >
+              <span class="text-gray-500 font-medium">{{ t('propertyDetails.area') }}</span>
+              <span class="dark:text-white text-right">
+                {{ property?.m2 }} {{ t('common.units.m2') }}
+              </span>
 
-              <span class="text-gray-500 font-medium">Dormitorios:</span>
-              <span class="dark:text-white text-right">{{
-                property?.rooms
-              }}</span>
+              <span class="text-gray-500 font-medium">{{ t('propertyDetails.bedrooms') }}</span>
+              <span class="dark:text-white text-right">{{ property?.rooms }}</span>
 
-              <span class="text-gray-500 font-medium">Tipo:</span>
-              <span class="dark:text-white text-right">{{
-                property?.type
-              }}</span>
+              <span class="text-gray-500 font-medium">{{ t('propertyDetails.type') }}</span>
+              <span class="dark:text-white text-right">{{ property?.type }}</span>
 
-              <span class="text-gray-500 font-medium">Estado actual:</span>
+              <span class="text-gray-500 font-medium">
+                {{ t('propertyDetails.currentStatus') }}
+              </span>
               <div class="flex justify-end">
                 <select
                   v-if="!isClientView"
                   v-model="localStatus"
                   @change="handleStatusChange"
-                  :disabled="
-                    updatingStatus ||
-                    (property?.status === 'VENDIDO' && !isAdmin)
-                  "
+                  :disabled="updatingStatus || (property?.status === 'VENDIDO' && !isAdmin)"
                   class="text-xs font-bold rounded-lg border-gray-300 py-1 px-2 dark:bg-gray-700 dark:text-white"
                   :class="statusColorClass(localStatus)"
                 >
-                  <option value="DISPONIBLE">DISPONIBLE</option>
-                  <option value="RESERVADO">RESERVADO</option>
-                  <option value="EN_NEGOCIACION">EN NEGOCIACIÓN</option>
-                  <option value="VENDIDO">VENDIDO</option>
+                  <option value="DISPONIBLE">{{ t('propertyDetails.statusAvailable') }}</option>
+                  <option value="RESERVADO">{{ t('propertyDetails.statusReserved') }}</option>
+                  <option value="EN_NEGOCIACION">
+                    {{ t('propertyDetails.statusNegotiating') }}
+                  </option>
+                  <option value="VENDIDO">{{ t('propertyDetails.statusSold') }}</option>
                 </select>
                 <span
                   v-else
                   class="dark:text-white text-right"
                   :class="statusTextClass(property?.status)"
                 >
-                  {{ property?.status }}
+                  {{ property?.status ? t('status.' + property.status) : '' }}
                 </span>
               </div>
             </div>
@@ -82,7 +72,7 @@
             <img
               :src="property.imageUrls[0]"
               class="w-full h-64 object-cover"
-              alt="Imagen principal de la propiedad"
+              :alt="t('propertyDetails.mainImageAlt')"
             />
           </div>
           <div
@@ -92,7 +82,7 @@
             <div class="text-center">
               <IconLucideImage class="w-12 h-12 text-gray-400 mx-auto mb-2" />
               <p class="text-gray-500 dark:text-gray-400 text-sm">
-                No hay fotos disponibles
+                {{ t('propertyDetails.noPhotos') }}
               </p>
             </div>
           </div>
@@ -100,20 +90,13 @@
           <div
             class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm"
           >
-            <h4
-              class="text-xs font-black text-green-600 uppercase tracking-widest mb-3"
-            >
-              Responsable de la Propiedad
+            <h4 class="text-xs font-black text-green-600 uppercase tracking-widest mb-3">
+              {{ t('propertyDetails.responsible') }}
             </h4>
 
-            <div
-              v-if="loadingOwner"
-              class="flex items-center justify-center py-8"
-            >
-              <div
-                class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"
-              ></div>
-              <span class="ml-2 text-sm text-gray-500">Cargando...</span>
+            <div v-if="loadingOwner" class="flex items-center justify-center py-8">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+              <span class="ml-2 text-sm text-gray-500">{{ t('propertyDetails.loading') }}</span>
             </div>
 
             <div v-else-if="owner" class="flex items-start space-x-3">
@@ -122,20 +105,17 @@
                   class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center"
                 >
                   <span class="text-white font-bold text-lg">
-                    {{ owner.firstName?.charAt(0)
-                    }}{{ owner.lastName?.charAt(0) }}
+                    {{ owner.firstName?.charAt(0) }}{{ owner.lastName?.charAt(0) }}
                   </span>
                 </div>
               </div>
 
               <div class="flex-1 min-w-0">
-                <h5
-                  class="text-sm font-semibold text-gray-900 dark:text-white truncate"
-                >
+                <h5 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
                   {{ owner.firstName }} {{ owner.lastName }}
                 </h5>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                  Propietario
+                  {{ t('propertyDetails.ownerLabel') }}
                 </p>
 
                 <div class="space-y-1">
@@ -165,7 +145,7 @@
                     class="flex-1"
                   >
                     <IconLucideMessageSquare class="w-3 h-3 mr-1" />
-                    WhatsApp
+                    {{ t('propertyDetails.whatsapp') }}
                   </fwb-button>
                 </div>
               </div>
@@ -174,7 +154,7 @@
             <div v-else class="text-center py-6">
               <IconLucideUser class="w-8 h-8 text-gray-300 mx-auto mb-2" />
               <p class="text-xs text-gray-500 dark:text-gray-400">
-                No hay propietario asignado
+                {{ t('propertyDetails.noOwnerAssigned') }}
               </p>
             </div>
           </div>
@@ -185,15 +165,13 @@
             <div
               class="absolute -left-[9px] top-0 w-4 h-4 bg-yellow-400 rounded-full border-4 border-white dark:border-gray-900"
             ></div>
-            <h4
-              class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4"
-            >
-              Evolución de Precio
+            <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">
+              {{ t('propertyDetails.priceEvolution') }}
             </h4>
 
             <div
               v-if="property?.priceHistory?.length"
-              class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar"
+              class="space-y-3 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full"
             >
               <div
                 v-for="(h, i) in property!.priceHistory"
@@ -202,24 +180,25 @@
               >
                 <div class="flex justify-between items-center mb-1">
                   <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-400 line-through"
-                      >${{ h.oldPrice.toLocaleString() }}</span
-                    >
+                    <span class="text-xs text-gray-400 line-through">
+                      {{ t('common.currency.symbol') }}{{ h.oldPrice.toLocaleString() }}
+                    </span>
                     <IconLucideArrowRight class="w-3 h-3 text-gray-400" />
-                    <span class="text-sm font-bold text-green-600"
-                      >${{ h.newPrice.toLocaleString() }}</span
-                    >
+                    <span class="text-sm font-bold text-green-600">
+                      {{ t('common.currency.symbol') }}{{ h.newPrice.toLocaleString() }}
+                    </span>
                   </div>
                   <span
                     class="text-[10px] bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-gray-500 font-mono"
-                    >{{ formatDate(h.changedAt) }}</span
                   >
+                    {{ formatDate(h.changedAt) }}
+                  </span>
                 </div>
                 <p class="text-[10px] text-gray-400">
-                  Modificado por:
-                  <span class="text-gray-600 dark:text-gray-300 font-medium">{{
-                    h.changedBy
-                  }}</span>
+                  {{ t('propertyDetails.modifiedBy') }}
+                  <span class="text-gray-600 dark:text-gray-300 font-medium">
+                    {{ h.changedBy }}
+                  </span>
                 </p>
               </div>
             </div>
@@ -227,7 +206,7 @@
               v-else
               class="p-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-400 text-xs italic"
             >
-              Precio original sin modificaciones.
+              {{ t('propertyDetails.noPriceChanges') }}
             </div>
           </div>
 
@@ -235,15 +214,13 @@
             <div
               class="absolute -left-[9px] top-0 w-4 h-4 bg-blue-500 rounded-full border-4 border-white dark:border-gray-900"
             ></div>
-            <h4
-              class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4"
-            >
-              Registro de Asignaciones
+            <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">
+              {{ t('propertyDetails.assignmentHistory') }}
             </h4>
 
             <div
               v-if="property?.assignmentHistory?.length"
-              class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar"
+              class="space-y-3 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full"
             >
               <div
                 v-for="(ah, i) in property!.assignmentHistory"
@@ -251,18 +228,18 @@
                 class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm"
               >
                 <p class="text-xs dark:text-gray-200">
-                  Agente previo:
+                  {{ t('propertyDetails.previousAgent') }}
                   <span class="font-bold text-blue-600">{{ ah.agentId }}</span>
                 </p>
                 <div
                   class="flex justify-between items-center mt-2 pt-2 border-t border-gray-50 dark:border-gray-700"
                 >
                   <p class="text-[10px] text-gray-400">
-                    Asignado por: {{ ah.assignedBy }}
+                    {{ t('propertyDetails.assignedBy') }} {{ ah.assignedBy }}
                   </p>
-                  <span class="text-[10px] text-gray-400 font-mono">{{
-                    formatDate(ah.assignedAt)
-                  }}</span>
+                  <span class="text-[10px] text-gray-400 font-mono">
+                    {{ formatDate(ah.assignedAt) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -270,7 +247,7 @@
               v-else
               class="p-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-400 text-xs italic"
             >
-              Se mantiene el asesor inicial.
+              {{ t('propertyDetails.noAssignmentChanges') }}
             </div>
           </div>
 
@@ -278,15 +255,13 @@
             <div
               class="absolute -left-[9px] top-0 w-4 h-4 bg-red-500 rounded-full border-4 border-white dark:border-gray-900"
             ></div>
-            <h4
-              class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4"
-            >
-              Historial de Estados
+            <h4 class="text-sm font-bold dark:text-white uppercase tracking-tight mb-4">
+              {{ t('propertyDetails.statusHistory') }}
             </h4>
 
             <div
               v-if="property?.statusHistory?.length"
-              class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar"
+              class="space-y-3 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent scrollbar-thumb-rounded-full"
             >
               <div
                 v-for="(h, i) in [...(property!.statusHistory || [])].reverse()"
@@ -295,22 +270,20 @@
               >
                 <div class="flex justify-between items-center mb-1">
                   <div class="flex items-center space-x-1">
-                    <span class="text-[10px] font-bold text-gray-400">{{
-                      h.oldStatus
-                    }}</span>
+                    <span class="text-[10px] font-bold text-gray-400">
+                      {{ t('status.' + h.oldStatus) }}
+                    </span>
                     <IconLucideArrowRight class="w-2 h-2 text-gray-400" />
-                    <span
-                      class="text-[10px] font-bold"
-                      :class="statusTextClass(h.newStatus)"
-                      >{{ h.newStatus }}</span
-                    >
+                    <span class="text-[10px] font-bold" :class="statusTextClass(h.newStatus)">
+                      {{ t('status.' + h.newStatus) }}
+                    </span>
                   </div>
-                  <span class="text-[9px] text-gray-400 font-mono">{{
-                    formatDate(h.changedAt)
-                  }}</span>
+                  <span class="text-[9px] text-gray-400 font-mono">
+                    {{ formatDate(h.changedAt) }}
+                  </span>
                 </div>
                 <p class="text-[9px] text-gray-500">
-                  Cambiado por: {{ h.changedBy }}
+                  {{ t('propertyDetails.changedBy') }} {{ h.changedBy }}
                 </p>
               </div>
             </div>
@@ -318,7 +291,7 @@
               v-else
               class="p-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg text-gray-400 text-xs italic"
             >
-              Sin cambios de estado registrados.
+              {{ t('propertyDetails.noStatusChanges') }}
             </div>
           </div>
         </div>
@@ -326,192 +299,178 @@
     </template>
     <template #footer>
       <div class="flex justify-end">
-        <fwb-button color="alternative" @click="$emit('close')"
-          >Cerrar</fwb-button
-        >
+        <fwb-button color="alternative" @click="$emit('close')">
+          {{ t('propertyDetails.close') }}
+        </fwb-button>
       </div>
     </template>
   </fwb-modal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { FwbModal, FwbBadge, FwbButton } from 'flowbite-vue';
-import { propertyService } from '@/services/propertyService';
-import { personService } from '@/services/personService';
-import { useAuth } from '@/composables/useAuth';
-import type { Property } from '@/types/property';
-import IconLucideImage from '~icons/lucide/image';
-import IconLucideMail from '~icons/lucide/mail';
-import IconLucidePhone from '~icons/lucide/phone';
-import IconLucideMessageSquare from '~icons/lucide/message-square';
-import IconLucideUser from '~icons/lucide/user';
-import IconLucideArrowRight from '~icons/lucide/arrow-right';
+  import { ref, watch, computed } from 'vue';
+  import { FwbModal, FwbBadge, FwbButton } from 'flowbite-vue';
+  import { propertyService } from '@/modules/properties';
+  import { personService } from '@/services/personService';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import type { Property } from '@/types/property';
+  import IconLucideImage from '~icons/lucide/image';
+  import IconLucideMail from '~icons/lucide/mail';
+  import IconLucidePhone from '~icons/lucide/phone';
+  import IconLucideMessageSquare from '~icons/lucide/message-square';
+  import IconLucideUser from '~icons/lucide/user';
+  import IconLucideArrowRight from '~icons/lucide/arrow-right';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
 
-interface PersonOwner {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  [key: string]: unknown;
-}
+  const { t } = useI18n();
 
-const props = defineProps<{
-  show: boolean;
-  property: Property | null;
-  isClientView?: boolean;
-}>();
-
-const emit = defineEmits(['close', 'status-updated']);
-const { user } = useAuth();
-
-const localStatus = ref(props.property?.status || '');
-const updatingStatus = ref(false);
-const owner = ref<PersonOwner | null>(null);
-const loadingOwner = ref(false);
-
-const isAdmin = computed(
-  () =>
-    ((user.value?.roles as string[]) || [])?.includes('ADMIN') ||
-    user.value?.userType === 'ADMIN'
-);
-
-const loadOwnerInfo = async () => {
-  if (!props.property?.ownerId) {
-    owner.value = null;
-    return;
+  interface PersonOwner {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    [key: string]: unknown;
   }
 
-  loadingOwner.value = true;
-  try {
-    owner.value = await personService.getPersonByAuthUserId(
-      props.property.ownerId
-    );
-  } catch (error) {
-    console.error('Error loading owner info:', error);
-    owner.value = null;
-  } finally {
-    loadingOwner.value = false;
-  }
-};
+  const props = defineProps<{
+    show: boolean;
+    property: Property | null;
+    isClientView?: boolean;
+  }>();
 
-watch(
-  () => props.property,
-  (newProperty) => {
-    if (newProperty) {
-      localStatus.value = newProperty.status;
-      loadOwnerInfo();
-    }
-  },
-  { immediate: true }
-);
+  const emit = defineEmits(['close', 'status-updated']);
+  const authStore = useAuthStore();
 
-const handleStatusChange = async () => {
-  if (!props.property || localStatus.value === props.property.status) return;
+  const localStatus = ref(props.property?.status || '');
+  const updatingStatus = ref(false);
+  const owner = ref<PersonOwner | null>(null);
+  const loadingOwner = ref(false);
 
-  updatingStatus.value = true;
-  try {
-    await propertyService.updateStatus(props.property.id, localStatus.value);
-    alert('Estado actualizado correctamente');
-    emit('status-updated');
-  } catch (err: unknown) {
-    localStatus.value = props.property.status;
-    const errorObj = err as { response?: { data?: { detail?: string } } };
-    alert(
-      errorObj.response?.data?.detail ||
-        'No tienes permisos para realizar este cambio'
-    );
-  } finally {
-    updatingStatus.value = false;
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'DISPONIBLE':
-      return 'green';
-    case 'RESERVADO':
-      return 'yellow';
-    case 'VENDIDO':
-      return 'red';
-    case 'EN_NEGOCIACION':
-      return 'blue';
-    default:
-      return 'gray';
-  }
-};
-
-const statusColorClass = (status: string) => {
-  const map: Record<string, string> = {
-    DISPONIBLE: 'text-green-600 border-green-200 bg-green-50',
-    RESERVADO: 'text-yellow-600 border-yellow-200 bg-yellow-50',
-    VENDIDO: 'text-red-600 border-red-200 bg-red-50',
-    EN_NEGOCIACION: 'text-blue-600 border-blue-200 bg-blue-50',
-  };
-  return map[status] || '';
-};
-
-const statusTextClass = (status?: string) => {
-  const map: Record<string, string> = {
-    DISPONIBLE: 'text-green-600',
-    RESERVADO: 'text-yellow-600',
-    VENDIDO: 'text-red-600',
-    EN_NEGOCIACION: 'text-blue-600',
-  };
-  return map[status || ''] || '';
-};
-
-const formatDate = (dateStr: string) => {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
+  const isAdmin = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    return ((u?.roles as string[]) || [])?.includes('ADMIN') || u?.userType === 'ADMIN';
   });
-};
 
-const contactViaWhatsApp = () => {
-  if (!owner.value?.phone || !props.property) return;
+  const loadOwnerInfo = async () => {
+    if (!props.property?.ownerId) {
+      owner.value = null;
+      return;
+    }
 
-  const cleanPhone = owner.value.phone.replace(/\D/g, '');
+    loadingOwner.value = true;
+    try {
+      owner.value = await personService.getPersonByAuthUserId(props.property.ownerId);
+    } catch (error) {
+      console.error('Error loading owner info:', error);
+      owner.value = null;
+    } finally {
+      loadingOwner.value = false;
+    }
+  };
 
-  const firstName = owner.value.firstName || '';
-  const title = props.property.title || '';
-  const address = props.property.address || '';
-  const message = encodeURIComponent(
-    `Hola ${firstName}, me contacto por la propiedad "${title}" ubicada en ${address}. ¿Podríamos coordinar una visita?`
+  watch(
+    () => props.property,
+    (newProperty) => {
+      if (newProperty) {
+        localStatus.value = newProperty.status;
+        loadOwnerInfo();
+      }
+    },
+    { immediate: true }
   );
 
-  const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`;
-  window.open(whatsappUrl, '_blank');
-};
+  const handleStatusChange = async () => {
+    if (!props.property || localStatus.value === props.property.status) return;
 
-watch(
-  () => props.property?.status,
-  (newStatus) => {
-    if (newStatus) {
-      localStatus.value = newStatus;
+    updatingStatus.value = true;
+    try {
+      await propertyService.updateStatus(props.property.id, localStatus.value);
+      alert(t('propertyDetails.statusUpdated'));
+      emit('status-updated');
+    } catch (err: unknown) {
+      localStatus.value = props.property.status;
+      const errorObj = err as { response?: { data?: { detail?: string } } };
+      alert(errorObj.response?.data?.detail || t('propertyDetails.statusUpdateError'));
+    } finally {
+      updatingStatus.value = false;
     }
-  }
-);
-</script>
+  };
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 10px;
-}
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #374151;
-}
-</style>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'DISPONIBLE':
+        return 'green';
+      case 'RESERVADO':
+        return 'yellow';
+      case 'VENDIDO':
+        return 'red';
+      case 'EN_NEGOCIACION':
+        return 'blue';
+      default:
+        return 'gray';
+    }
+  };
+
+  const statusColorClass = (status: string) => {
+    const map: Record<string, string> = {
+      DISPONIBLE: 'text-green-600 border-green-200 bg-green-50',
+      RESERVADO: 'text-yellow-600 border-yellow-200 bg-yellow-50',
+      VENDIDO: 'text-red-600 border-red-200 bg-red-50',
+      EN_NEGOCIACION: 'text-blue-600 border-blue-200 bg-blue-50',
+    };
+    return map[status] || '';
+  };
+
+  const statusTextClass = (status?: string) => {
+    const map: Record<string, string> = {
+      DISPONIBLE: 'text-green-600',
+      RESERVADO: 'text-yellow-600',
+      VENDIDO: 'text-red-600',
+      EN_NEGOCIACION: 'text-blue-600',
+    };
+    return map[status || ''] || '';
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString(getLocaleString(), {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const contactViaWhatsApp = () => {
+    if (!owner.value?.phone || !props.property) return;
+
+    const cleanPhone = owner.value.phone.replace(/\D/g, '');
+
+    const firstName = owner.value.firstName || '';
+    const title = props.property.title || '';
+    const address = props.property.address || '';
+    const message = encodeURIComponent(
+      t('propertyDetails.whatsappMessage', {
+        name: firstName,
+        title: title,
+        address: address,
+      })
+    );
+
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  watch(
+    () => props.property?.status,
+    (newStatus) => {
+      if (newStatus) {
+        localStatus.value = newStatus;
+      }
+    }
+  );
+</script>

@@ -2,15 +2,13 @@
   <div class="p-6 space-y-6">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-bold dark:text-white">Mis Inmuebles</h1>
-        <p class="text-gray-500 text-sm">
-          Gestiona y filtra tus propiedades asignadas
-        </p>
+        <h1 class="text-3xl font-bold dark:text-white">{{ t('agentDashboard.title') }}</h1>
+        <p class="text-gray-500 text-sm">{{ t('agentDashboard.subtitle') }}</p>
       </div>
       <fwb-button @click="openCreateModal" gradient="blue">
         <div class="flex items-center">
           <IconLucidePlus class="w-4 h-4 mr-2" />
-          Registrar Nuevo
+          {{ t('agentDashboard.registerNew') }}
         </div>
       </fwb-button>
     </div>
@@ -20,50 +18,48 @@
     >
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
         <div>
-          <label
-            class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider"
-            >Buscar por título</label
-          >
+          <label class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider">
+            {{ t('agentDashboard.searchTitle') }}
+          </label>
           <fwb-input
             v-model="filterTitle"
-            placeholder="Ej: Departamento..."
+            :placeholder="t('clientProperties.titlePlaceholder')"
             @input="handleFilterDebounce"
           />
         </div>
         <div>
-          <label
-            class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider"
-            >Tipo de Operación</label
-          >
+          <label class="block mb-2 text-xs font-black text-gray-400 uppercase tracking-wider">
+            {{ t('agentDashboard.operationType') }}
+          </label>
           <select
             v-model="filterOpType"
             @change="resetAndLoad"
             class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white focus:ring-blue-500"
           >
-            <option value="">Todos los tipos</option>
-            <option value="VENTA">Venta</option>
-            <option value="ALQUILER">Alquiler</option>
-            <option value="ANTICRETICO">Anticrético</option>
+            <option value="">--</option>
+            <option value="VENTA">{{ t('agentDashboard.sale') }}</option>
+            <option value="ALQUILER">{{ t('agentDashboard.rent') }}</option>
+            <option value="ANTICRETICO">{{ t('agentDashboard.antichretico') }}</option>
           </select>
         </div>
         <div>
-          <label class="block mb-2 text-xs font-black text-gray-400 uppercase"
-            >Mostrar</label
-          >
+          <label class="block mb-2 text-xs font-black text-gray-400 uppercase">
+            {{ t('agentDashboard.show') }}
+          </label>
           <select
             v-model="pageSize"
             @change="resetAndLoad"
             class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"
           >
-            <option :value="6">6 elementos</option>
-            <option :value="12">12 elementos</option>
-            <option :value="24">24 elementos</option>
+            <option :value="6">{{ t('agentDashboard.itemsCount', { n: 6 }) }}</option>
+            <option :value="12">{{ t('agentDashboard.itemsCount', { n: 12 }) }}</option>
+            <option :value="24">{{ t('agentDashboard.itemsCount', { n: 24 }) }}</option>
           </select>
         </div>
         <div class="flex justify-end">
-          <fwb-button color="alternative" size="sm" @click="clearAllFilters"
-            >Limpiar Filtros</fwb-button
-          >
+          <fwb-button color="alternative" size="sm" @click="clearAllFilters">
+            {{ t('agentDashboard.clearFilters') }}
+          </fwb-button>
         </div>
       </div>
     </div>
@@ -72,7 +68,7 @@
       <div
         class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"
       ></div>
-      <p class="mt-2 text-gray-500">Cargando tus propiedades...</p>
+      <p class="mt-2 text-gray-500">{{ t('agentDashboard.loading') }}</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,7 +81,7 @@
           <button
             @click="openEditModal(p)"
             class="bg-blue-600 text-white rounded-full p-1.5 hover:bg-blue-700 transition-colors shadow-lg"
-            title="Editar propiedad"
+            :title="t('agentDashboard.editProperty')"
           >
             <IconLucidePencil class="w-4 h-4" />
           </button>
@@ -93,7 +89,7 @@
           <button
             @click="viewDetails(p)"
             class="bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 rounded-full p-1.5 hover:text-blue-600 shadow-lg transition-all"
-            title="Ver detalles e historial"
+            :title="t('common.viewDetails')"
           >
             <IconLucideClipboardList class="w-4 h-4" />
           </button>
@@ -102,7 +98,7 @@
             v-if="isAdmin"
             @click="confirmDelete(p)"
             class="bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 transition-colors shadow-lg"
-            title="Eliminar propiedad"
+            :title="t('common.delete')"
           >
             <IconLucideTrash class="w-4 h-4" />
           </button>
@@ -116,23 +112,23 @@
             :src="p.imageUrls[0]"
             class="h-full w-full object-cover"
           />
-          <span v-else>Sin imágenes</span>
+          <span v-else>{{ t('agentDashboard.noImages') }}</span>
           <div class="absolute bottom-2 right-2">
             <span
               :class="getStatusBadgeClass(p.status)"
               class="text-xs font-medium px-2.5 py-0.5 rounded"
             >
-              {{ p.status }}
+              {{ t('status.' + p.status) }}
             </span>
           </div>
         </div>
 
         <div class="p-5 flex-1 flex flex-col">
           <div class="flex gap-2 mb-3">
-            <fwb-badge :type="getOpTypeBadge(p.operationType)">{{
-              p.operationType
-            }}</fwb-badge>
-            <fwb-badge type="dark">{{ p.type }}</fwb-badge>
+            <fwb-badge :type="getOpTypeBadge(p.operationType)">
+              {{ t('propertyOperations.' + p.operationType) }}
+            </fwb-badge>
+            <fwb-badge type="dark">{{ t('propertyTypes.' + p.type) }}</fwb-badge>
           </div>
 
           <h5 class="text-xl font-bold dark:text-white mb-1">{{ p.title }}</h5>
@@ -140,16 +136,11 @@
 
           <div class="mt-auto">
             <p class="text-2xl font-black text-blue-600">
-              ${{ p.price.toLocaleString() }}
+              ${{ p.price.toLocaleString(getLocaleString()) }}
             </p>
 
-            <div
-              class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700"
-            >
-              <document-upload
-                :property-id="p.id"
-                :agent-id="p.assignedAgentId || undefined"
-              />
+            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+              <document-upload :property-id="p.id" :agent-id="p.assignedAgentId || undefined" />
             </div>
           </div>
         </div>
@@ -160,21 +151,16 @@
       v-if="!loading && myProperties.length === 0"
       class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <p class="text-gray-500">
-        No tienes inmuebles que coincidan con la búsqueda.
-      </p>
+      <p class="text-gray-500">{{ t('agentDashboard.noResults') }}</p>
     </div>
 
-    <div
-      v-if="totalPages > 1"
-      class="flex justify-center items-center space-x-2 mt-8 pb-10"
-    >
+    <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-8 pb-10">
       <button
         @click="changePage(currentPage - 1)"
         :disabled="currentPage === 0"
         class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
       >
-        Anterior
+        {{ t('agentDashboard.previous') }}
       </button>
 
       <template v-for="page in totalPages" :key="page">
@@ -196,18 +182,14 @@
         :disabled="currentPage >= totalPages - 1"
         class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
       >
-        Siguiente
+        {{ t('agentDashboard.next') }}
       </button>
     </div>
 
-    <fwb-modal
-      v-if="showCreateEditModal"
-      @close="closeCreateEditModal"
-      size="2xl"
-    >
+    <fwb-modal v-if="showCreateEditModal" @close="closeCreateEditModal" size="2xl">
       <template #header>
         <div class="text-lg font-bold">
-          {{ isEditing ? 'Editar Propiedad' : 'Nuevo Inmueble' }}
+          {{ isEditing ? t('agentDashboard.editProperty') : t('agentDashboard.newProperty') }}
         </div>
       </template>
       <template #body>
@@ -223,32 +205,23 @@
 
     <fwb-modal v-if="showDeleteModal" @close="showDeleteModal = false">
       <template #header>
-        <div class="text-lg font-bold text-red-600">Confirmar Eliminación</div>
+        <div class="text-lg font-bold text-red-600">{{ t('agentDashboard.confirmDelete') }}</div>
       </template>
       <template #body>
         <div class="space-y-4">
           <p>
-            ¿Estás seguro de que deseas eliminar la propiedad
-            <strong>{{ propertyToDelete?.title }}</strong
-            >?
+            {{ t('agentDashboard.confirmDeleteText', { name: propertyToDelete?.title }) }}
           </p>
-          <p class="text-sm text-red-500">
-            Esta acción eliminará permanentemente la propiedad, sus imágenes y
-            documentos asociados. No se puede deshacer.
-          </p>
+          <p class="text-sm text-red-500">{{ deleteWarningText }}</p>
         </div>
       </template>
       <template #footer>
         <div class="flex justify-end space-x-2">
-          <fwb-button color="alternative" @click="showDeleteModal = false"
-            >Cancelar</fwb-button
-          >
-          <fwb-button
-            color="red"
-            @click="doDeleteProperty"
-            :disabled="deleting"
-          >
-            {{ deleting ? 'Eliminando...' : 'Eliminar Permanentemente' }}
+          <fwb-button color="alternative" @click="showDeleteModal = false">
+            {{ t('common.cancel') }}
+          </fwb-button>
+          <fwb-button color="red" @click="doDeleteProperty" :disabled="deleting">
+            {{ deleting ? t('agentDashboard.deleting') : t('agentDashboard.deletePermanently') }}
           </fwb-button>
         </div>
       </template>
@@ -265,213 +238,223 @@
 </template>
 
 <script setup lang="ts">
-import IconLucidePlus from '~icons/lucide/plus';
-import IconLucidePencil from '~icons/lucide/pencil';
-import IconLucideClipboardList from '~icons/lucide/clipboard-list';
-import IconLucideTrash from '~icons/lucide/trash';
-import { ref, onMounted, computed } from 'vue';
-import { FwbCard, FwbButton, FwbModal, FwbInput, FwbBadge } from 'flowbite-vue';
-import { propertyService } from '@/services/propertyService';
-import { useAuth } from '@/composables/useAuth';
-import { api } from '@/services/api';
-import type { Property, PropertyFormPayload } from '@/types/property';
-import PropertyForm from '@/components/properties/PropertyForm.vue';
-import DocumentUpload from '@/components/properties/DocumentUpload.vue';
-import PropertyDetailsModal from '@/components/properties/PropertyDetailsModal.vue';
-import type { AxiosError } from 'axios';
+  import IconLucidePlus from '~icons/lucide/plus';
+  import IconLucidePencil from '~icons/lucide/pencil';
+  import IconLucideClipboardList from '~icons/lucide/clipboard-list';
+  import IconLucideTrash from '~icons/lucide/trash';
+  import { ref, onMounted, computed } from 'vue';
+  import { FwbCard, FwbButton, FwbModal, FwbInput, FwbBadge } from 'flowbite-vue';
+  import { propertyService } from '@/modules/properties';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import { apiClient as api } from '@/api';
+  import type { Property, PropertyFormPayload } from '@/types/property';
+  import PropertyForm from '@/components/properties/PropertyForm.vue';
+  import DocumentUpload from '@/components/properties/DocumentUpload.vue';
+  import PropertyDetailsModal from '@/components/properties/PropertyDetailsModal.vue';
+  import type { AxiosError } from 'axios';
+  import { useI18n } from 'vue-i18n';
+  import { getLocaleString } from '@/locales/i18n';
 
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-  detail?: string;
-}
-
-const { user } = useAuth();
-const myProperties = ref<Property[]>([]);
-const loading = ref(false);
-const deleting = ref(false);
-const showCreateEditModal = ref(false);
-const showDeleteModal = ref(false);
-const isEditing = ref(false);
-const editingProperty = ref<Record<string, unknown> | null>(null);
-const propertyToDelete = ref<Property | null>(null);
-const formKey = ref(0);
-const showDetailsModal = ref(false);
-const selectedProp = ref<Property | null>(null);
-const currentPage = ref(0);
-const totalPages = ref(0);
-const pageSize = ref(6);
-
-const filterTitle = ref('');
-const filterOpType = ref('');
-let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-const isAdmin = computed(() => {
-  const roles = (user.value?.roles || []) as string[];
-  return roles.includes('ADMIN') || user.value?.userType === 'ADMIN';
-});
-
-const load = async () => {
-  loading.value = true;
-  try {
-    const agentId = user.value?.userId || user.value?.sub;
-    const response = await api.get('/properties', {
-      params: {
-        title: filterTitle.value || undefined,
-        operationType: filterOpType.value || undefined,
-        agentId: agentId,
-        page: currentPage.value,
-        pageSize: pageSize.value || undefined,
-      },
-    });
-    myProperties.value = response.data.data || response.data;
-    totalPages.value = response.data.totalPages || 0;
-  } catch (e) {
-    console.error('Error cargando inventario:', e);
-  } finally {
-    loading.value = false;
+  interface ApiErrorResponse {
+    error?: string;
+    message?: string;
+    detail?: string;
   }
-};
 
-const changePage = (p: number) => {
-  currentPage.value = p;
-  load();
-};
+  const { t } = useI18n();
+  const authStore = useAuthStore();
+  const myProperties = ref<Property[]>([]);
+  const loading = ref(false);
+  const deleting = ref(false);
+  const showCreateEditModal = ref(false);
+  const showDeleteModal = ref(false);
+  const isEditing = ref(false);
+  const editingProperty = ref<Record<string, unknown> | null>(null);
+  const propertyToDelete = ref<Property | null>(null);
+  const formKey = ref(0);
+  const showDetailsModal = ref(false);
+  const selectedProp = ref<Property | null>(null);
+  const currentPage = ref(0);
+  const totalPages = ref(0);
+  const pageSize = ref(6);
 
-const resetAndLoad = () => {
-  currentPage.value = 0;
-  load();
-};
+  const filterTitle = ref('');
+  const filterOpType = ref('');
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-const handleFilterDebounce = () => {
-  if (debounceTimer) {
-    clearTimeout(debounceTimer);
-  }
-  debounceTimer = setTimeout(resetAndLoad, 500);
-};
+  const isAdmin = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    const roles = (u?.roles || []) as string[];
+    return roles.includes('ADMIN') || u?.userType === 'ADMIN';
+  });
 
-const clearAllFilters = () => {
-  filterTitle.value = '';
-  filterOpType.value = '';
-  pageSize.value = 6;
-  resetAndLoad();
-};
+  const deleteWarningText = computed(() => t('agentDashboard.deleteWarning'));
 
-const getOpTypeBadge = (type: string) => {
-  switch (type) {
-    case 'VENTA':
-      return 'indigo';
-    case 'ALQUILER':
-      return 'green';
-    case 'ANTICRETICO':
-      return 'yellow';
-    default:
-      return 'dark';
-  }
-};
-
-const openEditModal = (property: Property) => {
-  editingProperty.value = { ...property } as Record<string, unknown>;
-  isEditing.value = true;
-  formKey.value++;
-  showCreateEditModal.value = true;
-};
-
-const openCreateModal = () => {
-  editingProperty.value = null;
-  isEditing.value = false;
-  formKey.value++;
-  showCreateEditModal.value = true;
-};
-
-const closeCreateEditModal = () => {
-  showCreateEditModal.value = false;
-  editingProperty.value = null;
-};
-
-const handleCreateEdit = async (data: unknown) => {
-  try {
-    if (isEditing.value && editingProperty.value) {
-      const updatePayload = {
-        title: (data as Record<string, unknown>).title as string,
-        address: (data as Record<string, unknown>).address as string,
-        type: (data as Record<string, unknown>).type as string,
-        m2: (data as Record<string, unknown>).m2 as number,
-        rooms: (data as Record<string, unknown>).rooms as number,
-        operationType: (data as Record<string, unknown>)
-          .operationType as string,
-        ownerId: ((data as Record<string, unknown>).ownerId as string) || null,
-      };
-
-      await propertyService.updatePropertyAsAgent(
-        editingProperty.value.id as string,
-        updatePayload
-      );
-      alert('Propiedad actualizada con éxito');
-    } else {
-      const payload = data as PropertyFormPayload;
-      await propertyService.createProperty(payload);
-      alert('Inmueble registrado con éxito');
+  const load = async () => {
+    loading.value = true;
+    try {
+      const u = authStore.user as UserClaims | null;
+      const agentId = u?.userId || u?.sub;
+      const response = await api.get('/properties', {
+        params: {
+          title: filterTitle.value || undefined,
+          operationType: filterOpType.value || undefined,
+          agentId: agentId,
+          page: currentPage.value,
+          pageSize: pageSize.value || undefined,
+        },
+      });
+      myProperties.value = response.data.data || response.data;
+      totalPages.value = response.data.totalPages || 0;
+    } catch (e) {
+      console.error(t('common.error') + ' ' + t('nav.myInmuebles').toLowerCase() + ':', e);
+    } finally {
+      loading.value = false;
     }
-    closeCreateEditModal();
-    await load();
-  } catch (e: unknown) {
-    const axiosError = e as AxiosError<ApiErrorResponse>;
-    console.error('Error saving property:', e);
-    alert(
-      'Error: ' +
-        (axiosError.response?.data?.detail ||
-          axiosError.message ||
-          'Error de conexión')
-    );
-  }
-};
+  };
 
-const confirmDelete = (property: Property) => {
-  propertyToDelete.value = property;
-  showDeleteModal.value = true;
-};
+  const changePage = (p: number) => {
+    currentPage.value = p;
+    load();
+  };
 
-const doDeleteProperty = async () => {
-  if (!propertyToDelete.value) return;
+  const resetAndLoad = () => {
+    currentPage.value = 0;
+    load();
+  };
 
-  deleting.value = true;
-  try {
-    await api.delete(`/properties/${propertyToDelete.value.id}`);
-    showDeleteModal.value = false;
-    await load();
-    alert('Propiedad eliminada exitosamente');
-  } catch (e: unknown) {
-    const axiosError = e as AxiosError<ApiErrorResponse>;
-    console.error('Error eliminando propiedad:', e);
-    alert(
-      axiosError.response?.data?.detail || 'Error al eliminar la propiedad'
-    );
-  } finally {
-    deleting.value = false;
-    propertyToDelete.value = null;
-  }
-};
+  const handleFilterDebounce = () => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+    debounceTimer = setTimeout(resetAndLoad, 500);
+  };
 
-const getStatusBadgeClass = (status: string) => {
-  switch (status) {
-    case 'DISPONIBLE':
-      return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-    case 'RESERVADO':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-    case 'VENDIDO':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-    case 'EN_NEGOCIACION':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-    default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
-  }
-};
+  const clearAllFilters = () => {
+    filterTitle.value = '';
+    filterOpType.value = '';
+    pageSize.value = 6;
+    resetAndLoad();
+  };
 
-const viewDetails = (p: Property) => {
-  selectedProp.value = p;
-  showDetailsModal.value = true;
-};
+  const getOpTypeBadge = (type: string) => {
+    switch (type) {
+      case 'VENTA':
+        return 'indigo';
+      case 'ALQUILER':
+        return 'green';
+      case 'ANTICRETICO':
+        return 'yellow';
+      default:
+        return 'dark';
+    }
+  };
 
-onMounted(load);
+  const openEditModal = (property: Property) => {
+    editingProperty.value = { ...property } as Record<string, unknown>;
+    isEditing.value = true;
+    formKey.value++;
+    showCreateEditModal.value = true;
+  };
+
+  const openCreateModal = () => {
+    editingProperty.value = null;
+    isEditing.value = false;
+    formKey.value++;
+    showCreateEditModal.value = true;
+  };
+
+  const closeCreateEditModal = () => {
+    showCreateEditModal.value = false;
+    editingProperty.value = null;
+  };
+
+  const handleCreateEdit = async (data: unknown) => {
+    try {
+      if (isEditing.value && editingProperty.value) {
+        const updatePayload = {
+          title: (data as Record<string, unknown>).title as string,
+          address: (data as Record<string, unknown>).address as string,
+          type: (data as Record<string, unknown>).type as string,
+          m2: (data as Record<string, unknown>).m2 as number,
+          rooms: (data as Record<string, unknown>).rooms as number,
+          operationType: (data as Record<string, unknown>).operationType as string,
+          ownerId: ((data as Record<string, unknown>).ownerId as string) || null,
+        };
+
+        await propertyService.updatePropertyAsAgent(
+          editingProperty.value.id as string,
+          updatePayload
+        );
+        alert(t('agentDashboard.propertyUpdated'));
+      } else {
+        const payload = data as PropertyFormPayload;
+        await propertyService.createProperty(payload);
+        alert(t('agentDashboard.propertyCreated'));
+      }
+      closeCreateEditModal();
+      await load();
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
+      console.error(t('common.error') + ' saving property:', e);
+      alert(
+        t('common.error') +
+          ': ' +
+          (axiosError.response?.data?.detail || axiosError.message || t('common.error'))
+      );
+    }
+  };
+
+  const confirmDelete = (property: Property) => {
+    propertyToDelete.value = property;
+    showDeleteModal.value = true;
+  };
+
+  const doDeleteProperty = async () => {
+    if (!propertyToDelete.value) return;
+
+    deleting.value = true;
+    try {
+      await api.delete(`/properties/${propertyToDelete.value.id}`);
+      showDeleteModal.value = false;
+      await load();
+      alert(t('agentDashboard.propertyUpdated'));
+    } catch (e: unknown) {
+      const axiosError = e as AxiosError<ApiErrorResponse>;
+      console.error(t('common.error') + ' ' + t('common.delete').toLowerCase() + ' property:', e);
+      alert(
+        axiosError.response?.data?.detail ||
+          t('common.error') +
+            ' ' +
+            t('common.delete').toLowerCase() +
+            ' ' +
+            t('nav.myProperties').toLowerCase()
+      );
+    } finally {
+      deleting.value = false;
+      propertyToDelete.value = null;
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'DISPONIBLE':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case 'RESERVADO':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+      case 'VENDIDO':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      case 'EN_NEGOCIACION':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
+    }
+  };
+
+  const viewDetails = (p: Property) => {
+    selectedProp.value = p;
+    showDetailsModal.value = true;
+  };
+
+  onMounted(load);
 </script>

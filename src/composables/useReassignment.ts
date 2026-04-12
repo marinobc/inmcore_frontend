@@ -7,6 +7,9 @@ import type {
   ReassignmentResponseRequest,
 } from '@/types/reassignment';
 import type { AxiosError } from 'axios';
+import i18n from '@/locales/i18n';
+
+const { t } = i18n.global;
 
 interface ApiErrorResponse {
   error?: string;
@@ -33,9 +36,7 @@ export function useReassignment() {
       receivedRequests.value = await reassignmentService.getReceivedRequests();
     } catch (e: unknown) {
       const axiosError = e as AxiosError<ApiErrorResponse>;
-      error.value =
-        axiosError?.response?.data?.error ??
-        'Failed to load reassignment requests.';
+      error.value = axiosError?.response?.data?.error ?? t('reassignment.loadError');
     } finally {
       loading.value = false;
     }
@@ -62,8 +63,7 @@ export function useReassignment() {
       availableAgents.value = await reassignmentService.getAvailableAgents();
     } catch (e: unknown) {
       const axiosError = e as AxiosError<ApiErrorResponse>;
-      error.value =
-        axiosError?.response?.data?.error ?? 'Failed to load agents.';
+      error.value = axiosError?.response?.data?.error ?? t('reassignment.loadAgentsError');
     } finally {
       loading.value = false;
     }
@@ -82,9 +82,7 @@ export function useReassignment() {
       return await reassignmentService.requestReassignment(visitId, payload);
     } catch (e: unknown) {
       const axiosError = e as AxiosError<ApiErrorResponse>;
-      error.value =
-        axiosError?.response?.data?.error ??
-        'Failed to submit the reassignment request.';
+      error.value = axiosError?.response?.data?.error ?? t('reassignment.submitError');
       return null;
     } finally {
       loading.value = false;
@@ -103,16 +101,12 @@ export function useReassignment() {
     error.value = null;
     try {
       await reassignmentService.respondToRequest(requestId, payload);
-      receivedRequests.value = receivedRequests.value.filter(
-        (r) => r.id !== requestId
-      );
+      receivedRequests.value = receivedRequests.value.filter((r) => r.id !== requestId);
       pendingCount.value = Math.max(0, pendingCount.value - 1);
       return true;
     } catch (e: unknown) {
       const axiosError = e as AxiosError<ApiErrorResponse>;
-      error.value =
-        axiosError?.response?.data?.error ??
-        'Failed to respond to the request.';
+      error.value = axiosError?.response?.data?.error ?? t('reassignment.respondError');
       return false;
     } finally {
       loading.value = false;

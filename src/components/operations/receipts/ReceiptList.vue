@@ -1,40 +1,32 @@
 <template>
   <div>
     <div v-if="loading" class="space-y-3">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 animate-pulse"
-      >
-        <div class="w-10 h-10 bg-gray-200 rounded-lg shrink-0"></div>
+      <FwbCard v-for="i in 3" :key="i" class="flex items-center gap-4 animate-pulse">
+        <div class="w-10 h-10 bg-gray-200 rounded-lg shrink-0" />
         <div class="flex-1 space-y-2">
-          <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-          <div class="h-3 bg-gray-200 rounded w-1/3"></div>
+          <div class="h-3 bg-gray-200 rounded w-1/2" />
+          <div class="h-3 bg-gray-200 rounded w-1/3" />
         </div>
-        <div class="h-8 w-20 bg-gray-200 rounded-lg"></div>
-      </div>
+        <div class="h-8 w-20 bg-gray-200 rounded-lg" />
+      </FwbCard>
     </div>
 
-    <div
+    <FwbCard
       v-else-if="receipts.length === 0"
       class="flex flex-col items-center justify-center py-12 text-center"
     >
-      <div
-        class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-3"
-      >
+      <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-3">
         <IconLucideClipboardList class="w-7 h-7 text-gray-400" />
       </div>
-      <p class="text-sm font-medium text-gray-600">No receipts attached yet</p>
-      <p class="text-xs text-gray-400 mt-1">
-        Upload a payment receipt using the form above.
-      </p>
-    </div>
+      <p class="text-sm font-medium text-gray-600">{{ t('receipts.emptyTitle') }}</p>
+      <p class="text-xs text-gray-400 mt-1">{{ t('receipts.emptySubtext') }}</p>
+    </FwbCard>
 
-    <TransitionGroup v-else name="receipt-list" tag="div" class="space-y-3">
-      <div
+    <div v-else class="space-y-3">
+      <FwbCard
         v-for="receipt in receipts"
         :key="receipt.id"
-        class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group"
+        class="flex items-center gap-4 hover:shadow-md transition-shadow"
       >
         <div
           class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 text-white"
@@ -45,22 +37,15 @@
         </div>
 
         <div class="flex-1 min-w-0">
-          <p
-            class="text-sm font-medium text-gray-800 truncate"
-            :title="receipt.originalFileName"
-          >
+          <p class="text-sm font-medium text-gray-800 truncate" :title="receipt.originalFileName">
             {{ receipt.originalFileName }}
           </p>
           <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
             <span class="text-xs text-gray-500">{{ receipt.concept }}</span>
             <span class="text-gray-300 text-xs">·</span>
-            <span class="text-xs text-gray-500">{{
-              formatDate(receipt.paymentDate)
-            }}</span>
+            <span class="text-xs text-gray-500">{{ formatDate(receipt.paymentDate) }}</span>
             <span class="text-gray-300 text-xs">·</span>
-            <span class="text-xs text-gray-400">{{
-              formatSize(receipt.fileSizeBytes)
-            }}</span>
+            <span class="text-xs text-gray-400">{{ formatSize(receipt.fileSizeBytes) }}</span>
           </div>
         </div>
 
@@ -74,171 +59,141 @@
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-          <a
+          <FwbButton
             v-if="receipt.downloadUrl"
             :href="receipt.downloadUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium hover:bg-blue-100 transition"
-            :title="`Download ${receipt.originalFileName}`"
+            color="alternative"
+            size="xs"
+            class="text-blue-700 bg-blue-50 hover:bg-blue-100 border-0"
           >
-            <IconLucideDownload class="w-3.5 h-3.5" />
-            Download
-          </a>
+            <IconLucideDownload class="w-3.5 h-3.5 mr-1.5" />
+            {{ t('receipts.download') }}
+          </FwbButton>
 
-          <button
+          <FwbButton
             @click="confirmDelete(receipt)"
             :disabled="deletingId === receipt.id"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-red-600 text-xs font-medium hover:bg-red-50 disabled:opacity-50 transition"
-            title="Delete receipt"
+            color="alternative"
+            size="xs"
+            class="text-red-600 border-red-200 hover:bg-red-50 disabled:opacity-50"
           >
             <IconLucideLoader
               v-if="deletingId === receipt.id"
-              class="animate-spin w-3.5 h-3.5"
+              class="animate-spin w-3.5 h-3.5 mr-1.5"
             />
-            <IconLucideTrash v-else class="w-3.5 h-3.5" />
-            Delete
-          </button>
+            <IconLucideTrash v-else class="w-3.5 h-3.5 mr-1.5" />
+            {{ t('receipts.delete') }}
+          </FwbButton>
         </div>
-      </div>
-    </TransitionGroup>
+      </FwbCard>
+    </div>
 
-    <Teleport to="body">
-      <Transition name="fade">
-        <div
-          v-if="receiptToDelete"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-          @click.self="receiptToDelete = null"
-        >
-          <div
-            class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
-          >
-            <div
-              class="bg-linear-to-r from-red-500 to-red-700 px-6 py-5 flex items-center gap-3"
-            >
-              <div class="bg-white/20 rounded-full p-2">
-                <IconLucideTrash class="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 class="text-white font-semibold">Delete Receipt</h3>
-                <p class="text-red-200 text-sm">
-                  This action cannot be undone.
-                </p>
-              </div>
-            </div>
-            <div class="px-6 py-5">
-              <p class="text-sm text-gray-700">
-                Are you sure you want to delete
-                <span class="font-medium">{{
-                  receiptToDelete.originalFileName
-                }}</span
-                >? The file will be permanently removed from storage.
-              </p>
-            </div>
-            <div class="px-6 pb-6 flex gap-3 justify-end">
-              <button
-                @click="receiptToDelete = null"
-                class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition"
-              >
-                Cancel
-              </button>
-              <button
-                @click="handleDelete"
-                class="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition"
-              >
-                Delete
-              </button>
-            </div>
+    <FwbModal v-if="showDeleteModal" @close="showDeleteModal = false" size="md">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="bg-red-100 rounded-full p-2">
+            <IconLucideTrash class="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg">{{ t('receipts.deleteTitle') }}</h3>
+            <p class="text-red-500 text-sm">{{ t('receipts.deleteWarning') }}</p>
           </div>
         </div>
-      </Transition>
-    </Teleport>
+      </template>
+
+      <template #body>
+        <p class="text-sm text-gray-700">
+          {{ t('receipts.deleteConfirm', { name: receiptToDelete?.originalFileName }) }}
+        </p>
+      </template>
+
+      <template #footer>
+        <div class="flex gap-3 justify-end w-full">
+          <FwbButton @click="showDeleteModal = false" color="alternative">
+            {{ t('receipts.cancel') }}
+          </FwbButton>
+          <FwbButton @click="handleDelete" color="red" :disabled="!receiptToDelete">
+            {{ t('receipts.delete') }}
+          </FwbButton>
+        </div>
+      </template>
+    </FwbModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import IconLucideClipboardList from '~icons/lucide/clipboard-list';
-import IconLucideFileText from '~icons/lucide/file-text';
-import IconLucideImage from '~icons/lucide/image';
-import IconLucideDownload from '~icons/lucide/download';
-import IconLucideTrash from '~icons/lucide/trash';
-import IconLucideLoader from '~icons/lucide/loader';
-import { ref } from 'vue';
-import type { Receipt } from '@/types/receipt';
+  import { useI18n } from 'vue-i18n';
 
-defineProps<{
-  receipts: Receipt[];
-  loading: boolean;
-}>();
+  import IconLucideClipboardList from '~icons/lucide/clipboard-list';
+  import IconLucideFileText from '~icons/lucide/file-text';
+  import IconLucideImage from '~icons/lucide/image';
+  import IconLucideDownload from '~icons/lucide/download';
+  import IconLucideTrash from '~icons/lucide/trash';
+  import IconLucideLoader from '~icons/lucide/loader';
+  import { ref } from 'vue';
+  import { FwbCard, FwbButton, FwbModal } from 'flowbite-vue';
+  import type { Receipt } from '@/types/receipt';
+  import { getLocaleString } from '@/locales/i18n';
 
-const emit = defineEmits<{
-  (e: 'delete', receiptId: string): void;
-}>();
+  const { t } = useI18n();
 
-const receiptToDelete = ref<Receipt | null>(null);
-const deletingId = ref<string | null>(null);
+  defineProps<{
+    receipts: Receipt[];
+    loading: boolean;
+  }>();
 
-function confirmDelete(receipt: Receipt) {
-  receiptToDelete.value = receipt;
-}
+  const emit = defineEmits<{
+    (e: 'delete', receiptId: string): void;
+  }>();
 
-function handleDelete() {
-  if (!receiptToDelete.value) return;
-  deletingId.value = receiptToDelete.value.id;
-  emit('delete', receiptToDelete.value.id);
-  receiptToDelete.value = null;
-  setTimeout(() => {
-    deletingId.value = null;
-  }, 1500);
-}
+  const receiptToDelete = ref<Receipt | null>(null);
+  const deletingId = ref<string | null>(null);
+  const showDeleteModal = ref(false);
 
-function isPdf(receipt: Receipt): boolean {
-  return receipt.contentType === 'application/pdf';
-}
+  function confirmDelete(receipt: Receipt) {
+    receiptToDelete.value = receipt;
+    showDeleteModal.value = true;
+  }
 
-function formatDate(iso: string): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleString('en-US', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+  function handleDelete() {
+    if (!receiptToDelete.value) return;
+    deletingId.value = receiptToDelete.value.id;
+    emit('delete', receiptToDelete.value.id);
+    showDeleteModal.value = false;
+    receiptToDelete.value = null;
+    setTimeout(() => {
+      deletingId.value = null;
+    }, 1500);
+  }
 
-function formatAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
+  function isPdf(receipt: Receipt): boolean {
+    return receipt.contentType === 'application/pdf';
+  }
 
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-}
+  function formatDate(iso: string): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString(getLocaleString(), {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  function formatAmount(amount: number, currency: string): string {
+    return new Intl.NumberFormat(getLocaleString(), {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+    }).format(amount);
+  }
+
+  function formatSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' ' + t('common.units.bytes');
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' ' + t('common.units.kb');
+    return (bytes / (1024 * 1024)).toFixed(1) + ' ' + t('common.units.mb');
+  }
 </script>
-
-<style scoped>
-.receipt-list-enter-active,
-.receipt-list-leave-active {
-  transition: all 0.3s ease;
-}
-.receipt-list-enter-from,
-.receipt-list-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

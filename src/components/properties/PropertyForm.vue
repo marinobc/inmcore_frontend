@@ -2,92 +2,106 @@
   <form @submit.prevent="submit" class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <fwb-input
-        v-model="form.title"
-        label="Título"
-        placeholder="Ej: Apto en el centro"
-        required
-      />
+        v-model="titleModel"
+        :label="t('propertyForm.title')"
+        :placeholder="t('propertyForm.title')"
+        :invalid="!!errors.title"
+      >
+        <template v-if="errors.title" #message>
+          <span class="text-red-500 text-xs">{{ errors.title }}</span>
+        </template>
+      </fwb-input>
       <fwb-input
-        v-model="form.address"
-        label="Dirección Exacta"
-        placeholder="Calle..."
-        required
-      />
+        v-model="addressModel"
+        :label="t('propertyForm.address')"
+        :placeholder="t('propertyForm.address')"
+        :invalid="!!errors.address"
+      >
+        <template v-if="errors.address" #message>
+          <span class="text-red-500 text-xs">{{ errors.address }}</span>
+        </template>
+      </fwb-input>
 
       <div>
-        <label
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Tipo de Operación *</label
-        >
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          {{ t('propertyForm.operationType') }}
+        </label>
         <select
-          v-model="form.operationType"
-          required
+          v-model="operationTypeModel"
           class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:text-white"
+          :class="{ 'border-red-500': errors.operationType }"
         >
-          <option value="" disabled>Seleccione una opción</option>
-          <option value="VENTA">Venta</option>
-          <option value="ALQUILER">Alquiler</option>
-          <option value="ANTICRETICO">Anticrético</option>
+          <option value="" disabled>{{ t('propertyForm.selectOption') }}</option>
+          <option value="VENTA">{{ t('propertyForm.sale') }}</option>
+          <option value="ALQUILER">{{ t('propertyForm.rent') }}</option>
+          <option value="ANTICRETICO">{{ t('propertyForm.anticretic') }}</option>
         </select>
-        <p
-          v-if="showValidation && !form.operationType"
-          class="text-red-500 text-xs mt-1"
-        >
-          El tipo de operación es obligatorio
+        <p v-if="errors.operationType" class="text-red-500 text-xs mt-1">
+          {{ errors.operationType }}
         </p>
       </div>
 
       <div>
-        <label
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Tipo de Inmueble</label
-        >
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          {{ t('propertyForm.propertyType') }}
+        </label>
         <select
-          v-model="form.type"
+          v-model="typeModel"
           class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:text-white"
         >
-          <option value="APARTAMENTO">Apartamento</option>
-          <option value="CASA">Casa</option>
-          <option value="COMERCIAL">Local Comercial</option>
+          <option value="APARTAMENTO">{{ t('propertyForm.apartment') }}</option>
+          <option value="CASA">{{ t('propertyForm.house') }}</option>
+          <option value="COMERCIAL">{{ t('propertyForm.commercialSpace') }}</option>
         </select>
       </div>
 
       <div>
         <fwb-input
-          v-model.number="form.price"
+          v-model.number="priceModel"
           type="number"
-          label="Precio ($)"
-          required
+          :label="t('common.price')"
           :disabled="isPriceDisabled"
-        />
+          :invalid="!!errors.price"
+        >
+          <template v-if="errors.price" #message>
+            <span class="text-red-500 text-xs">{{ errors.price }}</span>
+          </template>
+        </fwb-input>
         <p v-if="isPriceDisabled" class="text-xs text-yellow-600 mt-1">
-          ⚠️ Los agentes no pueden modificar el precio. Solo administradores.
+          {{ t('propertyForm.priceWarning') }}
         </p>
       </div>
 
       <fwb-input
-        v-model.number="form.m2"
+        v-model.number="m2Model"
         type="number"
-        label="Superficie (m²)"
-        required
-      />
+        :label="t('common.m2')"
+        :invalid="!!errors.m2"
+      >
+        <template v-if="errors.m2" #message>
+          <span class="text-red-500 text-xs">{{ errors.m2 }}</span>
+        </template>
+      </fwb-input>
       <fwb-input
-        v-model.number="form.rooms"
+        v-model.number="roomsModel"
         type="number"
-        label="Habitaciones"
-        required
-      />
+        :label="t('propertyForm.rooms')"
+        :invalid="!!errors.rooms"
+      >
+        <template v-if="errors.rooms" #message>
+          <span class="text-red-500 text-xs">{{ errors.rooms }}</span>
+        </template>
+      </fwb-input>
 
       <div class="col-span-2">
-        <label
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Propietario (Opcional)</label
-        >
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          {{ t('propertyForm.owner') }}
+        </label>
         <select
-          v-model="form.ownerId"
+          v-model="ownerIdModel"
           class="bg-gray-50 border border-gray-300 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:text-white"
         >
-          <option value="">Sin propietario asignado</option>
+          <option value="">{{ t('propertyForm.noOwnerAssigned') }}</option>
           <option v-for="owner in owners" :key="owner.id" :value="owner.id">
             {{ owner.fullName || owner.name }} - {{ owner.email }}
           </option>
@@ -95,142 +109,157 @@
       </div>
     </div>
 
-    <div
-      v-if="props.propertyId"
-      class="border-t border-gray-200 dark:border-gray-700 pt-4"
-    >
+    <div v-if="props.propertyId" class="border-t border-gray-200 dark:border-gray-700 pt-4">
       <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
-        Imágenes de la Propiedad
+        {{ t('propertyForm.images') }}
       </h3>
       <image-upload
         :property-id="props.propertyId"
-        :existing-images="form.imageUrls"
+        :existing-images="imageUrlsModel"
         @images-updated="handleImagesUpdated"
       />
     </div>
     <div v-else class="border-t border-gray-200 dark:border-gray-700 pt-4">
-      <div
-        class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed"
-      >
-        <p class="text-gray-500">
-          Las imágenes se pueden subir después de crear la propiedad
-        </p>
+      <div class="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed">
+        <p class="text-gray-500">{{ t('propertyForm.imagesLater') }}</p>
       </div>
     </div>
 
     <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
-      <fwb-button color="alternative" @click="$emit('cancel')"
-        >Cancelar</fwb-button
-      >
-      <fwb-button type="submit" gradient="blue">Confirmar Registro</fwb-button>
+      <fwb-button color="alternative" @click="$emit('cancel')">
+        {{ t('common.cancel') }}
+      </fwb-button>
+      <fwb-button type="submit" gradient="blue">{{ t('propertyForm.confirmRegister') }}</fwb-button>
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch, computed } from 'vue';
-import { FwbInput, FwbButton } from 'flowbite-vue';
-import { userService } from '@/services/userService';
-import { useAuth } from '@/composables/useAuth';
-import ImageUpload from '@/components/properties/ImageUpload.vue';
-import type { PropertyFormPayload, OperationType } from '@/types/property';
+  import { ref, onMounted, watch, computed } from 'vue';
+  import { useForm } from 'vee-validate';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { propertySchema } from '@/modules/properties/schemas/propertySchema';
+  import type { PropertyFormValues } from '@/modules/properties/schemas/propertySchema';
+  import { FwbInput, FwbButton } from 'flowbite-vue';
+  import { userService } from '@/services/userService';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
+  import ImageUpload from '@/components/properties/ImageUpload.vue';
+  import type { PropertyFormPayload, OperationType } from '@/types/property';
+  import { useI18n } from 'vue-i18n';
 
-interface OwnerUser {
-  id: string;
-  userType: string;
-  status: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  [key: string]: unknown;
-}
+  const { t } = useI18n();
 
-const props = defineProps<{
-  initialData?: Record<string, unknown>;
-  propertyId?: string;
-}>();
-
-const emit = defineEmits(['submit', 'cancel']);
-const owners = ref<OwnerUser[]>([]);
-const showValidation = ref(false);
-const { user } = useAuth();
-
-const isAgent = computed(() => {
-  const roles = (user.value?.roles as string[]) || [];
-  const userType = user.value?.userType;
-  return (
-    (roles.includes('AGENT') || userType === 'EMPLOYEE') &&
-    !(roles.includes('ADMIN') || userType === 'ADMIN')
-  );
-});
-
-const isPriceDisabled = computed(() => {
-  return isAgent.value && !!props.propertyId;
-});
-
-const form = reactive({
-  title: '',
-  address: '',
-  price: 0,
-  type: 'APARTAMENTO',
-  operationType: '',
-  m2: 0,
-  rooms: 0,
-  ownerId: '',
-  imageUrls: [] as string[],
-});
-
-const handleImagesUpdated = (urls: string[]) => {
-  form.imageUrls = urls;
-};
-
-const loadOwners = async () => {
-  try {
-    const users = await userService.getUsers();
-    owners.value = users.filter(
-      (u: OwnerUser) => u.userType === 'OWNER' && u.status === 'ACTIVE'
-    );
-  } catch (error) {
-    console.error('Error loading owners:', error);
+  interface OwnerUser {
+    id: string;
+    userType: string;
+    status: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    [key: string]: unknown;
   }
-};
 
-const submit = () => {
-  showValidation.value = true;
-  if (!form.operationType) return;
+  const props = defineProps<{
+    initialData?: Record<string, unknown>;
+    propertyId?: string;
+  }>();
 
-  const submitData: PropertyFormPayload = {
-    title: form.title,
-    address: form.address,
-    price: !isAgent.value || !props.propertyId ? form.price : 0,
-    type: form.type,
-    operationType: form.operationType as OperationType,
-    m2: form.m2,
-    rooms: form.rooms,
-    ownerId: form.ownerId || null,
-    imageUrls: form.imageUrls,
+  const emit = defineEmits(['submit', 'cancel']);
+  const owners = ref<OwnerUser[]>([]);
+  const authStore = useAuthStore();
+
+  const isAgent = computed(() => {
+    const u = authStore.user as UserClaims | null;
+    const roles = (u?.roles as string[]) || [];
+    const userType = u?.userType;
+    return (
+      (roles.includes('AGENT') || userType === 'EMPLOYEE') &&
+      !(roles.includes('ADMIN') || userType === 'ADMIN')
+    );
+  });
+
+  const isPriceDisabled = computed(() => {
+    return isAgent.value && !!props.propertyId;
+  });
+
+  const { defineField, errors, handleSubmit, setValues } = useForm<PropertyFormValues>({
+    validationSchema: toTypedSchema(propertySchema),
+    initialValues: {
+      title: '',
+      address: '',
+      price: 0,
+      type: 'APARTAMENTO',
+      operationType: '' as PropertyFormValues['operationType'],
+      m2: 0,
+      rooms: 0,
+      ownerId: '',
+      imageUrls: [] as string[],
+    },
+    validateOnMount: false,
+  });
+
+  const [titleModel] = defineField('title');
+  const [addressModel] = defineField('address');
+  const [priceModel] = defineField('price');
+  const [typeModel] = defineField('type');
+  const [operationTypeModel] = defineField('operationType');
+  const [m2Model] = defineField('m2');
+  const [roomsModel] = defineField('rooms');
+  const [ownerIdModel] = defineField('ownerId');
+  const [imageUrlsModel] = defineField('imageUrls');
+
+  const handleImagesUpdated = (urls: string[]) => {
+    imageUrlsModel.value = urls;
   };
 
-  emit('submit', submitData);
-};
-
-watch(
-  () => props.initialData,
-  (data) => {
-    if (data) {
-      form.title = (data.title as string) || '';
-      form.address = (data.address as string) || '';
-      form.price = (data.price as number) || 0;
-      form.type = (data.type as string) || 'APARTAMENTO';
-      form.operationType = (data.operationType as string) || '';
-      form.m2 = (data.m2 as number) || 0;
-      form.rooms = (data.rooms as number) || 0;
-      form.ownerId = (data.ownerId as string) || '';
-      form.imageUrls = (data.imageUrls as string[]) || [];
+  const loadOwners = async () => {
+    try {
+      const users = await userService.getUsers();
+      owners.value = users.filter(
+        (u: OwnerUser) => u.userType === 'OWNER' && u.status === 'ACTIVE'
+      );
+    } catch (error) {
+      console.error('Error loading owners:', error);
     }
-  },
-  { immediate: true }
-);
+  };
 
-onMounted(loadOwners);
+  const onSubmit = (values: PropertyFormValues) => {
+    const submitData: PropertyFormPayload = {
+      title: values.title,
+      address: values.address,
+      price: !isAgent.value || !props.propertyId ? values.price : 0,
+      type: values.type,
+      operationType: values.operationType as OperationType,
+      m2: values.m2,
+      rooms: values.rooms,
+      ownerId: values.ownerId || null,
+      imageUrls: values.imageUrls || [],
+    };
+
+    emit('submit', submitData);
+  };
+
+  const submit = handleSubmit(onSubmit);
+
+  watch(
+    () => props.initialData,
+    (data) => {
+      if (data) {
+        setValues({
+          title: (data.title as string) || '',
+          address: (data.address as string) || '',
+          price: (data.price as number) || 0,
+          type: (data.type as string) || 'APARTAMENTO',
+          operationType: (data.operationType as string) || '',
+          m2: (data.m2 as number) || 0,
+          rooms: (data.rooms as number) || 0,
+          ownerId: (data.ownerId as string) || '',
+          imageUrls: (data.imageUrls as string[]) || [],
+        });
+      }
+    },
+    { immediate: true }
+  );
+
+  onMounted(loadOwners);
 </script>

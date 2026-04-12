@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 import type { LoginPayload } from '@/types/user';
 
 export const authService = {
@@ -7,10 +7,7 @@ export const authService = {
     return response.data;
   },
 
-  async changePassword(payload: {
-    currentPassword: string;
-    newPassword: string;
-  }) {
+  async changePassword(payload: { currentPassword: string; newPassword: string }) {
     const response = await api.post('/auth/change-password', payload);
     return response.data;
   },
@@ -34,3 +31,5 @@ export const authService = {
     localStorage.removeItem('refresh_token');
   },
 };
+
+export { authService as default };

@@ -1,955 +1,726 @@
 <template>
-  <form @submit.prevent="submit" class="space-y-6">
+  <form @submit="onFormSubmit" @submit.prevent class="space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <fwb-input
-          v-model="form.firstName"
-          :label="t.users.form.firstName"
-          placeholder="Juan"
+          v-model="firstName"
+          :label="t('users.form.firstName')"
+          :placeholder="t('users.form.fullNamePlaceholder')"
           required
           :validation-status="errors.firstName ? 'error' : undefined"
           :validation-message="errors.firstName"
           :class="{
-            'border-blue-500 ring-2 ring-blue-200':
-              isFieldModified('firstName'),
+            'border-blue-500 ring-2 ring-blue-200': isFieldModified('firstName'),
           }"
-          @blur="validateField('firstName')"
+          @blur="handleFirstNameBlur"
         />
-        <p
-          v-if="isFieldModified('firstName')"
-          class="text-xs text-blue-600 mt-1"
-        >
-          ✏️ Modificando nombre
+        <p v-if="isFieldModified('firstName')" class="text-xs text-blue-600 mt-1">
+          {{ t('userForm.modifyingName') }}
         </p>
       </div>
 
       <div>
         <fwb-input
-          v-model="form.lastName"
-          :label="t.users.form.lastName"
-          placeholder="Pérez"
+          v-model="lastName"
+          :label="t('users.form.lastName')"
+          :placeholder="t('users.form.fullNamePlaceholder')"
           required
           :validation-status="errors.lastName ? 'error' : undefined"
           :validation-message="errors.lastName"
           :class="{
             'border-blue-500 ring-2 ring-blue-200': isFieldModified('lastName'),
           }"
-          @blur="validateField('lastName')"
+          @blur="handleLastNameBlur"
         />
-        <p
-          v-if="isFieldModified('lastName')"
-          class="text-xs text-blue-600 mt-1"
-        >
-          ✏️ Modificando apellido
+        <p v-if="isFieldModified('lastName')" class="text-xs text-blue-600 mt-1">
+          {{ t('userForm.modifyingLastName') }}
         </p>
       </div>
 
       <div>
         <fwb-input
-          v-model="form.email"
-          :label="t.users.form.email"
+          v-model="email"
+          :label="t('users.form.email')"
           type="email"
-          placeholder="juan@gmail.com"
+          :placeholder="t('users.form.emailPlaceholder')"
           :disabled="isEditing"
           required
           :validation-status="emailValidationStatus"
           :validation-message="emailErrorMessage"
-          @input="onEmailInput"
-          @blur="validateEmailOnBlur"
+          @input="handleEmailInput"
+          @blur="handleEmailBlur"
         />
-        <p
-          v-if="isFieldModified('email') && !isEditing"
-          class="text-xs text-blue-600 mt-1"
-        >
-          ✏️ Modificando email
+        <p v-if="isFieldModified('email') && !isEditing" class="text-xs text-blue-600 mt-1">
+          {{ t('userForm.modifyingEmail') }}
         </p>
         <p v-if="emailChecking" class="text-xs text-gray-500 mt-1">
-          Verificando disponibilidad...
+          {{ t('userForm.checkingAvailability') }}
         </p>
       </div>
 
       <div>
         <fwb-input
-          v-model="form.phone"
-          :label="t.users.form.phone"
-          placeholder="+591 ..."
+          v-model="phone"
+          :label="t('users.form.phone')"
+          :placeholder="t('users.form.phonePlaceholder')"
           required
           :validation-status="errors.phone ? 'error' : undefined"
           :validation-message="errors.phone"
           :class="{
             'border-blue-500 ring-2 ring-blue-200': isFieldModified('phone'),
           }"
-          @blur="validateField('phone')"
+          @blur="handlePhoneBlur"
         />
         <p v-if="isFieldModified('phone')" class="text-xs text-blue-600 mt-1">
-          ✏️ Modificando teléfono
+          {{ t('userForm.modifyingPhone') }}
         </p>
       </div>
 
       <div>
         <fwb-input
-          v-model="form.birthDate"
-          label="Fecha de Nacimiento"
+          v-model="birthDate"
+          :label="t('users.form.birthDate')"
           type="date"
           required
           :validation-status="errors.birthDate ? 'error' : undefined"
           :validation-message="errors.birthDate"
           :class="{
-            'border-blue-500 ring-2 ring-blue-200':
-              isFieldModified('birthDate'),
+            'border-blue-500 ring-2 ring-blue-200': isFieldModified('birthDate'),
           }"
-          @blur="validateField('birthDate')"
+          @blur="handleBirthDateBlur"
         />
-        <p
-          v-if="isFieldModified('birthDate')"
-          class="text-xs text-blue-600 mt-1"
-        >
-          ✏️ Modificando fecha
+        <p v-if="isFieldModified('birthDate')" class="text-xs text-blue-600 mt-1">
+          {{ t('userForm.modifyingName') }}
         </p>
       </div>
     </div>
 
     <div v-if="!clientOnly && !ownerOnly">
-      <label
-        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-        >Tipo de Usuario / Rol</label
-      >
+      <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+        {{ t('users.form.role') }}
+      </label>
       <select
-        v-model="form.userType"
+        v-model="userType"
         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
         :disabled="isEditing"
         required
       >
-        <option
-          v-for="option in availableUserTypes"
-          :key="option.value"
-          :value="option.value"
-        >
+        <option v-for="option in availableUserTypes" :key="option.value" :value="option.value">
           {{ option.label }}
         </option>
       </select>
     </div>
 
-    <div
-      v-if="!clientOnly && form.userType === 'EMPLOYEE'"
-      class="space-y-4 border-t pt-4"
-    >
-      <h3 class="text-md font-semibold">Información Laboral</h3>
+    <div v-if="!clientOnly && userType === 'EMPLOYEE'" class="space-y-4 border-t pt-4">
+      <h3 class="text-md font-semibold">{{ t('userForm.workInfo') }}</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <fwb-input
-            v-model="form.department"
-            label="Departamento"
+            v-model="department"
+            :label="t('users.form.department')"
             required
             :validation-status="errors.department ? 'error' : undefined"
             :validation-message="errors.department"
             :class="{ 'border-blue-500 ring-2': isFieldModified('department') }"
-            @blur="validateField('department')"
+            @blur="handleDepartmentBlur"
           />
           <p v-if="isFieldModified('department')" class="text-xs text-blue-600">
-            ✏️ Modificando departamento
+            {{ t('userForm.modifyingName') }}
           </p>
         </div>
         <div>
           <fwb-input
-            v-model="form.position"
-            label="Cargo"
+            v-model="position"
+            :label="t('users.form.position')"
             required
             :validation-status="errors.position ? 'error' : undefined"
             :validation-message="errors.position"
             :class="{ 'border-blue-500 ring-2': isFieldModified('position') }"
-            @blur="validateField('position')"
+            @blur="handlePositionBlur"
           />
           <p v-if="isFieldModified('position')" class="text-xs text-blue-600">
-            ✏️ Modificando cargo
+            {{ t('userForm.modifyingName') }}
           </p>
         </div>
         <div>
           <fwb-input
-            v-model="form.hireDate"
+            v-model="hireDate"
             type="date"
-            label="Fecha Contratación"
+            :label="t('users.form.hireDate')"
             :class="{ 'border-blue-500 ring-2': isFieldModified('hireDate') }"
           />
           <p v-if="isFieldModified('hireDate')" class="text-xs text-blue-600">
-            ✏️ Modificando contratación
+            {{ t('userForm.modifyingName') }}
           </p>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="ownerOnly || (!clientOnly && form.userType === 'OWNER')"
-      class="space-y-4 border-t pt-4"
-    >
-      <h3 class="text-md font-semibold dark:text-white">Información Fiscal</h3>
+    <div v-if="ownerOnly || (!clientOnly && userType === 'OWNER')" class="space-y-4 border-t pt-4">
+      <h3 class="text-md font-semibold dark:text-white">{{ t('userForm.fiscalInfo') }}</h3>
       <div>
         <fwb-input
-          v-model="form.taxId"
-          label="CI / NIT"
-          placeholder="Ej: 1234567 o 10203040"
+          v-model="taxId"
+          :label="t('users.table.ciNit')"
+          :placeholder="t('users.table.ciNit')"
           required
           :validation-status="errors.taxId ? 'error' : undefined"
           :validation-message="errors.taxId"
           :class="{ 'border-blue-500 ring-2': isFieldModified('taxId') }"
-          @blur="validateField('taxId')"
+          @blur="handleTaxIdBlur"
         />
         <p v-if="isFieldModified('taxId')" class="text-xs text-blue-600">
-          ✏️ Modificando CI/NIT
+          {{ t('userForm.modifyingName') }}
         </p>
         <p class="text-[10px] text-gray-400 mt-1">
-          Este documento identifica legalmente al propietario del inmueble.
+          {{ t('userForm.fiscalHelp') }}
         </p>
       </div>
     </div>
 
     <div
-      v-if="
-        (!clientOnly && form.userType === 'INTERESTED_CLIENT') || clientOnly
-      "
+      v-if="(!clientOnly && userType === 'INTERESTED_CLIENT') || clientOnly"
       class="space-y-4 border-t pt-4"
     >
-      <h3 class="text-md font-semibold">Preferencias del Cliente</h3>
+      <h3 class="text-md font-semibold">{{ t('userForm.clientPrefs') }}</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Método de Contacto
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            {{ t('users.form.contactMethod') }}
           </label>
           <select
-            v-model="form.preferredContactMethod"
+            v-model="preferredContactMethod"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
-            <option value="EMAIL">Email</option>
-            <option value="PHONE">Teléfono</option>
-            <option value="WHATSAPP">WhatsApp</option>
+            <option value="EMAIL">{{ t('userForm.email') }}</option>
+            <option value="PHONE">{{ t('userForm.phone') }}</option>
+            <option value="WHATSAPP">{{ t('userForm.whatsApp') }}</option>
           </select>
         </div>
+        <fwb-input v-model="budget" type="number" :label="t('users.view.budget')" />
         <fwb-input
-          v-model="form.budget"
-          type="number"
-          label="Presupuesto ($)"
-        />
-        <fwb-input
-          v-model="form.preferredZone"
-          label="Zona Preferida"
-          placeholder="Ej: Zona Sur, Centro..."
+          v-model="preferredZone"
+          :label="t('users.view.preferredZone')"
+          :placeholder="t('users.view.preferredZone')"
         />
         <div>
-          <label
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Tipo de Inmueble
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            {{ t('users.form.propertyType') }}
           </label>
           <select
-            v-model="form.preferredPropertyType"
+            v-model="preferredPropertyType"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
           >
-            <option value="">Sin preferencia</option>
-            <option value="APARTAMENTO">Apartamento</option>
-            <option value="CASA">Casa</option>
-            <option value="COMERCIAL">Local Comercial</option>
+            <option value="">{{ t('userForm.noPreference') }}</option>
+            <option value="APARTMENT">{{ t('propertyType.apartment') }}</option>
+            <option value="HOUSE">{{ t('propertyType.house') }}</option>
+            <option value="COMMERCIAL">{{ t('propertyType.commercialSpace') }}</option>
           </select>
         </div>
         <fwb-input
-          v-model.number="form.preferredRooms"
+          v-model="preferredRooms"
           type="number"
-          label="Número de Habitaciones"
-          placeholder="Ej: 2"
+          :label="t('users.view.rooms')"
+          :placeholder="t('users.view.rooms')"
         />
       </div>
     </div>
 
     <div class="flex justify-end space-x-3 pt-4 border-t">
-      <fwb-button color="alternative" @click="$emit('cancel')">{{
-        t.users.form.cancel
-      }}</fwb-button>
-      <fwb-button
-        type="submit"
-        gradient="blue"
-        :disabled="!isFormValid || emailChecking"
-      >
-        {{ isEditing ? t.users.form.update : t.users.form.create }}
+      <fwb-button color="alternative" @click="$emit('cancel')">
+        {{ t('users.form.cancel') }}
+      </fwb-button>
+      <fwb-button type="submit" gradient="blue" :disabled="!isFormValid || emailChecking">
+        {{ isEditing ? t('users.form.update') : t('users.form.create') }}
       </fwb-button>
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch, computed } from 'vue';
-import { FwbInput, FwbButton } from 'flowbite-vue';
-import { t } from '@/locales/i18n';
-import type { UserFormPayload } from '@/types/user';
-import { userService } from '@/services/userService';
-import { useAuth } from '@/composables/useAuth';
+  import { ref, watch, computed, onMounted } from 'vue';
+  import { useForm } from 'vee-validate';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { FwbInput, FwbButton } from 'flowbite-vue';
+  import { useI18n } from 'vue-i18n';
 
-const props = defineProps<{
-  initialData?: Record<string, unknown>;
-  isEditing?: boolean;
-  clientOnly?: boolean;
-  ownerOnly?: boolean;
-}>();
+  import type { UserFormPayload } from '@/types/user';
+  import { userSchema } from '@/modules/auth/schemas/userSchema';
+  import type { UserFormValues } from '@/modules/auth/schemas/userSchema';
+  import { useEmailValidation } from '@/composables/useEmailValidation';
+  import { useAuthStore, type UserClaims } from '@/modules/auth';
 
-const emit = defineEmits(['submit', 'cancel']);
-const errors = ref<Record<string, string>>({});
-const modifiedFields = ref<Set<string>>(new Set());
-const { user: currentUser } = useAuth();
+  const { t } = useI18n();
 
-const emailFormatError = ref('');
-const emailDuplicateError = ref('');
-const emailChecking = ref(false);
-let emailDebounceTimer: ReturnType<typeof setTimeout>;
-let lastValidatedEmail = '';
+  const props = defineProps<{
+    initialData?: Record<string, unknown>;
+    isEditing?: boolean;
+    clientOnly?: boolean;
+    ownerOnly?: boolean;
+  }>();
 
-const availableUserTypes = computed(() => {
-  const roles = (currentUser.value?.roles as string[]) || [];
-  const isAgent = roles.includes('AGENT') && !roles.includes('ADMIN');
+  const emit = defineEmits(['submit', 'cancel']);
+  const modifiedFields = ref<Set<string>>(new Set());
+  const authStore = useAuthStore();
+  const currentUser = computed(() => authStore.user as UserClaims | null);
 
-  if (isAgent) {
-    return [
-      { value: 'OWNER', label: 'Propietario' },
-      { value: 'INTERESTED_CLIENT', label: 'Cliente Interesado' },
-    ];
-  }
+  const {
+    emailFormatError,
+    emailDuplicateError,
+    emailChecking,
+    validateEmailFormat,
+    validateEmailUniqueness,
+    onEmailInput,
+  } = useEmailValidation();
 
-  return [
-    { value: 'ADMIN', label: 'Administrador' },
-    { value: 'EMPLOYEE', label: 'Empleado / Agente' },
-    { value: 'OWNER', label: 'Propietario' },
-    { value: 'INTERESTED_CLIENT', label: 'Cliente Interesado' },
-  ];
-});
+  const { defineField, handleSubmit, values, setValues, errors, resetForm } = useForm({
+    validationSchema: toTypedSchema(userSchema),
+    initialValues: mapInitialData(),
+  });
 
-const toDateString = (val: unknown): string => {
-  if (!val) return '';
-  return String(val).split('T')[0];
-};
+  onMounted(() => {});
 
-const mapData = (d: Record<string, unknown> | null): UserFormPayload => {
-  if (!d) {
+  const [firstName, firstNameAttrs] = defineField('firstName');
+  const [lastName, lastNameAttrs] = defineField('lastName');
+  const [email] = defineField('email');
+  const [phone, phoneAttrs] = defineField('phone');
+  const [birthDate, birthDateAttrs] = defineField('birthDate');
+  const [userType] = defineField('userType');
+  const [department, departmentAttrs] = defineField('department');
+  const [position, positionAttrs] = defineField('position');
+  const [hireDate] = defineField('hireDate');
+  const [taxId, taxIdAttrs] = defineField('taxId');
+  const [preferredContactMethod] = defineField('preferredContactMethod');
+  const [budget] = defineField('budget');
+  const [preferredZone] = defineField('preferredZone');
+  const [preferredPropertyType] = defineField('preferredPropertyType');
+  const [preferredRoomsRaw] = defineField('preferredRooms');
+
+  const preferredRooms = computed({
+    get: () => {
+      const val = preferredRoomsRaw.value;
+      if (val === null || val === undefined) return '';
+      return String(val);
+    },
+    set: (val: string | number) => {
+      if (val === '' || val === null || val === undefined) {
+        preferredRoomsRaw.value = '';
+      } else {
+        preferredRoomsRaw.value = typeof val === 'string' ? val : val;
+      }
+    },
+  });
+
+  function mapInitialData(): UserFormValues {
+    const d = props.initialData;
+    if (!d) {
+      return {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        userType: props.ownerOnly ? 'OWNER' : props.clientOnly ? 'INTERESTED_CLIENT' : 'EMPLOYEE',
+        birthDate: '',
+        department: '',
+        position: '',
+        hireDate: '',
+        taxId: '',
+        preferredContactMethod: undefined,
+        budget: '',
+      };
+    }
+
+    const toDateString = (val: unknown): string => {
+      if (!val) return '';
+      return String(val).split('T')[0];
+    };
+
     return {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      userType: props.ownerOnly ? 'OWNER' : 'EMPLOYEE',
-      birthDate: '',
-      department: '',
-      position: '',
-      hireDate: '',
-      taxId: '',
-      preferredContactMethod: '',
-      budget: '',
+      firstName: String(d.firstName || ''),
+      lastName: String(d.lastName || ''),
+      email: String(d.email || ''),
+      phone: String(d.phone || ''),
+      userType: String(
+        d.userType ||
+          d.personType ||
+          (props.ownerOnly ? 'OWNER' : props.clientOnly ? 'INTERESTED_CLIENT' : 'EMPLOYEE')
+      ) as UserFormValues['userType'],
+      birthDate: toDateString(d.birthDate),
+      department: String(d.department || ''),
+      position: String(d.position || ''),
+      hireDate: toDateString(d.hireDate),
+      taxId: String(d.taxId || d.nit || ''),
+      preferredContactMethod:
+        (d.preferredContactMethod as 'EMAIL' | 'PHONE' | 'WHATSAPP' | undefined) || undefined,
+      budget: String(d.budget || ''),
+      preferredZone: String(d.preferredZone || ''),
+      preferredPropertyType: String(d.preferredPropertyType || ''),
+      preferredRooms: (d.preferredRooms as number | string) || '',
     };
   }
 
-  return {
-    firstName: String(d.firstName || ''),
-    lastName: String(d.lastName || ''),
-    email: String(d.email || ''),
-    phone: String(d.phone || ''),
-    userType: String(
-      d.userType || (props.ownerOnly ? 'OWNER' : 'EMPLOYEE')
-    ) as UserFormPayload['userType'],
-    birthDate: toDateString(d.birthDate),
-    department: String(d.department || ''),
-    position: String(d.position || ''),
-    hireDate: toDateString(d.hireDate),
-    taxId: String(d.taxId || d.nit || ''),
-    preferredContactMethod: String(d.preferredContactMethod || ''),
-    budget: String(d.budget || ''),
-    preferredZone: String(d.preferredZone || ''),
-    preferredPropertyType: String(d.preferredPropertyType || ''),
-    preferredRooms: (d.preferredRooms as number | string) || '',
+  const originalValues = ref<UserFormValues>(mapInitialData());
+
+  watch(
+    () => props.ownerOnly,
+    (val) => {
+      if (val) {
+        userType.value = 'OWNER';
+      }
+    },
+    { immediate: true }
+  );
+
+  watch(
+    () => props.clientOnly,
+    (val) => {
+      if (val) {
+        userType.value = 'INTERESTED_CLIENT';
+      }
+    },
+    { immediate: true }
+  );
+
+  const handleFirstNameBlur = () => firstNameAttrs.value.onBlur?.();
+  const handleLastNameBlur = () => lastNameAttrs.value.onBlur?.();
+  const handlePhoneBlur = () => phoneAttrs.value.onBlur?.();
+  const handleBirthDateBlur = () => birthDateAttrs.value.onBlur?.();
+  const handleDepartmentBlur = () => departmentAttrs.value.onBlur?.();
+  const handlePositionBlur = () => positionAttrs.value.onBlur?.();
+  const handleTaxIdBlur = () => taxIdAttrs.value.onBlur?.();
+
+  const handleEmailInput = () => {
+    const emailValue = email.value || '';
+    validateEmailFormat(emailValue);
+    emailDuplicateError.value = '';
+
+    onEmailInput(emailValue);
   };
-};
 
-const initialValues = mapData(props.initialData || null);
-const form = reactive<UserFormPayload>({ ...initialValues });
-const originalValues = reactive<UserFormPayload>({ ...initialValues });
-
-watch(
-  () => props.ownerOnly,
-  (val) => {
-    if (val) form.userType = 'OWNER';
-  },
-  { immediate: true }
-);
-
-const validateEmailFormat = (email: string): boolean => {
-  if (!email) {
-    emailFormatError.value = 'Email requerido';
-    return false;
-  }
-
-  if (!email.includes('@')) {
-    emailFormatError.value = 'Email inválido: debe contener @';
-    return false;
-  }
-
-  emailFormatError.value = '';
-  return true;
-};
-
-const validateEmailUniqueness = async (
-  email: string,
-  skipIfSameAsOriginal: boolean = true
-): Promise<boolean> => {
-  if (props.clientOnly) {
-    emailDuplicateError.value = '';
-    return true;
-  }
-
-  const trimmedEmail = email?.trim().toLowerCase();
-
-  if (!trimmedEmail) {
-    emailDuplicateError.value = '';
-    return true;
-  }
-
-  if (
-    skipIfSameAsOriginal &&
-    props.isEditing &&
-    String(props.initialData?.email || '').toLowerCase() === trimmedEmail
-  ) {
-    emailDuplicateError.value = '';
-    return true;
-  }
-
-  emailChecking.value = true;
-
-  try {
-    const users = await userService.getUsers();
-    const emailExists = users.some(
-      (user: Record<string, unknown>) =>
-        String(user.email || '').toLowerCase() === trimmedEmail &&
-        (!props.isEditing || user.id !== props.initialData?.id)
-    );
-
-    if (emailExists) {
-      emailDuplicateError.value =
-        'Este correo electrónico ya está registrado. Por favor, use otro email.';
-      return false;
+  const handleEmailBlur = async () => {
+    const emailValue = email.value || '';
+    if (emailValue) {
+      const originalEmail = String(props.initialData?.email || '').toLowerCase();
+      await validateEmailUniqueness(emailValue, undefined, originalEmail);
     }
+  };
 
-    emailDuplicateError.value = '';
-    return true;
-  } catch {
-    console.error('Error verificando email');
-    emailDuplicateError.value = '';
-    return true;
-  } finally {
-    emailChecking.value = false;
-  }
-};
+  watch(
+    () => props.initialData,
+    (newData) => {
+      if (!newData) return;
 
-const validateEmail = async (
-  email: string,
-  skipUniquenessCheck: boolean = false
-): Promise<boolean> => {
-  const isFormatValid = validateEmailFormat(email);
-  if (!isFormatValid) return false;
+      const toDateString = (val: unknown): string => {
+        if (!val) return '';
+        return String(val).split('T')[0];
+      };
 
-  if (props.clientOnly) return true;
+      const resolvedUserType = String(
+        newData.userType ||
+          newData.personType ||
+          (props.ownerOnly ? 'OWNER' : props.clientOnly ? 'INTERESTED_CLIENT' : 'EMPLOYEE')
+      ) as UserFormValues['userType'];
 
-  if (!skipUniquenessCheck) {
-    const isUnique = await validateEmailUniqueness(email, true);
-    return isUnique;
-  }
-  return true;
-};
+      const mapped: UserFormValues = {
+        firstName: String(newData.firstName || ''),
+        lastName: String(newData.lastName || ''),
+        email: String(newData.email || ''),
+        phone: String(newData.phone || ''),
+        userType: resolvedUserType,
+        birthDate: toDateString(newData.birthDate),
+        department: String(newData.department || ''),
+        position: String(newData.position || ''),
+        hireDate: toDateString(newData.hireDate),
+        taxId: String(newData.taxId || (newData.nit as string) || ''),
+        preferredContactMethod:
+          (newData.preferredContactMethod as 'EMAIL' | 'PHONE' | 'WHATSAPP' | undefined) ||
+          undefined,
+        budget: String(newData.budget || ''),
+        preferredZone: String(newData.preferredZone || ''),
+        preferredPropertyType: String(newData.preferredPropertyType || ''),
+        preferredRooms: (newData.preferredRooms as number | string) || '',
+      };
 
-const onEmailInput = () => {
-  const email = form.email;
-  validateEmailFormat(email);
-  emailDuplicateError.value = '';
+      setValues(mapped);
+      originalValues.value = { ...mapped };
+      modifiedFields.value.clear();
+      resetForm({ values: mapped });
+      emailFormatError.value = '';
+      emailDuplicateError.value = '';
+    },
+    { deep: true, immediate: true }
+  );
 
-  clearTimeout(emailDebounceTimer);
-  emailDebounceTimer = setTimeout(async () => {
-    if (email && email !== lastValidatedEmail) {
-      lastValidatedEmail = email;
-      await validateEmailUniqueness(email, true);
-    }
-  }, 800);
-};
+  const isFieldModified = (field: string) => modifiedFields.value.has(field);
 
-const validateEmailOnBlur = async () => {
-  if (form.email) {
-    await validateEmail(form.email, false);
-  }
-};
+  watch(
+    values,
+    (currentValues) => {
+      const original = originalValues.value;
 
-const validateEmployeeFields = () => {
-  if (!props.clientOnly && form.userType === 'EMPLOYEE') {
-    if (!form.department || form.department.trim().length < 2) {
-      errors.value.department = 'Departamento requerido (mínimo 2 caracteres)';
-      return false;
-    } else {
-      delete errors.value.department;
-    }
-
-    if (!form.position || form.position.trim().length < 2) {
-      errors.value.position = 'Cargo requerido (mínimo 2 caracteres)';
-      return false;
-    } else {
-      delete errors.value.position;
-    }
-
-    if (form.hireDate) {
-      const hireDate = new Date(form.hireDate);
-      const today = new Date();
-      if (hireDate > today) {
-        errors.value.hireDate = 'La fecha de contratación no puede ser futura';
-        return false;
-      } else {
-        delete errors.value.hireDate;
-      }
-    }
-  }
-  return true;
-};
-
-const validateField = (field: keyof UserFormPayload) => {
-  const value = form[field];
-
-  switch (field) {
-    case 'firstName':
-      if (!value || String(value).trim().length < 2) {
-        errors.value.firstName = 'Mínimo 2 caracteres';
-      } else {
-        delete errors.value.firstName;
-      }
-      break;
-
-    case 'lastName':
-      if (!value || String(value).trim().length < 2) {
-        errors.value.lastName = 'Mínimo 2 caracteres';
-      } else {
-        delete errors.value.lastName;
-      }
-      break;
-
-    case 'phone':
-      if (!value || String(value).trim().length === 0) {
-        errors.value.phone = 'Teléfono requerido';
-      } else {
-        delete errors.value.phone;
-      }
-      break;
-
-    case 'birthDate':
-      if (!value) {
-        errors.value.birthDate = 'Fecha de nacimiento requerida';
-      } else {
-        delete errors.value.birthDate;
-      }
-      break;
-
-    case 'department':
-      if (!props.clientOnly && form.userType === 'EMPLOYEE') {
-        if (!value || String(value).trim().length < 2) {
-          errors.value.department =
-            'Departamento requerido (mínimo 2 caracteres)';
+      (Object.keys(currentValues) as (keyof UserFormPayload)[]).forEach((k) => {
+        const key = k as keyof UserFormPayload;
+        if (String(currentValues[key]) !== String(original[key])) {
+          modifiedFields.value.add(key);
         } else {
-          delete errors.value.department;
+          modifiedFields.value.delete(key);
         }
+      });
+    },
+    { deep: true }
+  );
+
+  const emailValidationStatus = computed(() => {
+    if (emailFormatError.value) return 'error';
+    if (emailDuplicateError.value) return 'error';
+    return undefined;
+  });
+
+  const emailErrorMessage = computed(() => {
+    if (emailFormatError.value) return emailFormatError.value;
+    if (emailDuplicateError.value) return emailDuplicateError.value;
+    return '';
+  });
+
+  const isFormValid = computed(() => {
+    const hasFirstName = values.firstName?.trim() && values.firstName.trim().length >= 2;
+    const hasLastName = values.lastName?.trim() && values.lastName.trim().length >= 2;
+    const hasPhone = values.phone?.trim();
+    const hasBirthDate = values.birthDate;
+
+    const isEmailValid =
+      !emailFormatError.value && !emailDuplicateError.value && values.email?.includes('@');
+
+    let isEmployeeValid = true;
+    let isOwnerValid = true;
+
+    if (!props.clientOnly) {
+      if (values.userType === 'EMPLOYEE') {
+        isEmployeeValid = Boolean(
+          values.department?.trim() &&
+          values.department.trim().length >= 2 &&
+          values.position?.trim() &&
+          values.position.trim().length >= 2
+        );
       }
-      break;
 
-    case 'position':
-      if (!props.clientOnly && form.userType === 'EMPLOYEE') {
-        if (!value || String(value).trim().length < 2) {
-          errors.value.position = 'Cargo requerido (mínimo 2 caracteres)';
-        } else {
-          delete errors.value.position;
-        }
-      }
-      break;
-
-    case 'hireDate':
-      if (!props.clientOnly && form.userType === 'EMPLOYEE' && value) {
-        const hireDate = new Date(value);
-        const today = new Date();
-        if (hireDate > today) {
-          errors.value.hireDate =
-            'La fecha de contratación no puede ser futura';
-        } else {
-          delete errors.value.hireDate;
-        }
-      }
-      break;
-
-    case 'taxId':
-      if (!props.clientOnly && form.userType === 'OWNER') {
-        if (!value || String(value).trim().length < 7) {
-          errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos';
-        } else if (!/^\d{7,10}$/.test(String(value).trim())) {
-          errors.value.taxId =
-            'CI/NIT debe contener solo números (7-10 dígitos)';
-        } else {
-          delete errors.value.taxId;
-        }
-      } else {
-        delete errors.value.taxId;
-      }
-      break;
-
-    case 'preferredRooms':
-      if (value !== null && value !== '' && value !== undefined) {
-        const rooms = Number(value);
-        if (isNaN(rooms) || rooms < 0) {
-          errors.value.preferredRooms = 'Número de habitaciones inválido';
-        } else {
-          delete errors.value.preferredRooms;
-        }
-      }
-      break;
-  }
-};
-
-const validateAllRequiredFields = (): boolean => {
-  let isValid = true;
-
-  if (!form.firstName || form.firstName.trim().length < 2) {
-    errors.value.firstName = 'Mínimo 2 caracteres';
-    isValid = false;
-  }
-
-  if (!form.lastName || form.lastName.trim().length < 2) {
-    errors.value.lastName = 'Mínimo 2 caracteres';
-    isValid = false;
-  }
-
-  if (!form.phone || form.phone.trim().length === 0) {
-    errors.value.phone = 'Teléfono requerido';
-    isValid = false;
-  }
-
-  if (!form.birthDate) {
-    errors.value.birthDate = 'Fecha de nacimiento requerida';
-    isValid = false;
-  }
-
-  if (!props.clientOnly && form.userType === 'EMPLOYEE') {
-    if (!form.department || form.department.trim().length < 2) {
-      errors.value.department = 'Departamento requerido (mínimo 2 caracteres)';
-      isValid = false;
-    }
-
-    if (!form.position || form.position.trim().length < 2) {
-      errors.value.position = 'Cargo requerido (mínimo 2 caracteres)';
-      isValid = false;
-    }
-
-    if (form.hireDate) {
-      const hireDate = new Date(form.hireDate);
-      const today = new Date();
-      if (hireDate > today) {
-        errors.value.hireDate = 'La fecha de contratación no puede ser futura';
-        isValid = false;
+      if (values.userType === 'OWNER') {
+        isOwnerValid = Boolean(
+          values.taxId?.trim() &&
+          values.taxId.trim().length >= 7 &&
+          /^\d{7,10}$/.test(values.taxId.trim())
+        );
       }
     }
-  }
 
-  if (!props.clientOnly && form.userType === 'OWNER') {
-    if (!form.taxId || form.taxId.trim().length < 7) {
-      errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos';
-      isValid = false;
-    } else if (!/^\d{7,10}$/.test(form.taxId.trim())) {
-      errors.value.taxId = 'CI/NIT debe contener solo números (7-10 dígitos)';
-      isValid = false;
-    }
-  }
-
-  return isValid;
-};
-
-watch(
-  () => props.initialData,
-  (newData) => {
-    if (!newData) return;
-    const mapped = mapData(newData);
-    Object.assign(form, mapped);
-    Object.assign(originalValues, mapped);
-    modifiedFields.value.clear();
-    errors.value = {};
-    emailFormatError.value = '';
-    emailDuplicateError.value = '';
-    lastValidatedEmail = mapped.email || '';
-  }
-);
-
-const isFieldModified = (field: string) => modifiedFields.value.has(field);
-
-watch(
-  form,
-  () => {
-    (Object.keys(form) as (keyof UserFormPayload)[]).forEach((k) => {
-      if (String(form[k]) !== String(originalValues[k])) {
-        modifiedFields.value.add(k);
-      } else {
-        modifiedFields.value.delete(k);
-      }
-    });
-  },
-  { deep: true }
-);
-
-const emailValidationStatus = computed(() => {
-  if (emailFormatError.value) return 'error';
-  if (emailDuplicateError.value) return 'error';
-  return undefined;
-});
-
-const emailErrorMessage = computed(() => {
-  if (emailFormatError.value) return emailFormatError.value;
-  if (emailDuplicateError.value) return emailDuplicateError.value;
-  return '';
-});
-
-const isFormValid = computed(() => {
-  const hasFirstName =
-    form.firstName?.trim() && form.firstName.trim().length >= 2;
-  const hasLastName = form.lastName?.trim() && form.lastName.trim().length >= 2;
-  const hasPhone = form.phone?.trim();
-  const hasBirthDate = form.birthDate;
-
-  const isEmailValid =
-    !emailFormatError.value &&
-    !emailDuplicateError.value &&
-    form.email?.includes('@');
-
-  let isEmployeeValid = true;
-  let isOwnerValid = true;
-
-  if (!props.clientOnly) {
-    if (form.userType === 'EMPLOYEE') {
-      isEmployeeValid = Boolean(
-        !errors.value.department &&
-        !errors.value.position &&
-        !errors.value.hireDate &&
-        form.department?.trim() &&
-        form.department.trim().length >= 2 &&
-        form.position?.trim() &&
-        form.position.trim().length >= 2
-      );
-    }
-
-    if (form.userType === 'OWNER') {
-      isOwnerValid = Boolean(
-        !errors.value.taxId &&
-        form.taxId?.trim() &&
-        form.taxId.trim().length >= 7 &&
-        /^\d{7,10}$/.test(form.taxId.trim())
-      );
-    }
-  }
-
-  if (props.isEditing) {
-    const baseFieldsValid =
-      hasFirstName && hasLastName && hasPhone && hasBirthDate;
     return (
-      baseFieldsValid &&
+      hasFirstName &&
+      hasLastName &&
+      hasPhone &&
+      hasBirthDate &&
       isEmailValid &&
       isEmployeeValid &&
       isOwnerValid &&
       !emailChecking.value
     );
-  }
+  });
 
-  return (
-    hasFirstName &&
-    hasLastName &&
-    hasPhone &&
-    hasBirthDate &&
-    isEmailValid &&
-    isEmployeeValid &&
-    isOwnerValid &&
-    !emailChecking.value
-  );
-});
-
-const getRoleIdByUserType = (userType: string): string => {
-  const roles: Record<string, string> = {
-    ADMIN: 'rol_admin',
-    EMPLOYEE: 'rol_agent',
-    OWNER: 'rol_owner',
-    INTERESTED_CLIENT: 'rol_interested_client',
+  const getRoleIdByUserType = (userTypeVal: string): string => {
+    const roles: Record<string, string> = {
+      ADMIN: 'rol_admin',
+      EMPLOYEE: 'rol_agent',
+      OWNER: 'rol_owner',
+      INTERESTED_CLIENT: 'rol_interested_client',
+    };
+    return roles[userTypeVal] || 'rol_interested_client';
   };
-  return roles[userType] || 'rol_interested_client';
-};
 
-const submit = async () => {
-  const isEmailValid = await validateEmail(form.email, false);
-  if (!isEmailValid) return;
+  const availableUserTypes = computed(() => {
+    const u = currentUser.value;
+    const roles = (u?.roles as string[]) || [];
+    const isAgent = roles.includes('AGENT') && !roles.includes('ADMIN');
 
-  const allFieldsValid = validateAllRequiredFields();
-  if (!allFieldsValid) return;
-
-  const isEmployeeValid = validateEmployeeFields();
-  if (!isEmployeeValid) return;
-
-  if (emailFormatError.value || emailDuplicateError.value) return;
-
-  let payload: Record<string, unknown> = {};
-
-  if (props.isEditing) {
-    if (modifiedFields.value.has('firstName')) {
-      if (!form.firstName?.trim() || form.firstName.trim().length < 2) {
-        errors.value.firstName = 'Mínimo 2 caracteres';
-        return;
-      }
-      payload.firstName = form.firstName.trim();
+    if (isAgent) {
+      return [
+        { value: 'OWNER', label: t('users.roles.owner') },
+        { value: 'INTERESTED_CLIENT', label: t('users.roles.client') },
+      ];
     }
 
-    if (modifiedFields.value.has('lastName')) {
-      if (!form.lastName?.trim() || form.lastName.trim().length < 2) {
-        errors.value.lastName = 'Mínimo 2 caracteres';
-        return;
-      }
-      payload.lastName = form.lastName.trim();
+    return [
+      { value: 'ADMIN', label: t('users.roles.admin') },
+      { value: 'EMPLOYEE', label: t('users.roles.agent') },
+      { value: 'OWNER', label: t('users.roles.owner') },
+      { value: 'INTERESTED_CLIENT', label: t('users.roles.client') },
+    ];
+  });
+
+  const onFormSubmit = (event: Event) => {
+    event.preventDefault();
+
+    try {
+      handleSubmit((formValues, _formActions) => {
+        onSubmit(formValues);
+      })(event);
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
+  };
+
+  const onSubmit = async (formValues: UserFormValues) => {
+    const originalEmail = String(props.initialData?.email || '').toLowerCase();
+    const isEmailUnique = await validateEmailUniqueness(
+      formValues.email || '',
+      undefined,
+      originalEmail
+    );
+
+    if (!isEmailUnique || emailFormatError.value || emailDuplicateError.value) {
+      return;
     }
 
-    if (!props.clientOnly && modifiedFields.value.has('userType')) {
-      payload.userType = form.userType;
-      payload.roleIds = [getRoleIdByUserType(form.userType)];
-    }
+    let payload: Record<string, unknown> = {};
 
-    if (modifiedFields.value.has('phone')) {
-      if (!form.phone?.trim()) {
-        errors.value.phone = 'Teléfono requerido';
-        return;
-      }
-      payload.phone = form.phone.trim();
-    }
-
-    if (modifiedFields.value.has('birthDate')) {
-      if (!form.birthDate) {
-        errors.value.birthDate = 'Fecha de nacimiento requerida';
-        return;
-      }
-      payload.birthDate = form.birthDate;
-    }
-
-    if (!props.clientOnly && modifiedFields.value.has('department')) {
-      if (form.userType === 'EMPLOYEE') {
-        if (!form.department?.trim() || form.department.trim().length < 2) {
-          errors.value.department =
-            'Departamento requerido (mínimo 2 caracteres)';
+    if (props.isEditing) {
+      if (modifiedFields.value.has('firstName')) {
+        if (!formValues.firstName?.trim() || formValues.firstName.trim().length < 2) {
           return;
         }
+        payload.firstName = formValues.firstName.trim();
       }
-      payload.department = form.department?.trim();
-    }
 
-    if (!props.clientOnly && modifiedFields.value.has('position')) {
-      if (form.userType === 'EMPLOYEE') {
-        if (!form.position?.trim() || form.position.trim().length < 2) {
-          errors.value.position = 'Cargo requerido (mínimo 2 caracteres)';
+      if (modifiedFields.value.has('lastName')) {
+        if (!formValues.lastName?.trim() || formValues.lastName.trim().length < 2) {
           return;
         }
+        payload.lastName = formValues.lastName.trim();
       }
-      payload.position = form.position?.trim();
-    }
 
-    if (!props.clientOnly && modifiedFields.value.has('hireDate')) {
-      if (form.userType === 'EMPLOYEE' && form.hireDate) {
-        const hireDate = new Date(form.hireDate);
-        const today = new Date();
-        if (hireDate > today) {
-          errors.value.hireDate =
-            'La fecha de contratación no puede ser futura';
+      if (!props.clientOnly && modifiedFields.value.has('userType')) {
+        const ut = formValues.userType || 'INTERESTED_CLIENT';
+        payload.userType = ut;
+        payload.roleIds = [getRoleIdByUserType(ut)];
+      }
+
+      if (modifiedFields.value.has('phone')) {
+        if (!formValues.phone?.trim()) {
           return;
         }
+        payload.phone = formValues.phone.trim();
       }
-      payload.hireDate = form.hireDate;
-    }
 
-    if (!props.clientOnly && modifiedFields.value.has('taxId')) {
-      if (form.userType === 'OWNER') {
-        if (!form.taxId?.trim() || form.taxId.trim().length < 7) {
-          errors.value.taxId = 'CI/NIT debe tener al menos 7 dígitos';
+      if (modifiedFields.value.has('birthDate')) {
+        if (!formValues.birthDate) {
           return;
         }
-        if (!/^\d{7,10}$/.test(form.taxId.trim())) {
-          errors.value.taxId =
-            'CI/NIT debe contener solo números (7-10 dígitos)';
-          return;
-        }
+        payload.birthDate = formValues.birthDate;
       }
-      payload.taxId = form.taxId?.trim();
-    }
 
-    if (modifiedFields.value.has('preferredContactMethod'))
-      payload.preferredContactMethod = form.preferredContactMethod;
-    if (modifiedFields.value.has('budget')) payload.budget = form.budget;
-    if (modifiedFields.value.has('preferredZone'))
-      payload.preferredZone = form.preferredZone;
-    if (modifiedFields.value.has('preferredPropertyType'))
-      payload.preferredPropertyType = form.preferredPropertyType;
-    if (modifiedFields.value.has('preferredRooms'))
-      payload.preferredRooms = form.preferredRooms
-        ? Number(form.preferredRooms)
-        : null;
-  } else {
-    payload = {
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      email: form.email.trim().toLowerCase(),
-      userType: props.ownerOnly
+      if (!props.clientOnly && modifiedFields.value.has('department')) {
+        if (formValues.userType === 'EMPLOYEE') {
+          if (!formValues.department?.trim() || formValues.department.trim().length < 2) {
+            return;
+          }
+        }
+        payload.department = formValues.department?.trim();
+      }
+
+      if (!props.clientOnly && modifiedFields.value.has('position')) {
+        if (formValues.userType === 'EMPLOYEE') {
+          if (!formValues.position?.trim() || formValues.position.trim().length < 2) {
+            return;
+          }
+        }
+        payload.position = formValues.position?.trim();
+      }
+
+      if (!props.clientOnly && modifiedFields.value.has('hireDate')) {
+        if (formValues.userType === 'EMPLOYEE' && formValues.hireDate) {
+          const hireDate = new Date(formValues.hireDate);
+          const today = new Date();
+          if (hireDate > today) {
+            return;
+          }
+        }
+        payload.hireDate = formValues.hireDate;
+      }
+
+      if (!props.clientOnly && modifiedFields.value.has('taxId')) {
+        if (formValues.userType === 'OWNER') {
+          if (!formValues.taxId?.trim() || formValues.taxId.trim().length < 7) {
+            return;
+          }
+          if (!/^\d{7,10}$/.test(formValues.taxId.trim())) {
+            return;
+          }
+        }
+        payload.taxId = formValues.taxId?.trim();
+      }
+
+      if (modifiedFields.value.has('preferredContactMethod'))
+        payload.preferredContactMethod = formValues.preferredContactMethod;
+      if (modifiedFields.value.has('budget')) payload.budget = formValues.budget;
+      if (modifiedFields.value.has('preferredZone'))
+        payload.preferredZone = formValues.preferredZone;
+      if (modifiedFields.value.has('preferredPropertyType'))
+        payload.preferredPropertyType = formValues.preferredPropertyType;
+      if (modifiedFields.value.has('preferredRooms'))
+        payload.preferredRooms = formValues.preferredRooms
+          ? Number(formValues.preferredRooms)
+          : null;
+    } else {
+      const resolvedUserType = props.ownerOnly
         ? 'OWNER'
         : props.clientOnly
           ? 'INTERESTED_CLIENT'
-          : form.userType,
-      roleIds: [
-        getRoleIdByUserType(
-          props.ownerOnly
-            ? 'OWNER'
-            : props.clientOnly
-              ? 'INTERESTED_CLIENT'
-              : form.userType
-        ),
-      ],
-      birthDate: form.birthDate,
-      phone: form.phone.trim(),
-      sendTemporaryCredentials: true,
-    };
+          : formValues.userType || 'INTERESTED_CLIENT';
 
-    if (props.clientOnly) {
-      if (form.preferredContactMethod)
-        payload.preferredContactMethod = form.preferredContactMethod;
-      if (form.budget) payload.budget = form.budget;
-      if (form.preferredZone) payload.preferredZone = form.preferredZone;
-      if (form.preferredPropertyType)
-        payload.preferredPropertyType = form.preferredPropertyType;
-      if (form.preferredRooms)
-        payload.preferredRooms = Number(form.preferredRooms);
-    } else {
-      if (form.userType === 'EMPLOYEE') {
-        payload.department = form.department?.trim();
-        payload.position = form.position?.trim();
-        if (form.hireDate) payload.hireDate = form.hireDate;
-      } else if (form.userType === 'OWNER') {
-        payload.taxId = form.taxId?.trim();
-      } else if (form.userType === 'INTERESTED_CLIENT') {
-        if (form.preferredContactMethod)
-          payload.preferredContactMethod = form.preferredContactMethod;
-        if (form.budget) payload.budget = form.budget;
-        if (form.preferredZone) payload.preferredZone = form.preferredZone;
-        if (form.preferredPropertyType)
-          payload.preferredPropertyType = form.preferredPropertyType;
-        if (form.preferredRooms)
-          payload.preferredRooms = Number(form.preferredRooms);
+      payload = {
+        firstName: (formValues.firstName || '').trim(),
+        lastName: (formValues.lastName || '').trim(),
+        email: (formValues.email || '').trim().toLowerCase(),
+        userType: resolvedUserType,
+        roleIds: [getRoleIdByUserType(resolvedUserType)],
+        birthDate: formValues.birthDate,
+        phone: (formValues.phone || '').trim(),
+        sendTemporaryCredentials: true,
+      };
+
+      if (props.clientOnly) {
+        if (formValues.preferredContactMethod)
+          payload.preferredContactMethod = formValues.preferredContactMethod;
+        if (formValues.budget) payload.budget = formValues.budget;
+        if (formValues.preferredZone) payload.preferredZone = formValues.preferredZone;
+        if (formValues.preferredPropertyType)
+          payload.preferredPropertyType = formValues.preferredPropertyType;
+        if (formValues.preferredRooms) payload.preferredRooms = Number(formValues.preferredRooms);
+      } else {
+        if (formValues.userType === 'EMPLOYEE') {
+          payload.department = formValues.department?.trim();
+          payload.position = formValues.position?.trim();
+          if (formValues.hireDate) payload.hireDate = formValues.hireDate;
+        } else if (formValues.userType === 'OWNER') {
+          payload.taxId = formValues.taxId?.trim();
+        } else if (formValues.userType === 'INTERESTED_CLIENT') {
+          if (formValues.preferredContactMethod)
+            payload.preferredContactMethod = formValues.preferredContactMethod;
+          if (formValues.budget) payload.budget = formValues.budget;
+          if (formValues.preferredZone) payload.preferredZone = formValues.preferredZone;
+          if (formValues.preferredPropertyType)
+            payload.preferredPropertyType = formValues.preferredPropertyType;
+          if (formValues.preferredRooms) payload.preferredRooms = Number(formValues.preferredRooms);
+        }
       }
     }
-  }
 
-  if (props.ownerOnly) {
-    payload.userType = 'OWNER';
-    payload.roleIds = ['rol_owner'];
-  }
+    if (props.ownerOnly) {
+      payload.userType = 'OWNER';
+      payload.roleIds = ['rol_owner'];
+    }
 
-  emit('submit', payload);
-};
+    if (props.isEditing && Object.keys(payload).length === 0) {
+    }
+
+    emit('submit', payload);
+  };
 </script>

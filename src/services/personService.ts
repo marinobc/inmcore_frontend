@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 
 interface PersonProfile {
   id: string;
@@ -75,10 +75,7 @@ export const personService = {
   },
 
   async updateClientForAgent(clientId: string, payload: ClientPayload) {
-    const response = await api.put(
-      `/persons/agents/clients/${clientId}`,
-      payload
-    );
+    const response = await api.put(`/persons/agents/clients/${clientId}`, payload);
     return response.data;
   },
 };

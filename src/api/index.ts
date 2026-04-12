@@ -1,6 +1,25 @@
 import axios from 'axios';
 
-function parseJwt(token: string): Record<string, unknown> | null {
+/**
+ * JWT Claims interface for decoded tokens
+ */
+export interface JwtClaims {
+  sub?: string;
+  userId?: string;
+  id?: string;
+  email?: string;
+  name?: string;
+  fullName?: string;
+  role?: string;
+  roles?: string[];
+  userType?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Parses a JWT token to extract its payload
+ */
+export function parseJwt(token: string): JwtClaims | null {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -10,14 +29,17 @@ function parseJwt(token: string): Record<string, unknown> | null {
   }
 }
 
-export const api = axios.create({
+/**
+ * Main API client instance with base configuration
+ */
+export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-api.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
@@ -29,7 +51,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-api.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
@@ -44,7 +66,8 @@ api.interceptors.response.use(
         const refreshToken = localStorage.getItem('refresh_token');
         if (!refreshToken) throw new Error('No refresh token available');
 
-        const res = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {
+        const axiosModule = await import('axios');
+        const res = await axiosModule.default.post(`${apiClient.defaults.baseURL}/auth/refresh`, {
           refreshToken,
         });
 
@@ -55,7 +78,7 @@ api.interceptors.response.use(
         localStorage.setItem('refresh_token', newRefreshToken);
 
         originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
+        return apiClient(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -66,3 +89,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export { apiClient as default };

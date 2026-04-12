@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 import type {
   ReassignmentSolicitation,
   ReassignmentRequest,
@@ -33,16 +33,12 @@ const reassignmentService = {
   },
 
   async getReceivedRequests(): Promise<ReassignmentSolicitation[]> {
-    const { data } = await api.get<ReassignmentSolicitation[]>(
-      `${BASE}/reassignments/received`
-    );
+    const { data } = await api.get<ReassignmentSolicitation[]>(`${BASE}/reassignments/received`);
     return data;
   },
 
   async getPendingCount(): Promise<number> {
-    const { data } = await api.get<PendingCount>(
-      `${BASE}/reassignments/pending/count`
-    );
+    const { data } = await api.get<PendingCount>(`${BASE}/reassignments/pending/count`);
     return data.pending;
   },
 
@@ -54,9 +50,7 @@ const reassignmentService = {
   },
 
   async getSentRequests(): Promise<ReassignmentSolicitation[]> {
-    const { data } = await api.get<ReassignmentSolicitation[]>(
-      `${BASE}/reassignments/sent`
-    );
+    const { data } = await api.get<ReassignmentSolicitation[]>(`${BASE}/reassignments/sent`);
     return data;
   },
 };

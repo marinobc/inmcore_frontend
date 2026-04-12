@@ -1,14 +1,13 @@
 <template>
   <div>
-    <button
-      @click="openModal"
-      class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-amber-400 bg-amber-50 text-amber-700 text-sm font-medium hover:bg-amber-100 hover:border-amber-500 transition-all group"
-    >
-      <IconLucideArrowLeftRight
-        class="w-4 h-4 group-hover:rotate-180 transition-transform duration-300"
-      />
-      Solicitar Reasignación
-    </button>
+    <FwbButton @click="openModal" color="alternative" size="sm">
+      <div class="inline-flex items-center gap-2">
+        <IconLucideArrowLeftRight
+          class="w-4 h-4 group-hover:rotate-180 transition-transform duration-300"
+        />
+        {{ t('reassignment.buttonLabel') }}
+      </div>
+    </FwbButton>
 
     <ReassignmentModal
       v-model="modalVisible"
@@ -17,61 +16,48 @@
       @request-sent="onRequestSent"
     />
 
-    <Teleport to="body">
-      <Transition name="toast">
-        <div
-          v-if="toastVisible"
-          class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-xl text-sm font-medium"
-        >
-          <IconLucideCircleCheck class="w-5 h-5 text-green-400" />
-          Solicitud enviada! Tu colega será notificado.
-        </div>
-      </Transition>
-    </Teleport>
+    <FwbAlert v-if="toastVisible" type="success" class="fixed bottom-6 right-6 z-50 max-w-sm">
+      <div class="flex items-center gap-2">
+        <IconLucideCircleCheck class="w-5 h-5" />
+        {{ t('reassignment.toastSuccess') }}
+      </div>
+    </FwbAlert>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import ReassignmentModal from '@/components/visits/reassignment/ReassignmentModal.vue';
-import IconLucideArrowLeftRight from '~icons/lucide/arrow-left-right';
-import IconLucideCircleCheck from '~icons/lucide/circle-check';
+  import { ref } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { FwbButton, FwbAlert } from 'flowbite-vue';
+  import ReassignmentModal from '@/components/visits/reassignment/ReassignmentModal.vue';
+  import IconLucideArrowLeftRight from '~icons/lucide/arrow-left-right';
+  import IconLucideCircleCheck from '~icons/lucide/circle-check';
 
-defineProps<{
-  visitId: string;
-  visitInfo?: string;
-}>();
+  const { t } = useI18n();
 
-const emit = defineEmits<{
-  (e: 'requestSent'): void;
-}>();
+  defineProps<{
+    visitId: string;
+    visitInfo?: string;
+  }>();
 
-const modalVisible = ref(false);
-const toastVisible = ref(false);
+  const emit = defineEmits<{
+    (e: 'requestSent'): void;
+  }>();
 
-function openModal() {
-  modalVisible.value = true;
-}
+  const modalVisible = ref(false);
+  const toastVisible = ref(false);
 
-function onRequestSent() {
-  showToast();
-  emit('requestSent');
-}
+  function openModal() {
+    modalVisible.value = true;
+  }
 
-function showToast() {
-  toastVisible.value = true;
-  setTimeout(() => (toastVisible.value = false), 4000);
-}
+  function onRequestSent() {
+    showToast();
+    emit('requestSent');
+  }
+
+  function showToast() {
+    toastVisible.value = true;
+    setTimeout(() => (toastVisible.value = false), 4000);
+  }
 </script>
-
-<style scoped>
-.toast-enter-active,
-.toast-leave-active {
-  transition: all 0.3s ease;
-}
-.toast-enter-from,
-.toast-leave-to {
-  opacity: 0;
-  transform: translateY(12px);
-}
-</style>

@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
 import type { UserType } from '@/types/user';
 
 const getRoleIdByUserType = (userType: UserType): string => {
@@ -19,16 +19,12 @@ export const userService = {
       email: payload.email,
       userType: payload.userType,
       roleIds: payload.roleIds || [
-        getRoleIdByUserType(
-          payload.userType as import('@/types/user').UserType
-        ),
+        getRoleIdByUserType(payload.userType as import('@/types/user').UserType),
       ],
       birthDate: payload.birthDate,
       phone: payload.phone,
       sendTemporaryCredentials:
-        payload.sendTemporaryCredentials !== undefined
-          ? payload.sendTemporaryCredentials
-          : true,
+        payload.sendTemporaryCredentials !== undefined ? payload.sendTemporaryCredentials : true,
       department: payload.department,
       position: payload.position,
       hireDate: payload.hireDate,
@@ -73,9 +69,7 @@ export const userService = {
     await api.delete(`/users/${id}`);
   },
   async darDeBaja(id: string, motivo: string) {
-    const res = await api.put(
-      `/persons/${id}/deactivate?motivo=${encodeURIComponent(motivo)}`
-    );
+    const res = await api.put(`/persons/${id}/deactivate?motivo=${encodeURIComponent(motivo)}`);
     return res.data;
   },
   async getRoles() {

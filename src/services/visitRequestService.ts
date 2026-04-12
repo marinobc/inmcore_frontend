@@ -1,10 +1,10 @@
-import { api } from './api';
+import { apiClient as api } from '@/api';
+import { getLocaleString } from '@/locales/i18n';
+import i18n from '@/locales/i18n';
 
-import type {
-  ClientVisitRequestDTO,
-  VisitRequestResponse,
-  Property,
-} from '@/types/visitCalendar';
+const { t } = i18n.global;
+
+import type { ClientVisitRequestDTO, VisitRequestResponse, Property } from '@/types/visitCalendar';
 
 export async function getAvailableProperties(filters?: {
   title?: string;
@@ -25,28 +25,20 @@ export async function getAvailableProperties(filters?: {
   const params = new URLSearchParams({ status: 'DISPONIBLE' });
   if (filters?.title) params.append('title', filters.title);
   if (filters?.type) params.append('type', filters.type);
-  if (filters?.operationType)
-    params.append('operationType', filters.operationType);
-  if (filters?.minPrice !== undefined)
-    params.append('minPrice', String(filters.minPrice));
-  if (filters?.maxPrice !== undefined)
-    params.append('maxPrice', String(filters.maxPrice));
+  if (filters?.operationType) params.append('operationType', filters.operationType);
+  if (filters?.minPrice !== undefined) params.append('minPrice', String(filters.minPrice));
+  if (filters?.maxPrice !== undefined) params.append('maxPrice', String(filters.maxPrice));
   if (filters?.sortBy) params.append('sortBy', filters.sortBy);
   if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
   if (filters?.page !== undefined) params.append('page', String(filters.page));
   if (filters?.pageSize) params.append('pageSize', String(filters.pageSize));
 
   const response = await api.get(`/properties?${params}`);
-  console.log('Respuesta del backend (getAvailableProperties):', response.data);
   return response.data;
 }
 
-export async function getVisitCountForProperty(
-  propertyId: string
-): Promise<number> {
-  const response = await api.get(
-    `/api/visit-requests/count/property/${propertyId}`
-  );
+export async function getVisitCountForProperty(propertyId: string): Promise<number> {
+  const response = await api.get(`/api/visit-requests/count/property/${propertyId}`);
   return response.data.data;
 }
 
@@ -62,16 +54,12 @@ export async function createVisitRequest(
   return response.data.data;
 }
 
-export async function getMyVisitRequests(
-  clientId: string
-): Promise<VisitRequestResponse[]> {
+export async function getMyVisitRequests(clientId: string): Promise<VisitRequestResponse[]> {
   const response = await api.get(`/api/visit-requests/client/${clientId}`);
   return response.data.data;
 }
 
-export async function getPendingRequestsForAgent(
-  agentId: string
-): Promise<VisitRequestResponse[]> {
+export async function getPendingRequestsForAgent(agentId: string): Promise<VisitRequestResponse[]> {
   const response = await api.get(`/api/visit-requests/agent/${agentId}`);
   return response.data.data;
 }
@@ -102,9 +90,9 @@ export async function rejectVisitRequest(
 
 export function formatRequestStatus(status: string): string {
   const map: Record<string, string> = {
-    PENDING: 'Pendiente',
-    ACCEPTED: 'Aceptada',
-    REJECTED: 'Rechazada',
+    PENDING: t('status.pending'),
+    ACCEPTED: t('status.accepted'),
+    REJECTED: t('status.rejected'),
   };
   return map[status] ?? status;
 }
@@ -119,7 +107,7 @@ export function statusColor(status: string): string {
 }
 
 export function formatVisitDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('es-BO', {
+  return new Date(iso).toLocaleString(getLocaleString(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
