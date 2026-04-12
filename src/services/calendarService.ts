@@ -11,7 +11,7 @@ import type {
   CalendarEventResponse,
   ConflictResponse,
   CreateVisitRequest,
-} from '../types/visitCalendar';
+} from '@/types/visitCalendar';
 
 // ---------------------------------------------------------------
 //  HU1: GET /api/calendar

@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { FwbInput, FwbButton, FwbCard } from 'flowbite-vue';
-import { t } from '../../locales/i18n';
+import { t } from '@/locales/i18n';
 
 const emit = defineEmits(['submit']);
 

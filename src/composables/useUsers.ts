@@ -1,9 +1,9 @@
 // FILE: Frontend/Frontend/src/composables/useUsers.ts
 
 import { ref } from 'vue';
-import { userService } from '../services/userService';
-import { personService } from '../services/personService';
-import type { User } from '../types/user';
+import { userService } from '@/services/userService';
+import { personService } from '@/services/personService';
+import type { User } from '@/types/user';
 
 interface EnrichedUser extends User {
   profileInternalId?: string;

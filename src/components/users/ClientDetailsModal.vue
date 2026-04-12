@@ -105,14 +105,7 @@
                     <span class="text-red-400 line-through">{{
                       ch.oldValue || '(vacío)'
                     }}</span>
-                    <svg
-                      class="w-2 h-2 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
+                    <IconLucideArrowRight class="w-2 h-2 text-gray-400" />
                     <span
                       class="text-green-600 dark:text-green-400 font-bold"
                       >{{ ch.newValue }}</span
@@ -143,6 +136,7 @@
 
 <script setup lang="ts">
 import { FwbModal, FwbBadge, FwbButton } from 'flowbite-vue';
+import IconLucideArrowRight from '~icons/lucide/arrow-right';
 
 interface AuditEntry {
   changedBy: string;

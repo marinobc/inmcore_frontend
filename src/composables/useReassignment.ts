@@ -2,13 +2,13 @@
 // Composable that encapsulates state and logic for visit reassignment.
 
 import { ref, computed } from 'vue';
-import reassignmentService from '../services/reassignmentService';
+import reassignmentService from '@/services/reassignmentService';
 import type {
   ReassignmentSolicitation,
   AvailableAgent,
   ReassignmentRequest,
   ReassignmentResponseRequest,
-} from '../types/reassignment';
+} from '@/types/reassignment';
 import type { AxiosError } from 'axios';
 
 interface ApiErrorResponse {

@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { LoginPayload } from '../types/user';
+import type { LoginPayload } from '@/types/user';
 
 export const authService = {
   async login(payload: LoginPayload) {

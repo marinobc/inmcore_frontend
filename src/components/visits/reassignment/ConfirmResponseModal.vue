@@ -24,34 +24,8 @@
             "
           >
             <div class="bg-white/20 rounded-full p-2.5">
-              <svg
-                v-if="isAccepting"
-                class="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2.5"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <svg
-                v-else
-                class="w-5 h-5 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2.5"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <IconLucideCheck v-if="isAccepting" class="w-5 h-5 text-white" />
+              <IconLucideX v-else class="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 class="text-white font-semibold text-lg">
@@ -135,7 +109,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import type { ReassignmentSolicitation } from '../../../types/reassignment';
+import IconLucideCheck from '~icons/lucide/check';
+import IconLucideX from '~icons/lucide/x';
+import type { ReassignmentSolicitation } from '@/types/reassignment';
 
 const props = defineProps<{
   modelValue: boolean;

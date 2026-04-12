@@ -6,9 +6,9 @@
 //  Ajusta el meta.role según el sistema de autenticación existente.
 // ============================================================
 
-import CalendarView from '../views/CalendarView.vue';
-import ScheduleVisitView from '../views/ScheduleVisitView.vue';
-import PropertiesClientView from '../views/PropertiesClientView.vue';
+import CalendarView from '@/views/CalendarView.vue';
+import ScheduleVisitView from '@/views/ScheduleVisitView.vue';
+import PropertiesClientView from '@/views/PropertiesClientView.vue';
 
 // ── Rutas a agregar en el array routes ──────────────────────
 

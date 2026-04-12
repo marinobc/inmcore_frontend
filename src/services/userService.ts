@@ -1,7 +1,7 @@
 // FILE: Frontend/Frontend/src/services/userService.ts
 
 import { api } from './api';
-import type { UserType } from '../types/user';
+import type { UserType } from '@/types/user';
 
 const getRoleIdByUserType = (userType: UserType): string => {
   const roles: Record<UserType, string> = {
@@ -23,7 +23,7 @@ export const userService = {
       userType: payload.userType,
       roleIds: payload.roleIds || [
         getRoleIdByUserType(
-          payload.userType as import('../types/user').UserType
+          payload.userType as import('@/types/user').UserType
         ),
       ],
       birthDate: payload.birthDate,

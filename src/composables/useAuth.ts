@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import { authService } from '../services/authService';
+import { authService } from '@/services/authService';
 
 const token = ref<string | null>(localStorage.getItem('access_token'));
 const user = ref<Record<string, unknown> | null>(null);

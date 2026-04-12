@@ -2,13 +2,13 @@
 // Composable encapsulating receipt state and operations for an operation detail view.
 
 import { ref } from 'vue';
-import receiptService from '../services/receiptService';
-import type { Receipt, ReceiptUploadPayload } from '../types/receipt';
+import receiptService from '@/services/receiptService';
+import type { Receipt, ReceiptUploadPayload } from '@/types/receipt';
 import {
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
   ALLOWED_TYPE_LABELS,
-} from '../types/receipt';
+} from '@/types/receipt';
 
 export function useReceipts(operationId: string) {
   // ── State ─────────────────────────────────────────────────────────────────

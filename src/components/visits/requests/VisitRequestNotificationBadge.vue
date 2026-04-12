@@ -10,8 +10,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useAuth } from '../../../composables/useAuth';
-import { getPendingRequestsForAgent } from '../../../services/visitRequestService';
+import { useAuth } from '@/composables/useAuth';
+import { getPendingRequestsForAgent } from '@/services/visitRequestService';
 
 const { user } = useAuth();
 const count = ref(0);

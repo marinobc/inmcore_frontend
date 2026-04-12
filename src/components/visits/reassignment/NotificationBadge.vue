@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
-import reassignmentService from '../../../services/reassignmentService';
+import reassignmentService from '@/services/reassignmentService';
 
 // ── State ─────────────────────────────────────────────────────────────────
 const count = ref(0);

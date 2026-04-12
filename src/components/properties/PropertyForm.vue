@@ -131,10 +131,10 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted, watch, computed } from 'vue';
 import { FwbInput, FwbButton } from 'flowbite-vue';
-import { userService } from '../../services/userService';
-import { useAuth } from '../../composables/useAuth';
-import ImageUpload from './ImageUpload.vue';
-import type { PropertyFormPayload, OperationType } from '../../types/property';
+import { userService } from '@/services/userService';
+import { useAuth } from '@/composables/useAuth';
+import ImageUpload from '@/components/properties/ImageUpload.vue';
+import type { PropertyFormPayload, OperationType } from '@/types/property';
 
 interface OwnerUser {
   id: string;

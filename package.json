@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@iconify/json": "^2.2.461",
     "@tailwindcss/vite": "^4.2.1",
     "@types/node": "^24.12.0",
     "@typescript-eslint/eslint-plugin": "^8.58.1",
@@ -36,6 +37,7 @@
     "prettier": "^3.8.2",
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
+    "unplugin-icons": "^23.0.1",
     "vite": "^7.3.1",
     "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.2.5"

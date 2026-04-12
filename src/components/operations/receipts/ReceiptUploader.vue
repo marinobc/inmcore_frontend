@@ -9,19 +9,7 @@
   -->
   <div class="bg-white rounded-2xl border border-gray-200 p-6 space-y-5">
     <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
-      <svg
-        class="w-5 h-5 text-blue-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-        />
-      </svg>
+      <IconLucideUpload class="w-5 h-5 text-blue-500" />
       Attach Payment Receipt
     </h3>
 
@@ -55,19 +43,7 @@
         <div
           class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"
         >
-          <svg
-            class="w-6 h-6 text-blue-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
+          <IconLucideUploadCloud class="w-6 h-6 text-blue-500" />
         </div>
         <div>
           <p class="text-sm font-medium text-gray-700">
@@ -87,34 +63,8 @@
           class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
           :class="isPdf ? 'bg-red-100' : 'bg-green-100'"
         >
-          <svg
-            v-if="isPdf"
-            class="w-5 h-5 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-            />
-          </svg>
-          <svg
-            v-else
-            class="w-5 h-5 text-green-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-          </svg>
+          <IconLucideFileText v-if="isPdf" class="w-5 h-5 text-red-500" />
+          <IconLucideImage v-else class="w-5 h-5 text-green-500" />
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-gray-800 truncate">
@@ -129,19 +79,7 @@
           @click.stop="clearFile"
           title="Remove file"
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <IconLucideX class="w-5 h-5" />
         </button>
       </div>
     </div>
@@ -151,17 +89,7 @@
       v-if="fileError"
       class="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm"
     >
-      <svg
-        class="w-4 h-4 shrink-0 mt-0.5"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-          clip-rule="evenodd"
-        />
-      </svg>
+      <IconLucideAlertCircle class="w-4 h-4 shrink-0 mt-0.5" />
       {{ fileError }}
     </div>
 
@@ -246,17 +174,7 @@
       v-if="uploadError"
       class="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm"
     >
-      <svg
-        class="w-4 h-4 shrink-0 mt-0.5"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          fill-rule="evenodd"
-          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-          clip-rule="evenodd"
-        />
-      </svg>
+      <IconLucideAlertCircle class="w-4 h-4 shrink-0 mt-0.5" />
       {{ uploadError }}
     </div>
 
@@ -281,40 +199,8 @@
         :disabled="uploading"
         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
       >
-        <svg
-          v-if="uploading"
-          class="animate-spin w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            class="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            stroke-width="4"
-          />
-          <path
-            class="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <svg
-          v-else
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          />
-        </svg>
+        <IconLucideLoader v-if="uploading" class="animate-spin w-4 h-4" />
+        <IconLucideUpload v-else class="w-4 h-4" />
         {{ uploading ? 'Uploading...' : 'Attach Receipt' }}
       </button>
     </div>
@@ -322,13 +208,20 @@
 </template>
 
 <script setup lang="ts">
+import IconLucideUpload from '~icons/lucide/upload';
+import IconLucideUploadCloud from '~icons/lucide/upload-cloud';
+import IconLucideFileText from '~icons/lucide/file-text';
+import IconLucideImage from '~icons/lucide/image';
+import IconLucideX from '~icons/lucide/x';
+import IconLucideAlertCircle from '~icons/lucide/alert-circle';
+import IconLucideLoader from '~icons/lucide/loader';
 import { ref, reactive, computed } from 'vue';
-import { useReceipts } from '../../../composables/useReceipts';
+import { useReceipts } from '@/composables/useReceipts';
 import {
   ALLOWED_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
   ALLOWED_TYPE_LABELS,
-} from '../../../types/receipt';
+} from '@/types/receipt';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 const props = defineProps<{ operationId: string }>();

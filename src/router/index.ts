@@ -1,22 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
-import MainLayout from '../layouts/MainLayout.vue';
-import LoginView from '../views/LoginView.vue';
-import DashboardView from '../views/DashboardView.vue';
-import UsersView from '../views/UsersView.vue';
-import AdminProperties from '../views/AdminProperties.vue';
-import AgentDashboard from '../views/AgentDashboard.vue';
-import AgentClients from '../views/AgentClients.vue';
-import AgentOwners from '../views/AgentOwners.vue';
-import CalendarView from '../views/CalendarView.vue';
-import ScheduleVisitView from '../views/ScheduleVisitView.vue';
-import PropertiesClientView from '../views/PropertiesClientView.vue';
-import OwnerDashboard from '../views/OwnerDashboard.vue';
-import ClientDashboard from '../views/ClientDashboard.vue';
-import ReassignmentInboxView from '../views/ReassignmentInboxView.vue';
-import OperationDetailView from '../views/OperationDetailView.vue';
-import PropertyAuditView from '../views/PropertyAuditView.vue';
-import SentRequestsView from '../views/SentRequestsView.vue';
+import { useAuth } from '@/composables/useAuth';
+import MainLayout from '@/layouts/MainLayout.vue';
+import LoginView from '@/views/LoginView.vue';
+import DashboardView from '@/views/DashboardView.vue';
+import UsersView from '@/views/UsersView.vue';
+import AdminProperties from '@/views/AdminProperties.vue';
+import AgentDashboard from '@/views/AgentDashboard.vue';
+import AgentClients from '@/views/AgentClients.vue';
+import AgentOwners from '@/views/AgentOwners.vue';
+import CalendarView from '@/views/CalendarView.vue';
+import ScheduleVisitView from '@/views/ScheduleVisitView.vue';
+import PropertiesClientView from '@/views/PropertiesClientView.vue';
+import OwnerDashboard from '@/views/OwnerDashboard.vue';
+import ClientDashboard from '@/views/ClientDashboard.vue';
+import ReassignmentInboxView from '@/views/ReassignmentInboxView.vue';
+import OperationDetailView from '@/views/OperationDetailView.vue';
+import PropertyAuditView from '@/views/PropertyAuditView.vue';
+import SentRequestsView from '@/views/SentRequestsView.vue';
 
 const routes = [
   {
@@ -102,7 +102,7 @@ const routes = [
       {
         path: 'client/favorites',
         name: 'ClientFavorites',
-        component: () => import('../views/ClientFavorites.vue'),
+        component: () => import('@/views/ClientFavorites.vue'),
         meta: { role: 'CLIENT' },
       },
       {
@@ -114,13 +114,13 @@ const routes = [
       {
         path: 'admin/audit',
         name: 'AuditLogs',
-        component: () => import('../views/AuditLogsView.vue'),
+        component: () => import('@/views/AuditLogsView.vue'),
         meta: { requiresAuth: true, role: 'ADMIN' },
       },
       {
         path: 'operations',
         name: 'Operations',
-        component: () => import('../views/OperationsView.vue'),
+        component: () => import('@/views/OperationsView.vue'),
         meta: { role: 'AGENT' },
       },
       {

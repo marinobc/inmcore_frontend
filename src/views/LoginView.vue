@@ -65,10 +65,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
-import { authService } from '../services/authService';
-import LoginForm from '../components/auth/LoginForm.vue';
-import ThemeToggle from '../components/ThemeToggle.vue';
+import { useAuth } from '@/composables/useAuth';
+import { authService } from '@/services/authService';
+import LoginForm from '@/components/auth/LoginForm.vue';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { FwbModal, FwbInput, FwbButton } from 'flowbite-vue';
 
 const router = useRouter();

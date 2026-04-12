@@ -3,7 +3,7 @@
 // Uses the project's shared axios instance with the JWT auth interceptor.
 
 import { api } from './api'; // existing axios instance with baseURL + JWT interceptor
-import type { Receipt, ReceiptUploadPayload } from '../types/receipt';
+import type { Receipt, ReceiptUploadPayload } from '@/types/receipt';
 
 const BASE = '/api/operations';
 

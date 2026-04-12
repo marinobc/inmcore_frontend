@@ -69,19 +69,7 @@
       <div class="flex gap-3 mt-4">
         <fwb-button @click="fetchLogs" gradient="blue">
           <div class="flex items-center gap-2">
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+            <IconLucideSearch class="w-4 h-4" />
             Filtrar
           </div>
         </fwb-button>
@@ -89,19 +77,7 @@
           Limpiar filtros
         </fwb-button>
         <fwb-button @click="fetchLogs" color="alternative" size="sm">
-          <svg
-            class="w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
+          <IconLucideRefreshCw class="w-4 h-4 mr-2" />
           Actualizar
         </fwb-button>
       </div>
@@ -220,19 +196,7 @@
                 <span class="text-red-500 line-through">{{
                   log.previousValue || '—'
                 }}</span>
-                <svg
-                  class="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <IconLucideArrowRight class="w-4 h-4 text-gray-400" />
                 <span class="text-green-600 font-semibold">{{
                   log.newValue || '—'
                 }}</span>
@@ -256,19 +220,7 @@
       v-else-if="!loading && logs.length === 0 && !hasSearched"
       class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <svg
-        class="w-16 h-16 mx-auto text-gray-400 mb-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-        />
-      </svg>
+      <IconLucideClipboardList class="w-16 h-16 mx-auto text-gray-400 mb-4" />
       <p class="text-gray-500 dark:text-gray-400 text-lg font-medium mb-2">
         No hay registros de auditoría
       </p>
@@ -281,19 +233,7 @@
       v-else-if="!loading && logs.length === 0 && hasSearched"
       class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <svg
-        class="w-16 h-16 mx-auto text-gray-400 mb-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
+      <IconLucideSearch class="w-16 h-16 mx-auto text-gray-400 mb-4" />
       <p class="text-gray-500 dark:text-gray-400 text-lg font-medium mb-2">
         No se encontraron resultados
       </p>
@@ -315,39 +255,7 @@
               'bg-purple-100': selectedLog.action === 'AGENT_ASSIGN',
             }"
           >
-            <svg
-              class="w-5 h-5"
-              :class="{
-                'text-yellow-600': selectedLog.action === 'STATUS_CHANGE',
-                'text-blue-600': selectedLog.action === 'PRICE_UPDATE',
-                'text-purple-600': selectedLog.action === 'AGENT_ASSIGN',
-              }"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                v-if="selectedLog.action === 'STATUS_CHANGE'"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-              <path
-                v-else-if="selectedLog.action === 'PRICE_UPDATE'"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-              <path
-                v-else
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
+            <IconLucideCheckCircle class="w-5 h-5" />
           </div>
           <div>
             <h3 class="text-lg font-bold dark:text-white">
@@ -408,19 +316,7 @@
                       class="text-sm text-red-500 line-through decoration-red-300"
                       >{{ change.oldValue || '(vacío)' }}</span
                     >
-                    <svg
-                      class="w-4 h-4 text-gray-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
+                    <IconLucideArrowRight class="w-4 h-4 text-gray-300" />
                     <span
                       class="text-sm font-bold text-green-600 dark:text-green-400"
                       >{{ change.newValue }}</span
@@ -462,19 +358,7 @@
 
           <div class="flex justify-center">
             <div class="bg-gray-100 dark:bg-gray-700 rounded-full p-2">
-              <svg
-                class="w-6 h-6 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                />
-              </svg>
+              <IconLucideArrowDownToLine class="w-6 h-6 text-gray-500" />
             </div>
           </div>
 
@@ -504,12 +388,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { api } from '../services/api';
-import { userService } from '../services/userService';
-import { propertyService } from '../services/propertyService';
+import { api } from '@/services/api';
+import { userService } from '@/services/userService';
+import { propertyService } from '@/services/propertyService';
 import SearchableSelect, {
   type SelectItem,
-} from '../components/common/SearchableSelect.vue';
+} from '@/components/common/SearchableSelect.vue';
 import {
   FwbTable,
   FwbTableHead,
@@ -521,6 +405,12 @@ import {
   FwbButton,
   FwbBadge,
 } from 'flowbite-vue';
+import IconLucideSearch from '~icons/lucide/search';
+import IconLucideRefreshCw from '~icons/lucide/refresh-cw';
+import IconLucideArrowRight from '~icons/lucide/arrow-right';
+import IconLucideClipboardList from '~icons/lucide/clipboard-list';
+import IconLucideCheckCircle from '~icons/lucide/check-circle';
+import IconLucideArrowDownToLine from '~icons/lucide/arrow-down-to-line';
 
 interface ChangeDetail {
   field: string;

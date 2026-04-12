@@ -16,19 +16,7 @@
         >
         <fwb-button @click="openCreateModal" gradient="blue">
           <div class="flex items-center">
-            <svg
-              class="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
+            <IconLucidePlus class="w-4 h-4 mr-2" />
             Nuevo Cliente
           </div>
         </fwb-button>
@@ -43,14 +31,7 @@
         <div
           class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
         >
-          <svg
-            class="w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <IconLucideSearch class="w-5 h-5 text-gray-400" />
         </div>
         <input
           v-model="searchName"
@@ -81,19 +62,7 @@
           class="absolute top-3 right-3 z-10 bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-lg hover:text-blue-600 transition-all hover:scale-110"
           title="Ver histórico de cambios"
         >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
+          <IconLucideClock class="w-5 h-5" />
         </button>
 
         <!-- Cabecera Visual (Gradiente en lugar de foto) -->
@@ -204,13 +173,16 @@
 </template>
 
 <script setup lang="ts">
+import IconLucidePlus from '~icons/lucide/plus';
+import IconLucideSearch from '~icons/lucide/search';
+import IconLucideClock from '~icons/lucide/clock';
 import { ref, computed, onMounted } from 'vue';
 import { FwbButton, FwbBadge, FwbModal, FwbCard } from 'flowbite-vue';
-import { personService } from '../services/personService';
-import { userService } from '../services/userService';
-import { useAuth } from '../composables/useAuth';
-import UserForm from '../components/users/UserForm.vue';
-import ClientDetailsModal from '../components/users/ClientDetailsModal.vue';
+import { personService } from '@/services/personService';
+import { userService } from '@/services/userService';
+import { useAuth } from '@/composables/useAuth';
+import UserForm from '@/components/users/UserForm.vue';
+import ClientDetailsModal from '@/components/users/ClientDetailsModal.vue';
 
 interface Client {
   id: string;

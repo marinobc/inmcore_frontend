@@ -21,19 +21,7 @@
             to="/dashboard"
             class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
           >
-            <svg
-              class="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
+            <IconLucideArrowLeft class="h-5 w-5" />
           </router-link>
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Propiedades disponibles
@@ -179,13 +167,7 @@
         <p
           class="text-xs text-green-700 dark:text-green-400 mt-2 flex items-center gap-1"
         >
-          <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clip-rule="evenodd"
-            />
-          </svg>
+          <IconLucideCircleCheck class="h-3.5 w-3.5" />
           Mostrando solo propiedades <strong class="ml-0.5">Disponibles</strong>
         </p>
       </div>
@@ -235,19 +217,9 @@
         v-else-if="properties.length === 0"
         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center transition-colors"
       >
-        <svg
+        <IconLucideHome
           class="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
+        />
         <p class="text-gray-500 dark:text-gray-400 font-medium">
           No hay propiedades disponibles con esos filtros.
         </p>
@@ -277,20 +249,10 @@
               :alt="prop.title"
               class="w-full h-full object-cover"
             />
-            <svg
+            <IconLucideHome
               v-else
               class="h-16 w-16 text-blue-300 dark:text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
+            />
             <!-- Badge Disponible -->
             <span
               class="absolute top-3 left-3 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-sm"
@@ -336,19 +298,10 @@
                   : 'bg-white/80 text-gray-400 hover:text-red-500'
               "
             >
-              <svg
+              <IconLucideHeart
                 class="w-5 h-5"
                 :fill="isFavorite(prop.id) ? 'currentColor' : 'none'"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
+              />
             </button>
           </div>
 
@@ -467,19 +420,7 @@
               @click="closeRequestModal"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             >
-              <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <IconLucideX class="h-5 w-5" />
             </button>
           </div>
 
@@ -664,18 +605,23 @@
 </template>
 
 <script setup lang="ts">
+import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+import IconLucideCircleCheck from '~icons/lucide/circle-check';
+import IconLucideHome from '~icons/lucide/home';
+import IconLucideHeart from '~icons/lucide/heart';
+import IconLucideX from '~icons/lucide/x';
 import Swal from 'sweetalert2';
 import { ref, computed, onMounted } from 'vue';
 import {
   getAvailableProperties,
   createVisitRequest,
-} from '../services/visitRequestService';
-import type { Property, ClientVisitRequestDTO } from '../types/visitCalendar';
-import type { Property as PropertyType } from '../types/property';
-import ClientPropertyDetailsModal from '../components/properties/ClientPropertyDetailsModal.vue';
+} from '@/services/visitRequestService';
+import type { Property, ClientVisitRequestDTO } from '@/types/visitCalendar';
+import type { Property as PropertyType } from '@/types/property';
+import ClientPropertyDetailsModal from '@/components/properties/ClientPropertyDetailsModal.vue';
 
 // ── Auth — leer del JWT ──
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 const { user } = useAuth();
 const myClientId = computed(() => (user.value?.sub || '') as string);
 const myClientEmail = computed(() => (user.value?.email || '') as string);
@@ -687,7 +633,7 @@ const myClientName = computed(() => {
 });
 
 import { useRouter } from 'vue-router';
-import { favoriteService } from '../services/favoriteService';
+import { favoriteService } from '@/services/favoriteService';
 const router = useRouter();
 
 // ── Pagination ──

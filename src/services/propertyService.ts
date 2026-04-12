@@ -10,7 +10,7 @@ import type {
   PropertyFormPayload,
   AssignAgentPayload,
   OperationType,
-} from '../types/property';
+} from '@/types/property';
 
 // --- Document Interfaces ---
 export interface DocumentResponse {

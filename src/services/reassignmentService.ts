@@ -9,7 +9,7 @@ import type {
   ReassignmentResponseRequest,
   PendingCount,
   AvailableAgent,
-} from '../types/reassignment';
+} from '@/types/reassignment';
 
 const BASE = '/api';
 

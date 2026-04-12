@@ -13,19 +13,7 @@
         <div
           class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
         >
-          <svg
-            class="w-4 h-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          <IconLucideSearch class="w-4 h-4 text-gray-400" />
         </div>
         <input
           type="text"
@@ -42,20 +30,10 @@
           @click="showDropdown = !showDropdown"
           class="absolute inset-y-0 right-0 flex items-center pr-3"
         >
-          <svg
+          <IconLucideChevronDown
             class="h-4 w-4 text-gray-400 transition-transform"
             :class="{ 'rotate-180': showDropdown }"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          />
         </button>
       </div>
 
@@ -106,19 +84,7 @@
       @click="clear"
       class="mt-1 text-xs text-red-500 hover:text-red-600 flex items-center gap-1"
     >
-      <svg
-        class="w-3 h-3"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"
-        />
-      </svg>
+      <IconLucideX class="w-3 h-3" />
       Limpiar filtro
     </button>
   </div>
@@ -126,6 +92,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import IconLucideSearch from '~icons/lucide/search';
+import IconLucideChevronDown from '~icons/lucide/chevron-down';
+import IconLucideX from '~icons/lucide/x';
 
 export interface SelectItem {
   value: string;

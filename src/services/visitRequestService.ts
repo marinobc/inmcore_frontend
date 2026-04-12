@@ -4,7 +4,7 @@ import type {
   ClientVisitRequestDTO,
   VisitRequestResponse,
   Property,
-} from '../types/visitCalendar';
+} from '@/types/visitCalendar';
 
 // ---------------------------------------------------------------
 //  HU3 PA1: Obtener propiedades disponibles para el cliente

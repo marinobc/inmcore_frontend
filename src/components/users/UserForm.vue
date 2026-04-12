@@ -285,10 +285,10 @@
 <script setup lang="ts">
 import { reactive, ref, watch, computed } from 'vue';
 import { FwbInput, FwbButton } from 'flowbite-vue';
-import { t } from '../../locales/i18n';
-import type { UserFormPayload } from '../../types/user';
-import { userService } from '../../services/userService';
-import { useAuth } from '../../composables/useAuth';
+import { t } from '@/locales/i18n';
+import type { UserFormPayload } from '@/types/user';
+import { userService } from '@/services/userService';
+import { useAuth } from '@/composables/useAuth';
 
 const props = defineProps<{
   initialData?: Record<string, unknown>;

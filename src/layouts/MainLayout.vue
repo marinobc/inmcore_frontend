@@ -164,19 +164,7 @@
             class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
             active-class="bg-blue-50 text-blue-700 font-medium"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
+            <IconLucideFileText class="w-5 h-5" />
             Operaciones
           </router-link>
 
@@ -186,19 +174,7 @@
             class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
             active-class="bg-blue-50 text-blue-700 font-medium"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              />
-            </svg>
+            <IconLucideArrowLeftRight class="w-5 h-5" />
             Solicitudes Recibidas
             <NotificationBadge />
           </router-link>
@@ -209,19 +185,7 @@
             class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700"
             active-class="bg-blue-50 text-blue-700 font-medium"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
+            <IconLucideClipboardList class="w-5 h-5" />
             Mis Solicitudes Enviadas
             <NotificationBadge />
           </router-link>
@@ -298,12 +262,15 @@ import {
   FwbDropdown,
   FwbListGroup,
 } from 'flowbite-vue';
-import NotificationBadge from '../components/visits/reassignment/NotificationBadge.vue';
-import VisitRequestNotificationBadge from '../components/visits/requests/VisitRequestNotificationBadge.vue';
-import { useAuth } from '../composables/useAuth';
-import { t } from '../locales/i18n';
-import ThemeToggle from '../components/ThemeToggle.vue';
+import NotificationBadge from '@/components/visits/reassignment/NotificationBadge.vue';
+import VisitRequestNotificationBadge from '@/components/visits/requests/VisitRequestNotificationBadge.vue';
+import { useAuth } from '@/composables/useAuth';
+import { t } from '@/locales/i18n';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 import { computed } from 'vue';
+import IconLucideFileText from '~icons/lucide/file-text';
+import IconLucideArrowLeftRight from '~icons/lucide/arrow-left-right';
+import IconLucideClipboardList from '~icons/lucide/clipboard-list';
 
 const { user, logout } = useAuth();
 

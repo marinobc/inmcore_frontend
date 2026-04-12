@@ -15,19 +15,7 @@
         <router-link to="/properties">
           <fwb-button gradient="blue" size="sm">
             <div class="flex items-center">
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <IconLucideSearch class="w-4 h-4 mr-2" />
               Buscar más propiedades
             </div>
           </fwb-button>
@@ -62,19 +50,7 @@
       v-else-if="favoriteProperties.length === 0"
       class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <svg
-        class="w-16 h-16 mx-auto text-gray-400 mb-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-        />
-      </svg>
+      <IconLucideHeart class="w-16 h-16 mx-auto text-gray-400 mb-4" />
       <p class="text-gray-500 dark:text-gray-400 text-lg font-medium mb-2">
         No tienes propiedades favoritas aún
       </p>
@@ -99,19 +75,7 @@
           class="absolute top-3 right-3 z-20 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
           title="Quitar de favoritos"
         >
-          <svg
-            class="w-4 h-4"
-            fill="currentColor"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
+          <IconLucideTrash class="w-4 h-4" />
         </button>
 
         <!-- View Details Button (Top Left) -->
@@ -120,25 +84,7 @@
           class="absolute top-3 left-3 z-20 bg-white/90 dark:bg-gray-800/90 p-2 rounded-full shadow-lg hover:text-blue-600 transition-all hover:scale-110 opacity-0 group-hover:opacity-100"
           title="Ver detalles"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-            />
-          </svg>
+          <IconLucideEye class="w-4 h-4" />
         </button>
 
         <!-- Heart Icon (Always visible to indicate it's a favorite) -->
@@ -146,19 +92,7 @@
           class="absolute top-3 right-3 z-10 opacity-100 group-hover:opacity-0 transition-opacity"
         >
           <div class="bg-red-500 text-white rounded-full p-1.5 shadow-md">
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
+            <IconLucideHeart class="w-4 h-4" fill="currentColor" />
           </div>
         </div>
 
@@ -173,19 +107,7 @@
             @error="handleImageError(prop)"
           />
           <div v-else class="flex flex-col items-center">
-            <svg
-              class="w-12 h-12 mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+            <IconLucideImage class="w-12 h-12 mb-2" />
             <span class="text-sm">Sin imagen</span>
           </div>
           <!-- Status Badge -->
@@ -312,11 +234,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { FwbCard, FwbButton, FwbBadge } from 'flowbite-vue';
-import { favoriteService } from '../services/favoriteService';
-import { propertyService } from '../services/propertyService';
-import PropertyDetailsModal from '../components/properties/PropertyDetailsModal.vue';
-import type { Property } from '../types/property';
+import { favoriteService } from '@/services/favoriteService';
+import { propertyService } from '@/services/propertyService';
+import PropertyDetailsModal from '@/components/properties/PropertyDetailsModal.vue';
+import type { Property } from '@/types/property';
 import Swal from 'sweetalert2';
+import IconLucideSearch from '~icons/lucide/search';
+import IconLucideHeart from '~icons/lucide/heart';
+import IconLucideTrash from '~icons/lucide/trash';
+import IconLucideEye from '~icons/lucide/eye';
+import IconLucideImage from '~icons/lucide/image';
 
 const loading = ref(false);
 const error = ref('');

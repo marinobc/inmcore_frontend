@@ -15,19 +15,7 @@
         >
         <fwb-button @click="openCreateModal" gradient="blue">
           <div class="flex items-center">
-            <svg
-              class="w-4 h-4 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
+            <IconLucidePlus class="w-4 h-4 mr-2" />
             Nuevo Propietario
           </div>
         </fwb-button>
@@ -41,14 +29,7 @@
         <div
           class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
         >
-          <svg
-            class="w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <IconLucideSearch class="w-5 h-5 text-gray-400" />
         </div>
         <input
           v-model="searchName"
@@ -178,12 +159,14 @@
 </template>
 
 <script setup lang="ts">
+import IconLucidePlus from '~icons/lucide/plus';
+import IconLucideSearch from '~icons/lucide/search';
 import { ref, computed, onMounted } from 'vue';
 import { FwbButton, FwbBadge, FwbModal, FwbCard } from 'flowbite-vue';
-import { userService } from '../services/userService';
-import { useAuth } from '../composables/useAuth';
-import { personService } from '../services/personService';
-import UserForm from '../components/users/UserForm.vue';
+import { userService } from '@/services/userService';
+import { useAuth } from '@/composables/useAuth';
+import { personService } from '@/services/personService';
+import UserForm from '@/components/users/UserForm.vue';
 
 interface Owner {
   id: string;

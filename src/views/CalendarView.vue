@@ -15,19 +15,7 @@
               to="/dashboard"
               class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
             >
-              <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <IconLucideArrowLeft class="h-5 w-5" />
             </router-link>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
               Calendario del equipo
@@ -42,19 +30,7 @@
           to="/schedule-visit"
           class="inline-flex items-center gap-2 rounded-lg bg-blue-600 dark:bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors shadow-sm"
         >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <IconLucidePlus class="h-4 w-4" />
           Programar visita
         </router-link>
       </div>
@@ -153,19 +129,9 @@
               @click="prevWeek"
               class="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-              <svg
+              <IconLucideChevronLeft
                 class="h-4 w-4 text-gray-600 dark:text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              />
             </button>
             <button
               @click="goToday"
@@ -177,19 +143,9 @@
               @click="nextWeek"
               class="p-2 rounded-lg border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-              <svg
+              <IconLucideChevronRight
                 class="h-4 w-4 text-gray-600 dark:text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              />
             </button>
           </div>
 
@@ -203,19 +159,7 @@
               <div
                 class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
               >
-                <svg
-                  class="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
+                <IconLucideSearch class="w-4 h-4 text-gray-400" />
               </div>
               <input
                 v-model="searchTermProperty"
@@ -229,20 +173,10 @@
                 @click="showPropertyDropdown = !showPropertyDropdown"
                 class="absolute inset-y-0 right-0 flex items-center pr-3"
               >
-                <svg
+                <IconLucideChevronDown
                   class="h-4 w-4 text-gray-400 transition-transform"
                   :class="{ 'rotate-180': showPropertyDropdown }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
             </div>
             <!-- Lista desplegable -->
@@ -286,16 +220,7 @@
               <div
                 class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
               >
-                <svg
-                  class="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+                <IconLucideUser class="w-4 h-4 text-gray-400" />
               </div>
               <input
                 v-model="searchTermAgent"
@@ -309,20 +234,10 @@
                 @click="showAgentDropdown = !showAgentDropdown"
                 class="absolute inset-y-0 right-0 flex items-center pr-3"
               >
-                <svg
+                <IconLucideChevronDown
                   class="h-4 w-4 text-gray-400 transition-transform"
                   :class="{ 'rotate-180': showAgentDropdown }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
             </div>
             <!-- Lista desplegable -->
@@ -496,14 +411,7 @@
               @click="selectedEvent = null"
               class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <svg
-                class="h-6 w-6 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <IconLucideX class="h-6 w-6 text-gray-400" />
             </button>
           </div>
           <div class="space-y-3 text-sm">
@@ -565,22 +473,30 @@
 </template>
 
 <script setup lang="ts">
+import IconLucideArrowLeft from '~icons/lucide/arrow-left';
+import IconLucidePlus from '~icons/lucide/plus';
+import IconLucideChevronLeft from '~icons/lucide/chevron-left';
+import IconLucideChevronRight from '~icons/lucide/chevron-right';
+import IconLucideSearch from '~icons/lucide/search';
+import IconLucideChevronDown from '~icons/lucide/chevron-down';
+import IconLucideUser from '~icons/lucide/user';
+import IconLucideX from '~icons/lucide/x';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { getCalendar, cancelVisit } from '../services/calendarService';
-import { propertyService } from '../services/propertyService';
-import { userService } from '../services/userService';
-import { useAuth } from '../composables/useAuth';
+import { getCalendar, cancelVisit } from '@/services/calendarService';
+import { propertyService } from '@/services/propertyService';
+import { userService } from '@/services/userService';
+import { useAuth } from '@/composables/useAuth';
 import type {
   CalendarResponse,
   CalendarEventResponse,
   VisitRequestResponse,
-} from '../types/visitCalendar';
+} from '@/types/visitCalendar';
 import {
   getPendingRequestsForAgent,
   acceptVisitRequest,
   rejectVisitRequest,
-} from '../services/visitRequestService';
-import ReassignButton from '../components/visits/reassignment/ReassignButton.vue';
+} from '@/services/visitRequestService';
+import ReassignButton from '@/components/visits/reassignment/ReassignButton.vue';
 
 // --- AUTH & CONFIG ---
 const { user } = useAuth();

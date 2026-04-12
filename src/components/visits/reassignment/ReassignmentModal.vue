@@ -20,19 +20,7 @@
           >
             <div class="flex items-center gap-3">
               <div class="bg-white/20 rounded-full p-2">
-                <svg
-                  class="w-5 h-5 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                <IconLucideUsers class="w-5 h-5 text-white" />
               </div>
               <div>
                 <h3 class="text-white font-semibold text-lg">
@@ -45,19 +33,7 @@
               @click="$emit('update:modelValue', false)"
               class="text-white/70 hover:text-white transition-colors"
             >
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <IconLucideX class="w-6 h-6" />
             </button>
           </div>
 
@@ -68,17 +44,7 @@
               v-if="errorMsg"
               class="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"
             >
-              <svg
-                class="w-4 h-4 shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <IconLucideAlertCircle class="w-4 h-4 shrink-0" />
               {{ errorMsg }}
             </div>
 
@@ -93,25 +59,7 @@
                 v-if="loadingAgents"
                 class="flex items-center gap-2 text-gray-500 text-sm py-2"
               >
-                <svg
-                  class="animate-spin w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  />
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  />
-                </svg>
+                <IconLucideLoader class="animate-spin w-4 h-4" />
                 Loading agents...
               </div>
 
@@ -157,17 +105,7 @@
                     v-if="form.destinationAgentId === agent.id"
                     class="text-blue-500"
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                    <IconLucideCircleCheck class="w-5 h-5" />
                   </div>
                 </label>
 
@@ -225,26 +163,7 @@
               :disabled="loading"
               class="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
             >
-              <svg
-                v-if="loading"
-                class="animate-spin w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                />
-              </svg>
+              <IconLucideLoader v-if="loading" class="animate-spin w-4 h-4" />
               <span>{{ loading ? 'Sending...' : 'Send request' }}</span>
             </button>
           </div>
@@ -256,8 +175,13 @@
 
 <script setup lang="ts">
 import { ref, watch, reactive } from 'vue';
-import type { AvailableAgent } from '../../../types/reassignment';
-import reassignmentService from '../../../services/reassignmentService';
+import type { AvailableAgent } from '@/types/reassignment';
+import reassignmentService from '@/services/reassignmentService';
+import IconLucideUsers from '~icons/lucide/users';
+import IconLucideX from '~icons/lucide/x';
+import IconLucideAlertCircle from '~icons/lucide/alert-circle';
+import IconLucideCircleCheck from '~icons/lucide/circle-check';
+import IconLucideLoader from '~icons/lucide/loader';
 
 // ── Props & Emits ─────────────────────────────────────────────────────────
 const props = defineProps<{

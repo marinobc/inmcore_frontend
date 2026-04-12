@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { FwbModal, FwbButton } from 'flowbite-vue';
-import type { Property } from '../../types/property';
+import type { Property } from '@/types/property';
 
 interface Agent {
   id: string;
