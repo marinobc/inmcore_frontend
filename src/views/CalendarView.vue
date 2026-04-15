@@ -266,7 +266,9 @@
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
               {{ teamEvents }}
             </p>
-            <p class="text-[10px] text-gray-500 uppercase font-black">{{ t('calendar.team') }}</p>
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black">
+              {{ t('calendar.team') }}
+            </p>
           </div>
         </div>
         <div
@@ -276,7 +278,7 @@
             <p class="text-2xl font-bold text-gray-900 dark:text-white">
               {{ uniqueProperties }}
             </p>
-            <p class="text-[10px] text-gray-500 uppercase font-black">
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black">
               {{ t('calendar.properties') }}
             </p>
           </div>
@@ -455,6 +457,7 @@
   import ReassignButton from '@/components/visits/reassignment/ReassignButton.vue';
   import { useI18n } from 'vue-i18n';
   import { getLocaleString } from '@/locales/i18n';
+  import { handleApiError } from '@/api/errorHandler';
 
   const { t } = useI18n();
   const authStore = useAuthStore();
@@ -520,8 +523,12 @@
 
   const loadFilterData = async () => {
     try {
-      const [p, u] = await Promise.all([propertyService.getProperties(), userService.getUsers()]);
-      allProperties.value = p as {
+      const [p, uRes] = await Promise.all([
+        propertyService.getProperties(),
+        userService.getUsers(0, 1000),
+      ]);
+      const u = uRes.data || [];
+      allProperties.value = (p || []) as {
         id: string;
         title: string;
         address: string;
@@ -565,8 +572,8 @@
         filterAgentId.value || undefined,
         filterPropertyId.value || undefined
       );
-    } catch {
-      error.value = t('calendar.loadError');
+    } catch (e) {
+      error.value = handleApiError(e).message;
     } finally {
       loading.value = false;
     }
@@ -581,8 +588,8 @@
     try {
       const requests = await getPendingRequestsForAgent(myAgentId.value);
       pendingRequests.value = requests.filter((request) => request.status === 'PENDING');
-    } catch {
-      console.error(t('calendar.loadingPendingError'));
+    } catch (e) {
+      console.error(handleApiError(e).message);
     }
   }
 

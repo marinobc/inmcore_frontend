@@ -1,7 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 transition-colors duration-300">
     <div class="max-w-4xl mx-auto space-y-8">
-      <FwbButton tag="router-link" to="/operations" color="light" size="sm" class="!px-3 !py-2">
+      <FwbButton
+        tag="router-link"
+        to="/operations"
+        color="light"
+        size="sm"
+        class="!px-3 !py-2 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
+      >
         <div class="inline-flex items-center gap-2">
           <IconLucideArrowLeft class="w-4 h-4" />
           {{ t('operations.backToList') }}
@@ -9,8 +15,8 @@
       </FwbButton>
 
       <div v-if="loadingOperation" class="space-y-4 animate-pulse">
-        <div class="h-8 bg-gray-200 rounded w-1/3"></div>
-        <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div class="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
       </div>
 
       <FwbAlert v-else-if="operationError" type="danger">
@@ -18,7 +24,7 @@
       </FwbAlert>
 
       <template v-else>
-        <FwbCard>
+        <FwbCard class="dark:bg-gray-800 dark:border-gray-700">
           <div class="space-y-4">
             <div class="flex items-start justify-between gap-4 flex-wrap">
               <div>
@@ -39,7 +45,7 @@
               class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700"
             >
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
                   {{ t('operations.property') }}
                 </p>
                 <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
@@ -47,7 +53,7 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
                   {{ t('operations.client') }}
                 </p>
                 <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
@@ -55,7 +61,7 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
                   {{ t('operations.agent') }}
                 </p>
                 <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
@@ -63,7 +69,7 @@
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
                   {{ t('operations.date') }}
                 </p>
                 <p class="text-sm font-medium text-gray-800 dark:text-gray-200 mt-0.5">
@@ -74,7 +80,7 @@
           </div>
         </FwbCard>
 
-        <FwbCard>
+        <FwbCard class="dark:bg-gray-800 dark:border-gray-700">
           <OperationReceiptsSection :operation-id="operationId" />
         </FwbCard>
       </template>
@@ -104,8 +110,8 @@
   onMounted(async () => {
     loadingOperation.value = true;
     try {
-      const { data } = await api.get(`/api/operations/${operationId}`);
-      operation.value = data;
+      const response = await api.get(`/operations/${operationId}`);
+      operation.value = response.data.data;
     } catch {
       operationError.value = t('operations.loadDetailError');
     } finally {

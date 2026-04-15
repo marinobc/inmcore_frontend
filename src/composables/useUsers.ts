@@ -14,28 +14,48 @@ interface Role {
   [key: string]: unknown;
 }
 
-const users = ref<EnrichedUser[]>([]);
-const roles = ref<Role[]>([]);
-
 export function useUsers() {
-  const load = async () => {
+  const users = ref<EnrichedUser[]>([]);
+  const roles = ref<Role[]>([]);
+  const loading = ref(false);
+  const currentPage = ref(0);
+  const pageSize = ref(10);
+  const totalPages = ref(0);
+  const totalUsers = ref(0);
+  const statusFilter = ref<string | undefined>(undefined);
+
+  const load = async (query?: string) => {
+    loading.value = true;
     try {
-      const baseUsers = await userService.getUsers();
-      const enrichedUsers = await Promise.all(
-        baseUsers.map(async (user: EnrichedUser) => {
-          try {
-            const profile = await personService.getPersonByAuthUserId(user.id);
-            const { id: profileId, ...profileData } = profile;
-            return { ...user, ...profileData, profileInternalId: profileId };
-          } catch {
-            return user;
-          }
-        })
+      const response = await userService.getUsers(
+        currentPage.value,
+        pageSize.value,
+        statusFilter.value === 'ALL' ? undefined : statusFilter.value,
+        query
       );
-      users.value = enrichedUsers;
-      roles.value = await userService.getRoles();
-    } catch {
-      console.error('Error loading users:');
+      // response is ApiResponse<User[]>
+      users.value = (response.data || []) as EnrichedUser[];
+      const meta = response.meta;
+
+      totalUsers.value = meta?.total || 0;
+      totalPages.value = Math.ceil(totalUsers.value / pageSize.value);
+
+      const rolesRes = await userService.getRoles();
+      roles.value = rolesRes.data || [];
+    } catch (error) {
+      console.error('Error loading users:', error);
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  const fetchUserProfile = async (authUserId: string): Promise<Record<string, unknown> | null> => {
+    try {
+      const profile = await personService.getPersonByAuthUserId(authUserId);
+      return profile;
+    } catch (error) {
+      console.error(`Error loading profile for ${authUserId}:`, error);
+      return null;
     }
   };
 
@@ -63,7 +83,6 @@ export function useUsers() {
   const deactivate = async (id: string) => {
     try {
       await userService.deactivateUser(id);
-
       const idx = users.value.findIndex((u) => u.id === id);
       if (idx !== -1) {
         users.value[idx] = { ...users.value[idx], status: 'INACTIVE' };
@@ -106,6 +125,12 @@ export function useUsers() {
   return {
     users,
     roles,
+    loading,
+    currentPage,
+    pageSize,
+    totalPages,
+    totalUsers,
+    statusFilter,
     load,
     create,
     remove,
@@ -113,5 +138,6 @@ export function useUsers() {
     reactivate,
     resendPassword,
     update,
+    fetchUserProfile,
   };
 }

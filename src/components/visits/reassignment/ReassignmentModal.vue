@@ -2,12 +2,14 @@
   <FwbModal v-if="modelValue" @close="$emit('update:modelValue', false)" size="lg">
     <template #header>
       <div class="flex items-center gap-3">
-        <div class="bg-blue-100 rounded-full p-2">
-          <IconLucideUsers class="w-5 h-5 text-blue-600" />
+        <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full p-2">
+          <IconLucideUsers class="w-5 h-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
-          <h3 class="font-semibold text-lg">{{ t('reassignment.title') }}</h3>
-          <p class="text-gray-500 text-sm">{{ t('reassignment.visitLabel') }} {{ visitInfo }}</p>
+          <h3 class="font-semibold text-lg dark:text-white">{{ t('reassignment.title') }}</h3>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">
+            {{ t('reassignment.visitLabel') }} {{ visitInfo }}
+          </p>
         </div>
       </div>
     </template>
@@ -19,12 +21,15 @@
         </FwbAlert>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ t('reassignment.selectColleague') }}
             <span class="text-red-500">*</span>
           </label>
 
-          <div v-if="loadingAgents" class="flex items-center gap-2 text-gray-500 text-sm py-2">
+          <div
+            v-if="loadingAgents"
+            class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm py-2"
+          >
             <IconLucideLoader class="animate-spin w-4 h-4" />
             {{ t('reassignment.loadingAgents') }}
           </div>
@@ -37,8 +42,8 @@
               class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all"
               :class="
                 form.destinationAgentId === agent.id
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-700/50'
               "
             >
               <input
@@ -49,27 +54,34 @@
               />
               <div
                 class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
-                :class="form.destinationAgentId === agent.id ? 'bg-blue-600' : 'bg-gray-400'"
+                :class="
+                  form.destinationAgentId === agent.id
+                    ? 'bg-blue-600'
+                    : 'bg-gray-400 dark:bg-gray-600'
+                "
               >
                 {{ agent.firstName.charAt(0).toUpperCase()
                 }}{{ agent.lastName.charAt(0).toUpperCase() }}
               </div>
               <div class="flex-1 min-w-0">
-                <p class="font-medium text-gray-800 text-sm truncate">
+                <p class="font-medium text-gray-800 dark:text-white text-sm truncate">
                   {{ agent.firstName }} {{ agent.lastName }}
                 </p>
-                <p class="text-xs text-gray-500 truncate">
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {{ agent.email }}
                 </p>
               </div>
-              <div v-if="form.destinationAgentId === agent.id" class="text-blue-500">
+              <div
+                v-if="form.destinationAgentId === agent.id"
+                class="text-blue-500 dark:text-blue-400"
+              >
                 <IconLucideCircleCheck class="w-5 h-5" />
               </div>
             </div>
 
             <p
               v-if="!loadingAgents && agents.length === 0"
-              class="text-sm text-gray-500 text-center py-4"
+              class="text-sm text-gray-500 dark:text-gray-400 text-center py-4"
             >
               {{ t('reassignment.noAgents') }}
             </p>
@@ -81,7 +93,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             {{ t('reassignment.reasonLabel') }}
             <span class="text-red-500">*</span>
           </label>
@@ -91,9 +103,10 @@
             :placeholder="t('reassignment.reasonPlaceholder')"
             :rows="3"
             required
+            class="dark:bg-gray-700 dark:text-white dark:border-gray-600"
           />
           <div class="flex justify-end mt-1">
-            <p class="text-xs text-gray-400">{{ form.reason.length }}/300</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500">{{ form.reason.length }}/300</p>
           </div>
         </div>
       </div>
@@ -116,15 +129,17 @@
 <script setup lang="ts">
   import { ref, watch, reactive } from 'vue';
   import { useI18n } from 'vue-i18n';
-
   import { FwbModal, FwbButton, FwbAlert, FwbTextarea } from 'flowbite-vue';
   import type { AvailableAgent } from '@/types/reassignment';
   import reassignmentService from '@/services/reassignmentService';
+  import { useAuthStore } from '@/modules/auth/stores/authStore';
   import IconLucideUsers from '~icons/lucide/users';
   import IconLucideCircleCheck from '~icons/lucide/circle-check';
   import IconLucideLoader from '~icons/lucide/loader';
+  import { handleApiError } from '@/api/errorHandler';
 
   const { t } = useI18n();
+  const authStore = useAuthStore();
 
   const props = defineProps<{
     modelValue: boolean;
@@ -164,10 +179,13 @@
 
   async function fetchAgents() {
     loadingAgents.value = true;
+    errorMsg.value = null;
     try {
-      agents.value = await reassignmentService.getAvailableAgents();
-    } catch {
-      errorMsg.value = t('reassignment.loadAgentsError');
+      const allAgents = await reassignmentService.getAvailableAgents();
+      const currentUserId = authStore.user?.sub || authStore.user?.userId || authStore.user?.id;
+      agents.value = allAgents.filter((a) => a.id !== currentUserId);
+    } catch (e) {
+      errorMsg.value = handleApiError(e).message;
     } finally {
       loadingAgents.value = false;
     }
@@ -205,8 +223,7 @@
       emit('requestSent');
       emit('update:modelValue', false);
     } catch (e: unknown) {
-      const err = e as Record<string, { data?: { error?: string } } | undefined>;
-      errorMsg.value = err?.response?.data?.error ?? t('reassignment.sendError');
+      errorMsg.value = handleApiError(e).message;
     } finally {
       loading.value = false;
     }

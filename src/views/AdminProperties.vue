@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <h1 class="text-3xl font-bold dark:text-white">{{ t('adminProperties.title') }}</h1>
-        <p class="text-gray-500 text-sm">{{ t('adminProperties.subtitle') }}</p>
+        <p class="text-gray-500 text-sm dark:text-gray-400">{{ t('adminProperties.subtitle') }}</p>
       </div>
       <div class="flex items-center space-x-3">
         <fwb-badge type="indigo">{{ t('adminProperties.adminMode') }}</fwb-badge>
@@ -19,7 +19,7 @@
     <div
       class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm"
     >
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>
           <label class="block mb-2 text-xs font-black text-gray-400 uppercase">
             {{ t('adminProperties.searchTitle') }}
@@ -45,23 +45,8 @@
             <option value="ANTICRETICO">{{ t('agentDashboard.anticretic') }}</option>
           </select>
         </div>
-        <div>
-          <label class="block mb-2 text-xs font-black text-gray-400 uppercase">
-            {{ t('adminProperties.itemsPerPage') }}
-          </label>
-          <select
-            v-model="pageSize"
-            @change="resetAndLoad"
-            class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2.5 dark:bg-gray-700 dark:text-white"
-          >
-            <option :value="5">{{ t('adminProperties.itemsCount', { n: 5 }) }}</option>
-            <option :value="9">{{ t('adminProperties.itemsCount', { n: 9 }) }}</option>
-            <option :value="20">{{ t('adminProperties.itemsCount', { n: 20 }) }}</option>
-            <option :value="50">{{ t('adminProperties.itemsCount', { n: 50 }) }}</option>
-          </select>
-        </div>
-        <div class="flex justify-end gap-2">
-          <fwb-button color="alternative" size="sm" @click="clearAllFilters">
+        <div class="flex items-center gap-2">
+          <fwb-button color="alternative" size="sm" @click="clearAllFilters" class="w-full">
             {{ t('adminProperties.clearFilters') }}
           </fwb-button>
         </div>
@@ -79,7 +64,7 @@
       <fwb-card
         v-for="p in allProperties"
         :key="p.id"
-        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative"
+        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative dark:bg-gray-800"
       >
         <button
           @click="viewDetails(p)"
@@ -98,14 +83,14 @@
         <div class="absolute top-2 right-2 flex space-x-1 z-10">
           <button
             @click="openEditModal(p)"
-            class="bg-blue-600 text-white rounded-full p-1.5 hover:bg-blue-700 shadow-lg"
+            class="bg-blue-600 text-white rounded-full p-1.5 hover:bg-blue-700 shadow-lg transition-colors"
             :title="t('adminProperties.edit')"
           >
             <IconLucidePencil class="w-4 h-4" />
           </button>
           <button
             @click="confirmDelete(p)"
-            class="bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 shadow-lg"
+            class="bg-red-600 text-white rounded-full p-1.5 hover:bg-red-700 shadow-lg transition-colors"
             :title="t('adminProperties.delete')"
           >
             <IconLucideTrash class="w-4 h-4" />
@@ -125,7 +110,7 @@
           <div class="absolute bottom-2 right-2">
             <span
               :class="getStatusBadgeClass(p.status)"
-              class="text-xs font-medium px-2.5 py-0.5 rounded"
+              class="text-xs font-medium px-2.5 py-0.5 rounded shadow-sm"
             >
               {{ t('status.' + p.status) }}
             </span>
@@ -140,11 +125,17 @@
           <h5 class="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-1">
             {{ p.title }}
           </h5>
-          <p class="text-sm text-gray-500 mb-4">{{ p.address }}</p>
+          <div class="mb-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ p.address }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <span class="font-semibold">{{ t('clientProperties.zoneLabel') }}</span>
+              {{ p.zone || t('common.notSpecified') }}
+            </p>
+          </div>
 
           <div class="flex justify-between items-end mt-auto">
             <div>
-              <p class="text-xs text-gray-400 uppercase font-bold tracking-tighter">
+              <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">
                 {{ t('adminProperties.price') }}
               </p>
               <p class="text-2xl font-black text-blue-600">
@@ -189,40 +180,17 @@
       v-if="!loading && allProperties.length === 0"
       class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <p class="text-gray-500">{{ t('adminProperties.noProperties') }}</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ t('adminProperties.noProperties') }}</p>
     </div>
 
-    <div v-if="totalPages > 1" class="flex justify-center items-center space-x-2 mt-8 pb-10">
-      <button
-        @click="changePage(currentPage - 1)"
-        :disabled="currentPage === 0"
-        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
-      >
-        {{ t('adminProperties.previous') }}
-      </button>
-
-      <template v-for="page in totalPages" :key="page">
-        <button
-          @click="changePage(page - 1)"
-          :class="[
-            'px-4 py-2 rounded-lg border transition-colors',
-            currentPage === page - 1
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white hover:bg-gray-100',
-          ]"
-        >
-          {{ page }}
-        </button>
-      </template>
-
-      <button
-        @click="changePage(currentPage + 1)"
-        :disabled="currentPage >= totalPages - 1"
-        class="px-3 py-2 rounded-lg border dark:border-gray-600 disabled:opacity-30 dark:text-white bg-white dark:bg-gray-800"
-      >
-        {{ t('adminProperties.next') }}
-      </button>
-    </div>
+    <Pagination
+      v-if="!loading && totalPages > 1"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total-pages="totalPages"
+      :total="totalItems"
+      @change="load"
+    />
 
     <property-details-modal
       v-if="showDetailsModal"
@@ -235,7 +203,7 @@
 
     <fwb-modal v-if="showCreateEditModal" @close="closeCreateEditModal" size="2xl">
       <template #header>
-        <div class="text-lg font-bold">
+        <div class="text-lg font-bold dark:text-white">
           {{
             isEditing ? t('adminProperties.editProperty') : t('adminProperties.registerProperty')
           }}
@@ -263,7 +231,7 @@
 
     <fwb-modal v-if="showOwnerModal" @close="showOwnerModal = false">
       <template #header>
-        <div class="text-lg font-bold">{{ t('adminProperties.assignOwner') }}</div>
+        <div class="text-lg font-bold dark:text-white">{{ t('adminProperties.assignOwner') }}</div>
       </template>
       <template #body>
         <select
@@ -285,7 +253,7 @@
 
     <fwb-modal v-if="showPriceModal" @close="showPriceModal = false">
       <template #header>
-        <div class="text-lg font-bold">{{ t('adminProperties.modifyPrice') }}</div>
+        <div class="text-lg font-bold dark:text-white">{{ t('adminProperties.modifyPrice') }}</div>
       </template>
       <template #body>
         <fwb-input
@@ -307,7 +275,9 @@
 
     <fwb-modal v-if="showOpTypeModal" @close="showOpTypeModal = false">
       <template #header>
-        <div class="text-lg font-bold">{{ t('adminProperties.changeOperation') }}</div>
+        <div class="text-lg font-bold dark:text-white">
+          {{ t('adminProperties.changeOperation') }}
+        </div>
       </template>
       <template #body>
         <select
@@ -329,7 +299,7 @@
         <div class="text-lg font-bold text-red-600">{{ t('adminProperties.deleteProperty') }}</div>
       </template>
       <template #body>
-        <p>
+        <p class="dark:text-gray-300">
           {{ t('agentDashboard.confirmDeleteText', { name: propertyToDelete?.title || '' }) }}
         </p>
       </template>
@@ -350,7 +320,7 @@
   import IconLucideClipboardList from '~icons/lucide/clipboard-list';
   import IconLucidePencil from '~icons/lucide/pencil';
   import IconLucideTrash from '~icons/lucide/trash';
-  import { ref, onMounted, computed } from 'vue';
+  import { ref, onMounted, computed, watch } from 'vue';
   import { FwbCard, FwbButton, FwbModal, FwbInput, FwbBadge } from 'flowbite-vue';
   import { propertyService } from '@/modules/properties';
   import { userService } from '@/services/userService';
@@ -359,6 +329,7 @@
   import { getLocaleString } from '@/locales/i18n';
   import AssignAgentModal from '@/components/properties/AssignAgentModal.vue';
   import PropertyForm from '@/components/properties/PropertyForm.vue';
+  import Pagination from '@/components/ui/Pagination.vue';
   import DocumentUpload from '@/components/properties/DocumentUpload.vue';
   import PropertyDetailsModal from '@/components/properties/PropertyDetailsModal.vue';
   import type { Property, PropertyFormPayload } from '@/types/property';
@@ -380,8 +351,9 @@
   const allUsers = ref<User[]>([]);
   const loading = ref(false);
   const totalPages = ref(0);
+  const totalItems = ref(0);
   const currentPage = ref(0);
-  const pageSize = ref(9);
+  const pageSize = ref(10);
   const deleting = ref(false);
   const filterTitle = ref('');
   const filterOpType = ref('');
@@ -423,12 +395,17 @@
       filters.pageSize = pageSize.value;
 
       const response = await api.get('/properties', { params: filters });
-      allProperties.value = response.data?.data || response.data?.content || response.data || [];
-      totalPages.value = response.data?.totalPages || 0;
+      const apiRes = response.data;
+      allProperties.value = apiRes.data || [];
+
+      const meta = apiRes.meta;
+      totalItems.value = meta?.total || 0;
+      const limit = meta?.limit || pageSize.value || 1;
+      totalPages.value = Math.ceil(totalItems.value / limit);
 
       if (allUsers.value.length === 0) {
-        const users = await userService.getUsers();
-        allUsers.value = users || [];
+        const res = await userService.getUsers(0, 1000);
+        allUsers.value = res.data || [];
       }
     } catch (error) {
       console.error(t('common.error') + ':', error);
@@ -437,10 +414,9 @@
     }
   };
 
-  const changePage = (page: number) => {
-    currentPage.value = page;
-    load();
-  };
+  watch(pageSize, () => {
+    resetAndLoad();
+  });
 
   const resetAndLoad = () => {
     currentPage.value = 0;
@@ -455,7 +431,7 @@
   const clearAllFilters = () => {
     filterTitle.value = '';
     filterOpType.value = '';
-    pageSize.value = 9;
+    pageSize.value = 10;
     resetAndLoad();
   };
 
@@ -521,19 +497,7 @@
   const handleCreateEdit = async (data: PropertyFormPayload) => {
     try {
       if (isEditing.value && editingProperty.value) {
-        const updatePayload = {
-          title: data.title,
-          address: data.address,
-          type: data.type,
-          m2: data.m2,
-          rooms: data.rooms,
-          price: data.price,
-          operationType: data.operationType,
-          ownerId: data.ownerId || null,
-        };
-
-        console.log('Updating property with payload:', updatePayload);
-        await propertyService.updateProperty(editingProperty.value.id as string, updatePayload);
+        await propertyService.updateProperty(editingProperty.value.id as string, data);
         alert(t('adminProperties.propertyUpdated'));
       } else {
         await propertyService.createProperty(data);
@@ -542,8 +506,7 @@
       closeCreateEditModal();
       await load();
     } catch {
-      console.error(t('common.error') + ':', t('common.error'));
-      alert(t('common.error') + ': ' + t('common.error'));
+      alert(t('common.error'));
     }
   };
 

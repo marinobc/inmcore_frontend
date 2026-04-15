@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">{{ t('users.view.title') }}</h1>
+      <h1 class="text-2xl font-bold dark:text-white">{{ t('users.view.title') }}</h1>
     </div>
 
     <div
@@ -14,7 +14,7 @@
               <IconLucideSearch class="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </div>
             <input
-              v-model="searchCI"
+              v-model="searchQuery"
               type="text"
               class="block w-full p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               :placeholder="t('users.view.searchPlaceholder')"
@@ -22,20 +22,20 @@
             />
           </div>
           <p
-            v-if="searchCI && filteredUsers.length === 0 && users.length > 0"
+            v-if="searchQuery && filteredUsers.length === 0 && users.length > 0"
             class="mt-2 text-sm text-yellow-600 dark:text-yellow-400"
           >
-            ⚠️ {{ t('users.view.noResults', { ci: searchCI }) }}
+            ⚠️ {{ t('users.view.noResults', { ci: searchQuery }) }}
           </p>
           <p
-            v-if="searchCI && filteredUsers.length > 0"
+            v-if="searchQuery && filteredUsers.length > 0"
             class="mt-2 text-sm text-green-600 dark:text-green-400"
           >
-            ✓ {{ t('users.view.resultsCount', { n: filteredUsers.length, ci: searchCI }) }}
+            ✓ {{ t('users.view.resultsCount', { n: filteredUsers.length, ci: searchQuery }) }}
           </p>
         </div>
         <div class="flex gap-2">
-          <fwb-button v-if="searchCI" @click="clearSearch" color="alternative" size="sm">
+          <fwb-button v-if="searchQuery" @click="clearSearch" color="alternative" size="sm">
             {{ t('users.view.clearSearch') }}
           </fwb-button>
           <div class="flex items-center space-x-2">
@@ -78,6 +78,14 @@
       @resend="handleResend"
       @reactivate="handleReactivate"
       @viewDetails="openDetailsModal"
+    />
+
+    <Pagination
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total-pages="totalPages"
+      :total="totalUsers"
+      @change="load"
     />
 
     <fwb-modal v-if="showModal" @close="closeModal">
@@ -290,12 +298,14 @@
 <script setup lang="ts">
   import IconLucideSearch from '~icons/lucide/search';
   import IconLucideTrash from '~icons/lucide/trash';
-  import { onMounted, ref, computed } from 'vue';
+  import { onMounted, ref, computed, watch } from 'vue';
   import { FwbModal, FwbButton, FwbAlert } from 'flowbite-vue';
   import { useUsers } from '@/composables/useUsers';
   import UserForm from '@/components/users/UserForm.vue';
   import UsersTable from '@/components/users/UsersTable.vue';
+  import Pagination from '@/components/ui/Pagination.vue';
   import { useI18n } from 'vue-i18n';
+  import { handleApiError } from '@/api/errorHandler';
 
   const { t } = useI18n();
 
@@ -317,17 +327,35 @@
     propertyIds?: string[];
   }
 
-  const { users, roles, load, create, remove, deactivate, reactivate, resendPassword, update } =
-    useUsers();
+  const {
+    users,
+    roles,
+    loading,
+    currentPage,
+    pageSize,
+    totalPages,
+    totalUsers,
+    statusFilter,
+    load,
+    create,
+    remove,
+    deactivate,
+    reactivate,
+    resendPassword,
+    update,
+    fetchUserProfile,
+  } = useUsers();
+
+  // Initialize status filter
+  statusFilter.value = 'ALL';
+
   const showModal = ref(false);
   const isEditing = ref(false);
   const editingUser = ref<UserRecord | null>(null);
   const formKey = ref(0);
 
-  const searchCI = ref('');
+  const searchQuery = ref('');
   const searchTimeout = ref<ReturnType<typeof setTimeout>>();
-
-  const statusFilter = ref<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
 
   const toast = ref({ visible: false, message: '', type: 'success' });
 
@@ -349,28 +377,40 @@
   const filteredUsers = computed(() => {
     let filtered = users.value;
 
-    if (searchCI.value && searchCI.value.trim() !== '') {
-      const searchTerm = searchCI.value.trim().toLowerCase();
+    if (searchQuery.value && searchQuery.value.trim() !== '') {
+      const searchTerm = searchQuery.value.trim().toLowerCase();
       filtered = filtered.filter((user) => {
-        const taxId = user.taxId?.toLowerCase() || '';
-        return taxId.includes(searchTerm);
+        const fullName = user.fullName?.toLowerCase() || '';
+        const email = user.email?.toLowerCase() || '';
+        return fullName.includes(searchTerm) || email.includes(searchTerm);
       });
-    }
-
-    if (statusFilter.value !== 'ALL') {
-      filtered = filtered.filter((user) => user.status === statusFilter.value);
     }
 
     return filtered;
   });
 
+  watch(statusFilter, () => {
+    currentPage.value = 0;
+    load();
+  });
+
+  watch(pageSize, () => {
+    currentPage.value = 0;
+    load();
+  });
+
   const handleSearch = () => {
+    currentPage.value = 0;
     clearTimeout(searchTimeout.value);
-    searchTimeout.value = setTimeout(() => {}, 300);
+    searchTimeout.value = setTimeout(() => {
+      load(searchQuery.value);
+    }, 300);
   };
 
   const clearSearch = () => {
-    searchCI.value = '';
+    searchQuery.value = '';
+    currentPage.value = 0;
+    load();
   };
 
   const openCreateModal = () => {
@@ -380,20 +420,37 @@
     showModal.value = true;
   };
 
-  const openEditModal = (user: UserRecord) => {
-    editingUser.value = { ...user };
-    isEditing.value = true;
-    formKey.value++;
-    showModal.value = true;
+  const openEditModal = async (user: UserRecord) => {
+    loading.value = true;
+    try {
+      const profile = await fetchUserProfile(user.id);
+      editingUser.value = { ...user, ...profile };
+      isEditing.value = true;
+      formKey.value++;
+      showModal.value = true;
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
+    } finally {
+      loading.value = false;
+    }
   };
 
   const closeModal = () => {
     showModal.value = false;
+    editingUser.value = null;
   };
 
-  const openDetailsModal = (user: UserRecord) => {
-    selectedUser.value = user;
-    showDetailsModal.value = true;
+  const openDetailsModal = async (user: UserRecord) => {
+    loading.value = true;
+    try {
+      const profile = await fetchUserProfile(user.id);
+      selectedUser.value = { ...user, ...profile };
+      showDetailsModal.value = true;
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
+    } finally {
+      loading.value = false;
+    }
   };
 
   const closeDetailsModal = () => {
@@ -424,31 +481,13 @@
       closeModal();
       clearSearch();
     } catch (e: unknown) {
-      const err = e as {
-        response?: { data?: { detail?: string; message?: string } };
-      };
-      let errorMessage = t('common.error');
+      const appError = handleApiError(e);
+      let errorMessage = appError.message;
 
-      if (err.response?.data) {
-        const errorData = err.response.data;
-
-        if (
-          errorData.detail?.includes('An owner with CI') ||
-          errorData.detail?.includes('taxId already exists') ||
-          errorData.detail?.includes('already exists')
-        ) {
-          errorMessage = t('users.view.duplicateCiWarning');
-        } else if (
-          errorData.detail?.includes('Email already exists') ||
-          errorData.detail?.includes('email already exists') ||
-          errorData.message?.includes('Email already exists')
-        ) {
-          errorMessage = `⚠️ ${t('users.view.duplicateEmail')}`;
-        } else if (errorData.detail) {
-          errorMessage = errorData.detail;
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
-        }
+      if (errorMessage.includes('TaxId already exists')) {
+        errorMessage = t('users.view.duplicateCiWarning');
+      } else if (errorMessage.includes('Email already exists')) {
+        errorMessage = `⚠️ ${t('users.view.duplicateEmail')}`;
       }
 
       showToast(errorMessage, 'error');
@@ -466,8 +505,8 @@
     try {
       await deactivate(userToDeactivate.value.id as string);
       showToast(t('users.view.userUpdated'));
-    } catch {
-      showToast(t('common.error'), 'error');
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
     } finally {
       showDeactivateModal.value = false;
       userToDeactivate.value = null;
@@ -490,8 +529,8 @@
       await remove(userToRemove.value.id as string);
       showToast(t('users.view.userUpdated'));
       closeDetailsModal();
-    } catch {
-      showToast(t('common.error'), 'error');
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
     } finally {
       showRemoveModal.value = false;
       userToRemove.value = null;
@@ -507,8 +546,8 @@
     try {
       await reactivate(user.id as string);
       showToast(t('users.view.userUpdated'));
-    } catch {
-      showToast(t('common.error'), 'error');
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
     }
   };
 
@@ -516,8 +555,8 @@
     try {
       await resendPassword(user.email as string);
       showToast(t('users.view.resendSuccess', { email: user.email }));
-    } catch {
-      showToast(t('common.error'), 'error');
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
     }
   };
 

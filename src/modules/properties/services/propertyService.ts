@@ -69,23 +69,19 @@ export interface ConfirmImageUploadRequest {
 export const propertyService = {
   async getProperties(filters?: {
     title?: string;
+    type?: string;
+    zone?: string;
     operationType?: string;
     status?: string;
     agentId?: string;
+    page?: number;
+    pageSize?: number;
+    sortBy?: string;
+    sortOrder?: string;
   }) {
     try {
       const response = await api.get('/properties', { params: filters });
-
-      if (response.data && response.data.data && Array.isArray(response.data.data)) {
-        return response.data.data;
-      } else if (Array.isArray(response.data)) {
-        return response.data;
-      } else if (response.data && response.data.content && Array.isArray(response.data.content)) {
-        return response.data.content;
-      } else {
-        console.warn('Formato de respuesta no reconocido:', response.data);
-        return [];
-      }
+      return response.data.data || [];
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
@@ -93,45 +89,45 @@ export const propertyService = {
   },
 
   async getPropertiesByAgent(agentId: string) {
-    const response = await api.get<Property[]>(`/properties/agent/${agentId}`);
-    return response.data;
+    const response = await api.get(`/properties/agent/${agentId}`);
+    return response.data.data;
   },
 
   async getPropertiesByOwner(ownerId: string) {
-    const response = await api.get<Property[]>(`/properties/owner/${ownerId}`);
-    return response.data;
+    const response = await api.get(`/properties/owner/${ownerId}`);
+    return response.data.data;
   },
 
   async getPropertyById(id: string): Promise<Property> {
-    const response = await api.get<Property>(`/properties/${id}`);
-    return response.data;
+    const response = await api.get(`/properties/${id}`);
+    return response.data.data;
   },
 
   async createProperty(payload: PropertyFormPayload) {
-    const response = await api.post<Property>('/properties', payload);
-    return response.data;
+    const response = await api.post('/properties', payload);
+    return response.data.data;
   },
 
   async updatePrice(propertyId: string, newPrice: number) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/price`, { newPrice });
-    return response.data;
+    const response = await api.patch(`/properties/${propertyId}/price`, { newPrice });
+    return response.data.data;
   },
 
   async assignAgent(propertyId: string, payload: AssignAgentPayload) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/assign-agent`, payload);
-    return response.data;
+    const response = await api.patch(`/properties/${propertyId}/assign-agent`, payload);
+    return response.data.data;
   },
 
   async assignOwner(propertyId: string, payload: { ownerId: string }) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/assign-owner`, payload);
-    return response.data;
+    const response = await api.patch(`/properties/${propertyId}/assign-owner`, payload);
+    return response.data.data;
   },
 
   async updateOperationType(propertyId: string, operationType: OperationType) {
-    const response = await api.patch<Property>(`/properties/${propertyId}/operation-type`, {
+    const response = await api.patch(`/properties/${propertyId}/operation-type`, {
       operationType,
     });
-    return response.data;
+    return response.data.data;
   },
 
   async deleteProperty(propertyId: string): Promise<void> {
@@ -147,7 +143,7 @@ export const propertyService = {
       fileSize: file.size,
       mimeType: file.type,
     });
-    return response.data;
+    return response.data.data;
   },
 
   async confirmImageUpload(
@@ -155,12 +151,12 @@ export const propertyService = {
     payload: ConfirmImageUploadRequest
   ): Promise<Property> {
     const response = await api.post(`/properties/${propertyId}/images/confirm`, payload);
-    return response.data;
+    return response.data.data;
   },
 
   async getPropertyImages(propertyId: string): Promise<ImageResponse[]> {
     const response = await api.get(`/properties/${propertyId}/images`);
-    return response.data;
+    return response.data.data;
   },
 
   async deleteImage(propertyId: string, imageId: string): Promise<void> {
@@ -169,7 +165,7 @@ export const propertyService = {
 
   async reorderImages(propertyId: string, orderedImageIds: string[]): Promise<ImageResponse[]> {
     const response = await api.post(`/properties/${propertyId}/images/reorder`, orderedImageIds);
-    return response.data;
+    return response.data.data;
   },
 
   async generateDocumentUploadUrl(request: GenerateUploadUrlRequest): Promise<{
@@ -179,19 +175,19 @@ export const propertyService = {
     expiresInSeconds: string;
   }> {
     const response = await api.post('/documents/upload-url', request);
-    return response.data;
+    return response.data.data;
   },
 
   async updateStatus(id: string, status: string): Promise<Property> {
-    const response = await api.patch<Property>(`/properties/${id}/status`, {
+    const response = await api.patch(`/properties/${id}/status`, {
       status,
     });
-    return response.data;
+    return response.data.data;
   },
 
   async getStatusHistory(id: string): Promise<Record<string, unknown>[]> {
     const response = await api.get(`/properties/${id}/status-history`);
-    return response.data;
+    return response.data.data;
   },
 
   async confirmDocumentUpload(
@@ -210,12 +206,12 @@ export const propertyService = {
       fileSize,
       mimeType,
     });
-    return response.data;
+    return response.data.data;
   },
 
   async getPropertyDocuments(propertyId: string): Promise<DocumentResponse[]> {
     const response = await api.get(`/documents/property/${propertyId}`);
-    return response.data;
+    return response.data.data;
   },
 
   async updateDocumentPermissions(
@@ -226,28 +222,28 @@ export const propertyService = {
       documentId,
       accessPolicy,
     });
-    return response.data;
+    return response.data.data;
   },
 
   async refreshDownloadUrl(
     documentId: string
   ): Promise<{ temporaryDownloadUrl: string; expiresInSeconds: string }> {
     const response = await api.post(`/documents/${documentId}/refresh-url`);
-    return response.data;
+    return response.data.data;
   },
 
   async deleteDocument(documentId: string): Promise<void> {
     await api.delete(`/documents/${documentId}`);
   },
 
-  async updateProperty(propertyId: string, payload: Record<string, unknown>) {
+  async updateProperty(propertyId: string, payload: Partial<PropertyFormPayload>) {
     const response = await api.put(`/properties/${propertyId}`, payload);
-    return response.data;
+    return response.data.data;
   },
 
-  async updatePropertyAsAgent(propertyId: string, payload: Record<string, unknown>) {
+  async updatePropertyAsAgent(propertyId: string, payload: Partial<PropertyFormPayload>) {
     const response = await api.patch(`/properties/${propertyId}/agent-update`, payload);
-    return response.data;
+    return response.data.data;
   },
 
   async uploadExclusivityContract(propertyId: string, file: File): Promise<DocumentResponse> {

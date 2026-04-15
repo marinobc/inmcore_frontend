@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { userService } from '@/services/userService';
+import type { User } from '@/types/user';
 import i18n from '@/locales/i18n';
 
 const { t } = i18n.global;
@@ -50,9 +51,10 @@ export function useEmailValidation() {
     emailChecking.value = true;
 
     try {
-      const users = await userService.getUsers();
+      const res = await userService.getUsers(0, 1000);
+      const users: User[] = res.data || [];
       const emailExists = users.some(
-        (user: Record<string, unknown>) =>
+        (user) =>
           String(user.email || '').toLowerCase() === trimmedEmail &&
           (!currentUserId || user.id !== currentUserId)
       );

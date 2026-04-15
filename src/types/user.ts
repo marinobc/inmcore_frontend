@@ -17,6 +17,9 @@ export type User = {
   taxId?: string;
   preferredContactMethod?: string;
   budget?: string;
+  assignedAgentId?: string;
+  preferredZone?: string;
+  preferredPropertyType?: string;
 };
 
 export type UserFormPayload = {

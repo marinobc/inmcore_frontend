@@ -20,7 +20,7 @@ export async function getCalendar(
   if (agentId) params.append('agentId', agentId);
   if (propertyId) params.append('propertyId', propertyId);
 
-  const response = await api.get(`/api/calendar?${params}`, {
+  const response = await api.get(`/calendar?${params}`, {
     headers: myAgentId ? { 'X-Agent-Id': myAgentId } : {},
   });
   return response.data.data;
@@ -32,7 +32,7 @@ export async function checkConflict(
   endTime: string
 ): Promise<ConflictResponse> {
   const params = new URLSearchParams({ propertyId, startTime, endTime });
-  const response = await api.get(`/api/visits/conflict-check?${params}`);
+  const response = await api.get(`/visits/conflict-check?${params}`);
   return response.data.data;
 }
 
@@ -40,7 +40,7 @@ export async function createVisit(
   data: CreateVisitRequest,
   agentId: string
 ): Promise<CalendarEventResponse> {
-  const response = await api.post('/api/visits', data, {
+  const response = await api.post('/visits', data, {
     headers: { 'X-Agent-Id': agentId },
   });
   return response.data.data;
@@ -48,7 +48,7 @@ export async function createVisit(
 
 export async function getDayAgenda(agentId: string, day: string): Promise<CalendarEventResponse[]> {
   const params = new URLSearchParams({ agentId, day });
-  const response = await api.get(`/api/visits/agenda?${params}`, {
+  const response = await api.get(`/visits/agenda?${params}`, {
     headers: { 'X-Agent-Id': agentId },
   });
   return response.data.data;
@@ -59,7 +59,7 @@ export async function cancelVisit(
   agentId: string
 ): Promise<CalendarEventResponse> {
   const response = await api.patch(
-    `/api/visits/${visitId}/cancel`,
+    `/visits/${visitId}/cancel`,
     {},
     {
       headers: { 'X-Agent-Id': agentId },

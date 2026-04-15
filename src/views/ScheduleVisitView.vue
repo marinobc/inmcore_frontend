@@ -47,7 +47,7 @@
                     : t('scheduleVisit.searchProperty')
                 "
                 :disabled="loadingList"
-                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
+                class="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 pl-10 pr-10 py-2.5 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors dark:scheme-dark"
                 :class="{
                   'border-red-400 dark:border-red-500': fieldErrors.propertyId,
                 }"

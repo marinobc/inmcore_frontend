@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-3xl font-bold dark:text-white">{{ t('agentDashboard.title') }}</h1>
-        <p class="text-gray-500 text-sm">{{ t('agentDashboard.subtitle') }}</p>
+        <p class="text-gray-500 text-sm dark:text-gray-400">{{ t('agentDashboard.subtitle') }}</p>
       </div>
       <fwb-button @click="openCreateModal" gradient="blue">
         <div class="flex items-center">
@@ -132,7 +132,13 @@
           </div>
 
           <h5 class="text-xl font-bold dark:text-white mb-1">{{ p.title }}</h5>
-          <p class="text-sm text-gray-500 mb-4">{{ p.address }}</p>
+          <div class="mb-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ p.address }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              <span class="font-semibold">{{ t('clientProperties.zoneLabel') }}</span>
+              {{ p.zone || t('common.notSpecified') }}
+            </p>
+          </div>
 
           <div class="mt-auto">
             <p class="text-2xl font-black text-blue-600">
@@ -247,6 +253,7 @@
   import { propertyService } from '@/modules/properties';
   import { useAuthStore, type UserClaims } from '@/modules/auth';
   import { apiClient as api } from '@/api';
+  import type { ApiResponse } from '@/api/types';
   import type { Property, PropertyFormPayload } from '@/types/property';
   import PropertyForm from '@/components/properties/PropertyForm.vue';
   import DocumentUpload from '@/components/properties/DocumentUpload.vue';
@@ -295,7 +302,7 @@
     try {
       const u = authStore.user as UserClaims | null;
       const agentId = u?.userId || u?.sub;
-      const response = await api.get('/properties', {
+      const response = await api.get<ApiResponse<Property[]>>('/properties', {
         params: {
           title: filterTitle.value || undefined,
           operationType: filterOpType.value || undefined,
@@ -304,8 +311,13 @@
           pageSize: pageSize.value || undefined,
         },
       });
-      myProperties.value = response.data.data || response.data;
-      totalPages.value = response.data.totalPages || 0;
+      const apiRes = response.data;
+      myProperties.value = apiRes.data || [];
+
+      const meta = apiRes.meta;
+      const total = meta?.total || 0;
+      const limit = meta?.limit || pageSize.value || 1;
+      totalPages.value = Math.ceil(total / limit);
     } catch (e) {
       console.error(t('common.error') + ' ' + t('nav.myInmuebles').toLowerCase() + ':', e);
     } finally {
@@ -375,6 +387,7 @@
         const updatePayload = {
           title: (data as Record<string, unknown>).title as string,
           address: (data as Record<string, unknown>).address as string,
+          zone: (data as Record<string, unknown>).zone as string,
           type: (data as Record<string, unknown>).type as string,
           m2: (data as Record<string, unknown>).m2 as number,
           rooms: (data as Record<string, unknown>).rooms as number,

@@ -21,6 +21,16 @@
           <span class="text-red-500 text-xs">{{ errors.address }}</span>
         </template>
       </fwb-input>
+      <fwb-input
+        v-model="zoneModel"
+        :label="t('clientProperties.zoneLabel').replace(':', '')"
+        :placeholder="t('clientProperties.zoneLabel').replace(':', '')"
+        :invalid="!!errors.zone"
+      >
+        <template v-if="errors.zone" #message>
+          <span class="text-red-500 text-xs">{{ errors.zone }}</span>
+        </template>
+      </fwb-input>
 
       <div>
         <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -187,6 +197,7 @@
     initialValues: {
       title: '',
       address: '',
+      zone: '',
       price: 0,
       type: 'APARTAMENTO',
       operationType: '' as PropertyFormValues['operationType'],
@@ -200,6 +211,7 @@
 
   const [titleModel] = defineField('title');
   const [addressModel] = defineField('address');
+  const [zoneModel] = defineField('zone');
   const [priceModel] = defineField('price');
   const [typeModel] = defineField('type');
   const [operationTypeModel] = defineField('operationType');
@@ -214,7 +226,8 @@
 
   const loadOwners = async () => {
     try {
-      const users = await userService.getUsers();
+      const res = await userService.getUsers(0, 1000);
+      const users = res.data || [];
       owners.value = users.filter(
         (u: OwnerUser) => u.userType === 'OWNER' && u.status === 'ACTIVE'
       );
@@ -227,6 +240,7 @@
     const submitData: PropertyFormPayload = {
       title: values.title,
       address: values.address,
+      zone: values.zone,
       price: !isAgent.value || !props.propertyId ? values.price : 0,
       type: values.type,
       operationType: values.operationType as OperationType,
@@ -248,6 +262,7 @@
         setValues({
           title: (data.title as string) || '',
           address: (data.address as string) || '',
+          zone: (data.zone as string) || '',
           price: (data.price as number) || 0,
           type: (data.type as string) || 'APARTAMENTO',
           operationType: (data.operationType as string) || '',

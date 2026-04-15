@@ -3,55 +3,62 @@ import type {
   ReassignmentSolicitation,
   ReassignmentRequest,
   ReassignmentResponseRequest,
-  PendingCount,
   AvailableAgent,
 } from '@/types/reassignment';
-
-const BASE = '/api';
 
 const reassignmentService = {
   async requestReassignment(
     visitId: string,
     payload: ReassignmentRequest
   ): Promise<ReassignmentSolicitation> {
-    const { data } = await api.post<ReassignmentSolicitation>(
-      `${BASE}/visits/${visitId}/reassignment`,
-      payload
-    );
-    return data;
+    const response = await api.post(`/reassignments/visits/${visitId}/reassignment`, payload);
+    return response.data.data;
   },
 
   async respondToRequest(
     requestId: string,
     payload: ReassignmentResponseRequest
   ): Promise<ReassignmentSolicitation> {
-    const { data } = await api.put<ReassignmentSolicitation>(
-      `${BASE}/reassignments/${requestId}/reply`,
-      payload
-    );
-    return data;
+    const response = await api.put(`/reassignments/${requestId}/reply`, payload);
+    return response.data.data;
   },
 
   async getReceivedRequests(): Promise<ReassignmentSolicitation[]> {
-    const { data } = await api.get<ReassignmentSolicitation[]>(`${BASE}/reassignments/received`);
-    return data;
+    const response = await api.get(`/reassignments/received`);
+    return response.data.data;
   },
 
   async getPendingCount(): Promise<number> {
-    const { data } = await api.get<PendingCount>(`${BASE}/reassignments/pending/count`);
-    return data.pending;
+    const response = await api.get(`/reassignments/pending/count`);
+    return response.data.data.pending;
   },
 
   async getAvailableAgents(): Promise<AvailableAgent[]> {
-    const { data } = await api.get<AvailableAgent[]>('/users', {
-      params: { userType: 'EMPLOYEE' },
+    const response = await api.get('/persons', {
+      params: { type: 'EMPLOYEE', page: 0, pageSize: 100 },
     });
-    return data;
+    // Mapping from Person profile to AvailableAgent
+    interface RawPerson {
+      authUserId?: string;
+      id?: string;
+      firstName?: string;
+      lastName?: string;
+      fullName?: string;
+      email?: string;
+    }
+    const persons = (response.data.data as RawPerson[]) || [];
+    return persons.map((p: RawPerson) => ({
+      id: p.authUserId || p.id || '',
+      firstName: p.firstName || '',
+      lastName: p.lastName || '',
+      fullName: p.fullName || `${p.firstName || ''} ${p.lastName || ''}`.trim(),
+      email: p.email || '',
+    }));
   },
 
   async getSentRequests(): Promise<ReassignmentSolicitation[]> {
-    const { data } = await api.get<ReassignmentSolicitation[]>(`${BASE}/reassignments/sent`);
-    return data;
+    const response = await api.get(`/reassignments/sent`);
+    return response.data.data;
   },
 };
 

@@ -34,33 +34,44 @@ export async function getAvailableProperties(filters?: {
   if (filters?.pageSize) params.append('pageSize', String(filters.pageSize));
 
   const response = await api.get(`/properties?${params}`);
-  return response.data;
+  const apiRes = response.data;
+
+  const meta = apiRes.meta;
+  const total = meta?.total || 0;
+  const limit = meta?.limit || filters?.pageSize || 1;
+
+  return {
+    data: apiRes.data || [],
+    totalElements: total,
+    totalPages: Math.ceil(total / limit),
+    page: meta?.page || 0,
+  };
 }
 
 export async function getVisitCountForProperty(propertyId: string): Promise<number> {
-  const response = await api.get(`/api/visit-requests/count/property/${propertyId}`);
+  const response = await api.get(`/visit-requests/count/property/${propertyId}`);
   return response.data.data;
 }
 
 export async function getVisitsForProperty(propertyId: string) {
-  const response = await api.get(`/api/visits/property/${propertyId}`);
+  const response = await api.get(`/visits/property/${propertyId}`);
   return response.data.data;
 }
 
 export async function createVisitRequest(
   dto: ClientVisitRequestDTO
 ): Promise<VisitRequestResponse> {
-  const response = await api.post('/api/visit-requests', dto);
+  const response = await api.post('/visit-requests', dto);
   return response.data.data;
 }
 
 export async function getMyVisitRequests(clientId: string): Promise<VisitRequestResponse[]> {
-  const response = await api.get(`/api/visit-requests/client/${clientId}`);
+  const response = await api.get(`/visit-requests/client/${clientId}`);
   return response.data.data;
 }
 
 export async function getPendingRequestsForAgent(agentId: string): Promise<VisitRequestResponse[]> {
-  const response = await api.get(`/api/visit-requests/agent/${agentId}`);
+  const response = await api.get(`/visit-requests/agent/${agentId}`);
   return response.data.data;
 }
 
@@ -69,7 +80,7 @@ export async function acceptVisitRequest(
   agentId: string
 ): Promise<VisitRequestResponse> {
   const response = await api.patch(
-    `/api/visit-requests/${requestId}/accept`,
+    `/visit-requests/${requestId}/accept`,
     {},
     { headers: { 'X-Agent-Id': agentId } }
   );
@@ -81,7 +92,7 @@ export async function rejectVisitRequest(
   agentId: string
 ): Promise<VisitRequestResponse> {
   const response = await api.patch(
-    `/api/visit-requests/${requestId}/reject`,
+    `/visit-requests/${requestId}/reject`,
     {},
     { headers: { 'X-Agent-Id': agentId } }
   );

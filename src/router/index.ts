@@ -15,7 +15,6 @@ import OwnerDashboard from '@/views/OwnerDashboard.vue';
 import ClientDashboard from '@/views/ClientDashboard.vue';
 import ReassignmentInboxView from '@/views/ReassignmentInboxView.vue';
 import OperationDetailView from '@/views/OperationDetailView.vue';
-import PropertyAuditView from '@/views/PropertyAuditView.vue';
 import SentRequestsView from '@/views/SentRequestsView.vue';
 
 const routes = [
@@ -113,8 +112,8 @@ const routes = [
       },
       {
         path: 'admin/audit',
-        name: 'AuditLogs',
-        component: () => import('@/views/AuditLogsView.vue'),
+        name: 'Audit',
+        component: () => import('@/views/AuditView.vue'),
         meta: { requiresAuth: true, role: 'ADMIN' },
       },
       {
@@ -128,12 +127,6 @@ const routes = [
         name: 'OperationDetail',
         component: OperationDetailView,
         meta: { role: 'AGENT' },
-      },
-      {
-        path: 'admin/properties/audit',
-        name: 'PropertyAudit',
-        component: PropertyAuditView,
-        meta: { requiresAuth: true, role: 'ADMIN' },
       },
       {
         path: '/reassignments/sent',

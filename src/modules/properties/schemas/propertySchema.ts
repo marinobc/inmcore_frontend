@@ -11,6 +11,7 @@ export const propertySchema = z.object({
     .min(5, i18n.global.t('validation.titleMin5'))
     .max(100, i18n.global.t('validation.titleMax100')),
   address: z.string().min(1, i18n.global.t('validation.addressRequired')),
+  zone: z.string().min(1, i18n.global.t('validation.zoneRequired')),
   price: z.number().min(0.01, i18n.global.t('validation.priceMin')),
   type: z.string().min(1, i18n.global.t('validation.propertyTypeRequired')),
   operationType: z.string().refine((val) => ['VENTA', 'ALQUILER', 'ANTICRETICO'].includes(val), {

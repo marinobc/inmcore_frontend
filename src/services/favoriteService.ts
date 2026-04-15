@@ -8,21 +8,21 @@ interface PropertyHistory {
 
 export const favoriteService = {
   async getFavorites(): Promise<string[]> {
-    const res = await api.get('/api/favoritos');
-    return res.data;
+    const res = await api.get('/favoritos');
+    return res.data.data;
   },
   async addFavorite(propertyId: string) {
-    await api.post('/api/favoritos', { propertyId });
+    await api.post('/favoritos', { propertyId });
   },
   async removeFavorite(propertyId: string) {
-    await api.delete(`/api/favoritos/${propertyId}`);
+    await api.delete(`/favoritos/${propertyId}`);
   },
   async getHistory(limit = 20): Promise<PropertyHistory[]> {
-    const res = await api.get('/api/favoritos/history', { params: { limit } });
-    return res.data;
+    const res = await api.get('/favoritos/history', { params: { limit } });
+    return res.data.data;
   },
   async getPropertyHistory(propertyId: string): Promise<PropertyHistory[]> {
-    const res = await api.get(`/api/favoritos/history/${propertyId}`);
-    return res.data;
+    const res = await api.get(`/favoritos/history/${propertyId}`);
+    return res.data.data;
   },
 };

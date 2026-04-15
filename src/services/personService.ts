@@ -23,7 +23,7 @@ export const personService = {
   async getPersonByAuthUserId(authUserId: string): Promise<PersonProfile> {
     try {
       const response = await api.get(`/persons/by-auth/${authUserId}`);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Error fetching person by authUserId:', error);
       throw error;
@@ -34,8 +34,8 @@ export const personService = {
     try {
       console.log('Creating person with payload:', payload);
       const response = await api.post('/persons', payload);
-      console.log('Person created successfully:', response.data);
-      return response.data;
+      console.log('Person created successfully:', response.data.data);
+      return response.data.data;
     } catch (error) {
       console.error('Error creating person:', error);
       throw error;
@@ -48,7 +48,7 @@ export const personService = {
   ): Promise<PersonProfile> {
     try {
       const response = await api.put(`/persons/by-auth/${authUserId}`, payload);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.error('Error updating person by authUserId:', error);
       throw error;
@@ -66,16 +66,16 @@ export const personService = {
 
   async getClientsForAgent() {
     const response = await api.get('/persons/agents/clients');
-    return response.data;
+    return response.data.data;
   },
 
   async createClientForAgent(payload: ClientPayload) {
     const response = await api.post('/persons/agents/clients', payload);
-    return response.data;
+    return response.data.data;
   },
 
   async updateClientForAgent(clientId: string, payload: ClientPayload) {
     const response = await api.put(`/persons/agents/clients/${clientId}`, payload);
-    return response.data;
+    return response.data.data;
   },
 };

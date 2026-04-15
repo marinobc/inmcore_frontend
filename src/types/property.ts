@@ -24,6 +24,7 @@ export interface Property {
   id: string;
   title: string;
   address: string;
+  zone: string;
   price: number;
   type: string;
   operationType: OperationType;
@@ -46,6 +47,7 @@ export interface Property {
 export interface PropertyFormPayload {
   title: string;
   address: string;
+  zone: string;
   price: number;
   type: string;
   operationType: OperationType;

@@ -29,8 +29,6 @@
       <fwb-table-head>
         <fwb-table-head-cell>{{ t('users.table.name') }}</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t('users.table.email') }}</fwb-table-head-cell>
-        <fwb-table-head-cell>{{ t('users.table.phone') }}</fwb-table-head-cell>
-        <fwb-table-head-cell>{{ t('users.table.ciNit') }}</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t('users.table.role') }}</fwb-table-head-cell>
         <fwb-table-head-cell>{{ t('users.table.status') }}</fwb-table-head-cell>
         <fwb-table-head-cell>
@@ -47,17 +45,6 @@
           </fwb-table-cell>
           <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             {{ u.email }}
-          </fwb-table-cell>
-          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
-            {{ u.phone || t('common.notAvailable') }}
-          </fwb-table-cell>
-          <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
-            <span class="font-mono text-sm">
-              {{ u.taxId || t('common.notAvailable') }}
-            </span>
-            <span v-if="u.userType === 'OWNER' && u.taxId" class="ml-1 text-xs text-blue-500">
-              {{ t('common.ciLabel') }}
-            </span>
           </fwb-table-cell>
           <fwb-table-cell :class="{ 'opacity-60': u.status === 'INACTIVE' }">
             <span

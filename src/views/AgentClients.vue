@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <h1 class="text-3xl font-bold dark:text-white">{{ t('agentClients.title') }}</h1>
-        <p class="text-gray-500 text-sm">{{ t('agentClients.subtitle') }}</p>
+        <p class="text-gray-500 text-sm dark:text-gray-400">{{ t('agentClients.subtitle') }}</p>
       </div>
       <div class="flex items-center space-x-3">
         <fwb-badge type="indigo">
@@ -45,7 +45,7 @@
       <fwb-card
         v-for="c in filteredClients"
         :key="c.id"
-        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative"
+        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative dark:bg-gray-800"
       >
         <button
           @click="openDetails(c)"
@@ -74,7 +74,7 @@
           <h5 class="text-xl font-bold text-gray-900 dark:text-white mb-1">
             {{ c.fullName || `${c.firstName} ${c.lastName}` }}
           </h5>
-          <p class="text-sm text-gray-500 mb-4 truncate">{{ c.email }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 truncate">{{ c.email }}</p>
 
           <div class="flex justify-between items-end mt-auto">
             <div>
@@ -109,11 +109,20 @@
       </fwb-card>
     </div>
 
+    <Pagination
+      v-if="!loading && totalPages > 1"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total-pages="totalPages"
+      :total="totalClients"
+      @change="loadClients"
+    />
+
     <div
       v-if="!loading && filteredClients.length === 0"
-      class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed"
+      class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <p class="text-gray-500">{{ t('agentClients.emptyText') }}</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ t('agentClients.emptyText') }}</p>
     </div>
 
     <client-details-modal
@@ -125,7 +134,7 @@
 
     <fwb-modal v-if="showModal" @close="closeModal">
       <template #header>
-        <div class="text-lg font-semibold">
+        <div class="text-lg font-semibold dark:text-white">
           {{ isEditing ? t('agentClients.editTitle') : t('agentClients.createTitle') }}
         </div>
       </template>
@@ -148,31 +157,23 @@
   import IconLucidePlus from '~icons/lucide/plus';
   import IconLucideSearch from '~icons/lucide/search';
   import IconLucideClock from '~icons/lucide/clock';
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { FwbButton, FwbBadge, FwbModal, FwbCard } from 'flowbite-vue';
   import { personService } from '@/services/personService';
   import { userService } from '@/services/userService';
   import { useAuthStore, type UserClaims } from '@/modules/auth';
   import { useI18n } from 'vue-i18n';
+  import { handleApiError } from '@/api/errorHandler';
+  import type { User } from '@/types/user';
 
   import UserForm from '@/components/users/UserForm.vue';
   import ClientDetailsModal from '@/components/users/ClientDetailsModal.vue';
+  import Pagination from '@/components/ui/Pagination.vue';
 
   const { t } = useI18n();
 
-  interface Client {
-    id: string;
-    fullName?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    budget?: number;
-    preferredPropertyType?: string;
-    preferredZone?: string;
-  }
-
   const authStore = useAuthStore();
-  const clients = ref<Client[]>([]);
+  const clients = ref<User[]>([]);
   const loading = ref(false);
   const showModal = ref(false);
   const showDetailsModal = ref(false);
@@ -181,6 +182,11 @@
   const selectedClient = ref<Record<string, unknown> | null>(null);
   const formKey = ref(0);
   const searchName = ref('');
+
+  const currentPage = ref(0);
+  const pageSize = ref(10);
+  const totalPages = ref(0);
+  const totalClients = ref(0);
 
   const filteredClients = computed(() => {
     if (!searchName.value.trim()) return clients.value;
@@ -193,7 +199,30 @@
   const loadClients = async () => {
     loading.value = true;
     try {
-      clients.value = await personService.getClientsForAgent();
+      const res = await userService.getUsers(currentPage.value, pageSize.value);
+      const baseUsers = res.data || [];
+      const u = authStore.user as UserClaims | null;
+      const agentId = u?.sub || u?.userId;
+
+      // Filter for clients assigned to this agent
+      const filteredBase = baseUsers.filter((u: User) => {
+        return u.userType === 'INTERESTED_CLIENT' && (!agentId || u.assignedAgentId === agentId);
+      });
+
+      // Lazy load profile details
+      clients.value = await Promise.all(
+        filteredBase.map(async (u: User) => {
+          try {
+            const profile = await personService.getPersonByAuthUserId(u.id);
+            return { ...u, ...profile };
+          } catch {
+            return u;
+          }
+        })
+      );
+
+      totalClients.value = res.meta?.total || 0;
+      totalPages.value = Math.ceil(totalClients.value / pageSize.value);
     } catch (e) {
       console.error('Error loading clients:', e);
     } finally {
@@ -201,7 +230,12 @@
     }
   };
 
-  const openEditModal = (client: Client) => {
+  watch(pageSize, () => {
+    currentPage.value = 0;
+    loadClients();
+  });
+
+  const openEditModal = (client: User) => {
     editingClient.value = { ...client } as Record<string, unknown>;
     isEditing.value = true;
     formKey.value++;
@@ -215,7 +249,7 @@
     showModal.value = true;
   };
 
-  const openDetails = (client: Client) => {
+  const openDetails = (client: User) => {
     selectedClient.value = client as unknown as Record<string, unknown>;
     showDetailsModal.value = true;
   };
@@ -246,8 +280,8 @@
       }
       await loadClients();
       closeModal();
-    } catch {
-      alert(t('agentClients.processError'));
+    } catch (e) {
+      console.error(handleApiError(e).message);
     }
   };
 

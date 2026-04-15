@@ -1,7 +1,7 @@
 import { apiClient as api } from '@/api';
 import type { Receipt, ReceiptUploadPayload } from '@/types/receipt';
 
-const BASE = '/api/operations';
+const BASE = '/operations';
 
 const receiptService = {
   async attachReceipt(
@@ -17,7 +17,7 @@ const receiptService = {
     formData.append('paymentDate', payload.paymentDate);
     formData.append('concept', payload.concept);
 
-    const { data } = await api.post<Receipt>(`${BASE}/${operationId}/receipts`, formData, {
+    const response = await api.post(`${BASE}/${operationId}/receipts`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: onProgress
         ? (event) => {
@@ -26,12 +26,12 @@ const receiptService = {
           }
         : undefined,
     });
-    return data;
+    return response.data.data;
   },
 
   async listReceipts(operationId: string): Promise<Receipt[]> {
-    const { data } = await api.get<Receipt[]>(`${BASE}/${operationId}/receipts`);
-    return data;
+    const response = await api.get(`${BASE}/${operationId}/receipts`);
+    return response.data.data;
   },
 
   async deleteReceipt(operationId: string, receiptId: string): Promise<void> {

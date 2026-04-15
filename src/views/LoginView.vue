@@ -56,8 +56,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { ref, onMounted } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
   import { useForm } from 'vee-validate';
   import { toTypedSchema } from '@vee-validate/zod';
   import { useAuthStore, type UserClaims, authService } from '@/modules/auth';
@@ -67,14 +67,25 @@
   import { FwbModal, FwbInput, FwbButton } from 'flowbite-vue';
   import type { LoginFormValues } from '@/modules/auth/schemas/authSchema';
   import { useI18n } from 'vue-i18n';
+  import { handleApiError } from '@/api/errorHandler';
 
   const router = useRouter();
+  const route = useRoute();
   const authStore = useAuthStore();
   const { login } = authStore;
   const { t } = useI18n();
 
   const showChangePassword = ref(false);
   const errorMessage = ref('');
+
+  onMounted(() => {
+    if (route.query.error === 'connection') {
+      errorMessage.value = (route.query.msg as string) || t('common.connectionError');
+      setTimeout(() => {
+        errorMessage.value = '';
+      }, 8000);
+    }
+  });
 
   const {
     defineField,
@@ -118,19 +129,12 @@
       }
     } catch (error: unknown) {
       console.error('Login error:', error);
+      const appError = handleApiError(error);
 
-      const err = error as {
-        response?: { status?: number; data?: { detail?: string } };
-        message?: string;
-      };
-      if (err.response?.status === 401) {
+      if (appError.status === 401) {
         errorMessage.value = t('auth.invalidCredentials');
-      } else if (err.response?.data?.detail) {
-        errorMessage.value = err.response.data.detail;
-      } else if (err.message) {
-        errorMessage.value = err.message;
       } else {
-        errorMessage.value = t('auth.loginError');
+        errorMessage.value = appError.message;
       }
 
       setTimeout(() => {

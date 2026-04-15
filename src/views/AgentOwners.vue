@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <h1 class="text-3xl font-bold dark:text-white">{{ t('agentOwners.title') }}</h1>
-        <p class="text-gray-500 text-sm">{{ t('agentOwners.subtitle') }}</p>
+        <p class="text-gray-500 text-sm dark:text-gray-400">{{ t('agentOwners.subtitle') }}</p>
       </div>
       <div class="flex items-center space-x-3">
         <fwb-badge type="indigo">
@@ -45,7 +45,7 @@
       <fwb-card
         v-for="o in filteredOwners"
         :key="o.id"
-        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative"
+        class="flex flex-col h-full overflow-hidden border-gray-200 dark:border-gray-700 relative dark:bg-gray-800"
       >
         <div
           class="h-32 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center relative"
@@ -64,7 +64,7 @@
           <h5 class="text-xl font-bold text-gray-900 dark:text-white mb-1">
             {{ o.fullName || `${o.firstName} ${o.lastName}` }}
           </h5>
-          <p class="text-sm text-gray-500 mb-2 truncate">{{ o.email }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">{{ o.email }}</p>
           <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
             CI/NIT: {{ o.taxId || t('common.notAvailable') }}
           </p>
@@ -108,11 +108,20 @@
       </fwb-card>
     </div>
 
+    <Pagination
+      v-if="!loading && totalPages > 1"
+      v-model:current-page="currentPage"
+      v-model:page-size="pageSize"
+      :total-pages="totalPages"
+      :total="totalOwners"
+      @change="loadOwners"
+    />
+
     <div
       v-if="!loading && filteredOwners.length === 0"
-      class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed"
+      class="text-center py-20 bg-gray-50 dark:bg-gray-800 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700"
     >
-      <p class="text-gray-500">{{ t('agentOwners.emptyText') }}</p>
+      <p class="text-gray-500 dark:text-gray-400">{{ t('agentOwners.emptyText') }}</p>
     </div>
 
     <fwb-modal v-if="showModal" @close="closeModal">
@@ -148,37 +157,33 @@
 <script setup lang="ts">
   import IconLucidePlus from '~icons/lucide/plus';
   import IconLucideSearch from '~icons/lucide/search';
-  import { ref, computed, onMounted } from 'vue';
+  import { ref, computed, onMounted, watch } from 'vue';
   import { FwbButton, FwbBadge, FwbModal, FwbCard } from 'flowbite-vue';
   import { userService } from '@/services/userService';
   import { useAuthStore, type UserClaims } from '@/modules/auth';
   import { personService } from '@/services/personService';
   import UserForm from '@/components/users/UserForm.vue';
+  import Pagination from '@/components/ui/Pagination.vue';
   import { useI18n } from 'vue-i18n';
+  import { handleApiError } from '@/api/errorHandler';
+  import type { User } from '@/types/user';
 
   const { t } = useI18n();
 
-  interface Owner {
-    id: string;
-    fullName?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    taxId?: string;
-    phone?: string;
-    status?: string;
-    userType: string;
-    assignedAgentId?: string;
-  }
-
   const authStore = useAuthStore();
-  const owners = ref<Owner[]>([]);
+  const owners = ref<User[]>([]);
   const loading = ref(false);
   const showModal = ref(false);
   const isEditing = ref(false);
   const editingOwner = ref<Record<string, unknown> | null>(null);
   const formKey = ref(0);
   const searchName = ref('');
+
+  const currentPage = ref(0);
+  const pageSize = ref(10);
+  const totalPages = ref(0);
+  const totalOwners = ref(0);
+
   const toast = ref({
     visible: false,
     message: '',
@@ -205,34 +210,40 @@
   const loadOwners = async () => {
     loading.value = true;
     try {
-      const baseUsers = await userService.getUsers();
+      const res = await userService.getUsers(currentPage.value, pageSize.value);
+      const baseUsers = res.data || [];
       const u = authStore.user as UserClaims | null;
       const agentId = u?.sub || u?.userId;
 
-      const filteredBase = (baseUsers || []).filter((u: Owner) => {
-        if (u.userType !== 'OWNER') return false;
-        if (!agentId) return true;
-        return !u.assignedAgentId || u.assignedAgentId === agentId;
+      const filteredBase = baseUsers.filter((u: User) => {
+        return u.userType === 'OWNER' && (!agentId || u.assignedAgentId === agentId);
       });
 
       owners.value = await Promise.all(
-        filteredBase.map(async (u: Owner) => {
+        filteredBase.map(async (u: User) => {
           try {
             const profile = await personService.getPersonByAuthUserId(u.id);
             return { ...u, ...profile };
           } catch {
-            console.warn(`Sin perfil detallado para: ${u.id}`);
             return u;
           }
         })
       );
+
+      totalOwners.value = res.meta?.total || 0;
+      totalPages.value = Math.ceil(totalOwners.value / pageSize.value);
     } catch (e) {
       console.error('Error loading owners:', e);
-      showToast(t('agentOwners.loadError'), 'error');
+      showToast(handleApiError(e).message, 'error');
     } finally {
       loading.value = false;
     }
   };
+
+  watch(pageSize, () => {
+    currentPage.value = 0;
+    loadOwners();
+  });
 
   const openCreateModal = () => {
     editingOwner.value = {
@@ -243,7 +254,7 @@
     showModal.value = true;
   };
 
-  const openEditModal = (owner: Owner) => {
+  const openEditModal = (owner: User) => {
     editingOwner.value = { ...owner } as Record<string, unknown>;
     isEditing.value = true;
     formKey.value++;
@@ -293,8 +304,8 @@
 
       await loadOwners();
       closeModal();
-    } catch {
-      showToast(t('agentOwners.processError'), 'error');
+    } catch (e) {
+      showToast(handleApiError(e).message, 'error');
     }
   };
 
