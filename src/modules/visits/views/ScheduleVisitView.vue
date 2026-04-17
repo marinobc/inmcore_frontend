@@ -153,7 +153,7 @@
   import IconLucideCalendar from '~icons/lucide/calendar';
 
   import { useScheduleVisit } from '../composables/useScheduleVisit';
-  import { createVisit } from '../services/calendarService';
+  import { createVisit, isoToDatetimeLocal } from '../services/calendarService';
   import { useToast } from '@/shared/composables/useToast';
   import { handleApiError } from '@/core/api/errorHandler';
   import { getLocaleString } from '@/core/locales/i18n';
@@ -199,8 +199,8 @@
   };
 
   const applySuggestion = (start?: string, end?: string) => {
-    if (start) startTimeLocal.value = new Date(start).toISOString().slice(0, 16);
-    if (end) endTimeLocal.value = new Date(end).toISOString().slice(0, 16);
+    if (start) startTimeLocal.value = isoToDatetimeLocal(start);
+    if (end) endTimeLocal.value = isoToDatetimeLocal(end);
     validateConflict();
   };
 

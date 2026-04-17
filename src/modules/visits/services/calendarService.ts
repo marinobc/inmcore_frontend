@@ -96,9 +96,14 @@ export function formatEventTime(iso: string): string {
 }
 
 export function isoToDatetimeLocal(iso: string): string {
-  return iso.slice(0, 16);
+  if (!iso) return '';
+  const isoZ = iso.endsWith('Z') ? iso : iso + 'Z';
+  const d = new Date(isoZ);
+  const offset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - offset).toISOString().slice(0, 16);
 }
 
 export function datetimeLocalToIso(val: string): string {
+  if (!val) return '';
   return new Date(val).toISOString();
 }
