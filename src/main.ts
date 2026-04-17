@@ -2,9 +2,9 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import './style.css';
 import App from './App.vue';
-import { router } from './router';
+import { router } from './core/router';
 import 'flowbite';
-import i18n from '@/locales/i18n';
+import i18n from '@/core/locales/i18n';
 
 const app = createApp(App);
 const pinia = createPinia();

@@ -11,6 +11,10 @@
 @plugin "tailwind-scrollbar";
 @source "../node_modules/flowbite-vue";
 
+html {
+  scrollbar-gutter: stable;
+}
+
 html,
 body,
 #app {
@@ -21,3 +25,27 @@ body,
 body {
   min-height: 100vh;
 }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* gray-300 */
+  border-radius: 20px;
+}
+
+.dark ::webkit-scrollbar-thumb {
+  background: #475569; /* gray-600 */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; /* gray-400 */
+}
+

@@ -1,5 +1,5 @@
-import { apiClient as api } from '@/api';
-import type { LoginPayload } from '@/types/user';
+import { apiClient as api } from '@/core/api';
+import type { LoginPayload } from '@/modules/users/types/user';
 
 export const authService = {
   async login(payload: LoginPayload) {

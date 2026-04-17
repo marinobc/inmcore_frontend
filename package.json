@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .ts,.vue",
     "lint:fix": "eslint . --ext .ts,.vue --fix",
     "format": "prettier --write src/",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json"
   },
   "dependencies": {
     "@vee-validate/zod": "^4.15.1",
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@iconify-json/logos": "^1.2.11",
     "@iconify/json": "^2.2.461",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/vite": "^4.2.1",

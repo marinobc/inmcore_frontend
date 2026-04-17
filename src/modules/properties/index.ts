@@ -5,18 +5,11 @@
  */
 
 export { propertyService } from './services/propertyService';
-export type {
-  DocumentResponse,
-  GenerateUploadUrlRequest,
-  ImageResponse,
-  GenerateImageUploadUrlRequest,
-  ConfirmImageUploadRequest,
-} from './services/propertyService';
+export { documentService } from './services/documentService';
+export { imageService } from './services/imageService';
 
-export { propertySchema, propertyFiltersSchema, visitSchema, visitRequestSchema } from './schemas';
-export type {
-  PropertyFormValues,
-  PropertyFiltersValues,
-  VisitFormValues,
-  VisitRequestFormValues,
-} from './schemas';
+export type { DocumentResponse, GenerateUploadUrlRequest } from './services/documentService';
+export type { ImageResponse, ConfirmImageUploadRequest } from './services/imageService';
+
+export { propertySchema, propertyFiltersSchema } from './schemas';
+export type { PropertyFormValues, PropertyFiltersValues } from './schemas';

@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { authService } from '@/modules/auth/services';
-import { parseJwt } from '@/api';
+import { parseJwt } from '@/core/api';
+import i18n from '@/core/locales/i18n';
 
 export interface UserClaims {
   sub?: string;
@@ -27,6 +28,7 @@ export interface ChangePasswordPayload {
 }
 
 export const useAuthStore = defineStore('auth', () => {
+  const { t } = i18n.global;
   const token = ref<string | null>(localStorage.getItem('access_token'));
   const user = ref<UserClaims | null>(null);
   const loading = ref(false);
@@ -37,6 +39,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const isAuthenticated = computed(() => !!token.value);
+
+  const currentUserId = computed(
+    () => user.value?.sub || user.value?.userId || user.value?.id || null
+  );
 
   const userRole = computed(() => user.value?.role || null);
 
@@ -64,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      error.value = errorObj.response?.data?.message || errorObj.message || 'Error occurred';
+      error.value = errorObj.response?.data?.message || errorObj.message || t('common.error');
       throw err;
     } finally {
       loading.value = false;
@@ -88,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
         response?: { data?: { message?: string } };
         message?: string;
       };
-      error.value = errorObj.response?.data?.message || errorObj.message || 'Error occurred';
+      error.value = errorObj.response?.data?.message || errorObj.message || t('common.error');
       throw err;
     } finally {
       loading.value = false;
@@ -110,6 +116,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     userRole,
+    currentUserId,
     mustChangePassword,
     login,
     logout,

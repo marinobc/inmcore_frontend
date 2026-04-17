@@ -14,7 +14,7 @@ export default [
         parser: tsParser,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.app.json',
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
         tsconfigRootDir: import.meta.dirname,
         extraFileExtensions: ['.vue'],
       },
@@ -51,7 +51,7 @@ export default [
           printWidth: 100,
           tabWidth: 2,
           htmlWhitespaceSensitivity: 'ignore',
-          vueIndentScriptAndStyle: true 
+          vueIndentScriptAndStyle: true,
         },
       ],
     },
